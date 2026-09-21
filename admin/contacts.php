@@ -45,137 +45,187 @@ $inquiries = $stmt->fetchAll();
 $pdo->query("UPDATE contact_inquiries SET is_read = 1 WHERE is_read = 0");
 ?>
 
-<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-    <div>
-        <h4 class="fw-bold text-dark mb-1">Contact Inquiries & Leads</h4>
-        <p class="text-muted small mb-0">Total <?= count($inquiries) ?> inquiries received from website contact form</p>
-    </div>
-</div>
+<div class="space-y-4">
 
-<!-- FILTER & SEARCH -->
-<div class="card border-0 shadow-sm rounded-3 mb-4">
-    <div class="card-body p-3">
-        <form method="GET" action="contacts.php" class="row g-2 align-items-center">
-            <div class="col-md-6">
-                <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-search text-muted"></i></span>
-                    <input type="text" name="search" class="form-control border-start-0" placeholder="Search by name, email, message..." value="<?= htmlspecialchars($search) ?>">
-                </div>
+    <!-- PAGE HEADER -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-md border border-slate-200">
+        <div>
+            <div class="flex items-center gap-2">
+                <h2 class="text-base font-bold text-[#0e1e2e]">Contact Inquiries &amp; Leads</h2>
+                <span class="px-2 py-0.5 text-[11px] font-semibold bg-slate-100 text-slate-600 rounded border border-slate-200">
+                    <?= count($inquiries) ?> Total Inquiries
+                </span>
             </div>
-            <div class="col-md-3">
-                <select name="status" class="form-select">
+            <p class="text-xs text-slate-400 mt-0.5">Manage messages and student inquiries sent through the public contact form</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <a href="../contact.php" target="_blank" class="px-3.5 py-1.5 text-xs font-semibold text-white bg-[#fe7c03] hover:bg-[#ea6c00] rounded-md transition-colors flex items-center gap-1.5 no-underline">
+                <i class="fa-solid fa-envelope text-[11px]"></i>
+                <span>Public Contact Page</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- FILTER & SEARCH BAR -->
+    <div class="bg-white border border-slate-200 rounded-md p-3">
+        <form method="GET" action="contacts.php" class="flex flex-wrap items-center justify-between gap-2.5">
+            <div class="flex flex-wrap items-center gap-2">
+                <select name="status" onchange="this.form.submit()" class="text-xs bg-white border border-slate-200 rounded-md px-2.5 py-1.5 text-slate-700 focus:outline-none focus:border-[#fe7c03]">
                     <option value="">All Statuses</option>
                     <option value="New" <?= $filter_status === 'New' ? 'selected' : '' ?>>New</option>
                     <option value="In Progress" <?= $filter_status === 'In Progress' ? 'selected' : '' ?>>In Progress</option>
                     <option value="Resolved" <?= $filter_status === 'Resolved' ? 'selected' : '' ?>>Resolved</option>
                 </select>
+
+                <?php if (!empty($filter_status) || !empty($search)): ?>
+                    <a href="contacts.php" class="px-2 py-1 text-xs text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded transition-colors flex items-center gap-1 no-underline">
+                        <i class="fa-solid fa-xmark text-[10px]"></i> Reset
+                    </a>
+                <?php endif; ?>
             </div>
-            <div class="col-md-3 d-flex gap-2">
-                <button type="submit" class="btn btn-primary w-100"><i class="fa-solid fa-filter me-1"></i> Filter</button>
-                <a href="contacts.php" class="btn btn-light"><i class="fa-solid fa-rotate-left"></i></a>
+
+            <!-- Search Input -->
+            <div class="relative min-w-[240px]">
+                <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                <input type="text" name="search" placeholder="Search sender, email, message..." value="<?= htmlspecialchars($search) ?>" class="w-full text-xs pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded-md focus:outline-none focus:border-[#fe7c03] text-slate-800">
             </div>
         </form>
     </div>
-</div>
 
-<!-- INQUIRIES TABLE -->
-<div class="card border-0 shadow-sm rounded-3">
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
+    <!-- INQUIRIES TABLE -->
+    <div class="bg-white border border-slate-200 rounded-md overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase text-[10px] tracking-wider">
                     <tr>
-                        <th>#</th>
-                        <th>Sender Name & Contact</th>
-                        <th>Subject</th>
-                        <th>Message</th>
-                        <th>Status</th>
-                        <th>Received On</th>
-                        <th class="text-end">Actions</th>
+                        <th class="px-4 py-2.5">#</th>
+                        <th class="px-4 py-2.5">Sender Info</th>
+                        <th class="px-4 py-2.5">Subject</th>
+                        <th class="px-4 py-2.5">Message Snippet</th>
+                        <th class="px-4 py-2.5">Status</th>
+                        <th class="px-4 py-2.5">Received Date</th>
+                        <th class="px-4 py-2.5 text-right">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-slate-100">
                     <?php if (empty($inquiries)): ?>
-                        <tr><td colspan="7" class="text-center py-5 text-muted">No contact inquiries found.</td></tr>
+                        <tr>
+                            <td colspan="7" class="px-4 py-8 text-center text-slate-400">
+                                <i class="fa-solid fa-inbox text-2xl mb-1 text-slate-300 block"></i>
+                                <span class="font-semibold text-slate-700 block">No inquiries found</span>
+                                <span class="text-[11px]">No contact messages match your search or filter.</span>
+                            </td>
+                        </tr>
                     <?php else: ?>
                         <?php foreach ($inquiries as $idx => $row): ?>
-                            <tr>
-                                <td><?= $idx + 1 ?></td>
-                                <td>
-                                    <div class="fw-bold text-dark"><?= htmlspecialchars($row['name']) ?></div>
-                                    <div class="small text-muted"><i class="fa-solid fa-envelope me-1"></i> <a href="mailto:<?= htmlspecialchars($row['email']) ?>" class="text-decoration-none"><?= htmlspecialchars($row['email']) ?></a></div>
+                            <tr class="hover:bg-slate-50/80 transition-colors">
+                                <td class="px-4 py-2.5 font-mono text-[11px] text-slate-400"><?= $idx + 1 ?></td>
+                                
+                                <td class="px-4 py-2.5">
+                                    <div class="font-semibold text-[#0e1e2e]"><?= htmlspecialchars($row['name']) ?></div>
+                                    <div class="text-[11px] text-slate-500"><i class="fa-regular fa-envelope text-[9px] text-slate-400 mr-1"></i><a href="mailto:<?= htmlspecialchars($row['email']) ?>" class="hover:text-[#fe7c03] no-underline text-inherit"><?= htmlspecialchars($row['email']) ?></a></div>
                                     <?php if (!empty($row['phone'])): ?>
-                                        <div class="small text-muted"><i class="fa-solid fa-phone me-1"></i> <a href="tel:<?= htmlspecialchars($row['phone']) ?>" class="text-decoration-none"><?= htmlspecialchars($row['phone']) ?></a></div>
+                                        <div class="text-[10px] text-slate-400"><i class="fa-solid fa-phone text-[9px] text-slate-400 mr-1"></i><a href="tel:<?= htmlspecialchars($row['phone']) ?>" class="hover:text-[#fe7c03] no-underline text-inherit"><?= htmlspecialchars($row['phone']) ?></a></div>
                                     <?php endif; ?>
                                 </td>
-                                <td><span class="badge bg-light text-dark border"><?= htmlspecialchars($row['subject'] ?? 'General') ?></span></td>
-                                <td style="max-width: 320px;">
-                                    <div class="text-truncate"><?= htmlspecialchars($row['message']) ?></div>
+
+                                <td class="px-4 py-2.5">
+                                    <span class="px-2 py-0.5 text-[10px] font-medium rounded bg-slate-100 text-slate-700 border border-slate-200 inline-block">
+                                        <?= htmlspecialchars($row['subject'] ?? 'General') ?>
+                                    </span>
                                 </td>
-                                <td>
-                                    <div class="dropdown">
-                                        <button class="btn btn-sm dropdown-toggle rounded-pill px-2 py-1 <?= $row['status'] === 'Resolved' ? 'btn-success' : ($row['status'] === 'In Progress' ? 'btn-info' : 'btn-danger') ?>" type="button" data-bs-toggle="dropdown">
+
+                                <td class="px-4 py-2.5 text-slate-600 max-w-xs">
+                                    <div class="truncate"><?= htmlspecialchars($row['message']) ?></div>
+                                </td>
+
+                                <td class="px-4 py-2.5">
+                                    <div class="dropdown inline-block">
+                                        <button class="px-2 py-0.5 text-[10px] font-semibold rounded border dropdown-toggle <?= $row['status'] === 'Resolved' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : ($row['status'] === 'In Progress' ? 'bg-sky-50 text-sky-700 border-sky-200' : 'bg-rose-50 text-rose-700 border-rose-200') ?>" type="button" data-bs-toggle="dropdown">
                                             <?= htmlspecialchars($row['status']) ?>
                                         </button>
-                                        <ul class="dropdown-menu">
-                                            <li><a class="dropdown-item" href="contacts.php?action=New&id=<?= $row['id'] ?>">Mark New</a></li>
-                                            <li><a class="dropdown-item" href="contacts.php?action=In Progress&id=<?= $row['id'] ?>">Set In Progress</a></li>
-                                            <li><a class="dropdown-item" href="contacts.php?action=Resolved&id=<?= $row['id'] ?>">Set Resolved</a></li>
+                                        <ul class="dropdown-menu text-xs border border-slate-200 rounded-md py-1">
+                                            <li><a class="dropdown-item py-1.5" href="contacts.php?action=New&id=<?= $row['id'] ?>">Mark New</a></li>
+                                            <li><a class="dropdown-item py-1.5 text-sky-600" href="contacts.php?action=In Progress&id=<?= $row['id'] ?>">Set In Progress</a></li>
+                                            <li><a class="dropdown-item py-1.5 text-emerald-600" href="contacts.php?action=Resolved&id=<?= $row['id'] ?>">Set Resolved</a></li>
                                         </ul>
                                     </div>
                                 </td>
-                                <td class="text-muted small">
+
+                                <td class="px-4 py-2.5 text-slate-400 text-[11px] whitespace-nowrap">
                                     <?= date('d M Y', strtotime($row['created_at'])) ?><br>
-                                    <span class="text-secondary"><?= date('h:i A', strtotime($row['created_at'])) ?></span>
+                                    <span class="text-[10px]"><?= date('h:i A', strtotime($row['created_at'])) ?></span>
                                 </td>
-                                <td class="text-end">
-                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#inquiryModal<?= $row['id'] ?>" title="View Message">
-                                        <i class="fa-solid fa-eye"></i>
-                                    </button>
-                                    <a href="mailto:<?= htmlspecialchars($row['email']) ?>" class="btn btn-sm btn-outline-success" title="Reply via Email">
-                                        <i class="fa-solid fa-reply"></i>
-                                    </a>
-                                    <a href="contacts.php?action=delete&id=<?= $row['id'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this inquiry?')" title="Delete">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </a>
+
+                                <td class="px-4 py-2.5 text-right">
+                                    <div class="inline-flex items-center gap-1">
+                                        <!-- View Modal -->
+                                        <button type="button" class="w-7 h-7 rounded border border-slate-200 bg-white text-slate-600 hover:text-[#fe7c03] hover:border-orange-200 inline-flex items-center justify-center transition-colors" data-bs-toggle="modal" data-bs-target="#inquiryModal<?= $row['id'] ?>" title="View Message">
+                                            <i class="fa-solid fa-eye text-[10px]"></i>
+                                        </button>
+                                        <!-- Email Reply -->
+                                        <a href="mailto:<?= htmlspecialchars($row['email']) ?>?subject=Re: <?= urlencode($row['subject'] ?? 'Your Inquiry') ?>" class="w-7 h-7 rounded border border-slate-200 bg-white text-slate-600 hover:text-emerald-600 hover:border-emerald-200 inline-flex items-center justify-center transition-colors no-underline" title="Reply via Email">
+                                            <i class="fa-solid fa-reply text-[10px]"></i>
+                                        </a>
+                                        <!-- Delete -->
+                                        <a href="contacts.php?action=delete&id=<?= $row['id'] ?>" onclick="return confirm('Delete this inquiry?')" class="w-7 h-7 rounded border border-slate-200 bg-white text-slate-400 hover:text-rose-600 hover:border-rose-200 inline-flex items-center justify-center transition-colors no-underline" title="Delete">
+                                            <i class="fa-regular fa-trash-can text-[10px]"></i>
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
 
-                            <!-- VIEW MODAL -->
+                            <!-- INQUIRY MODAL -->
                             <div class="modal fade" id="inquiryModal<?= $row['id'] ?>" tabindex="-1" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content border-0 shadow">
-                                        <div class="modal-header bg-warning-subtle text-dark">
-                                            <h5 class="modal-title fw-bold"><i class="fa-solid fa-envelope-open me-2"></i> Inquiry from <?= htmlspecialchars($row['name']) ?></h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    <div class="modal-content border border-slate-200 rounded-md shadow-none overflow-hidden">
+                                        <div class="modal-header border-b border-slate-200 py-3 px-4 bg-slate-50">
+                                            <div class="flex items-center gap-2">
+                                                <span class="w-6 text-center text-[#fe7c03]"><i class="fa-solid fa-envelope-open text-sm"></i></span>
+                                                <div>
+                                                    <h5 class="modal-title text-xs font-bold text-[#0e1e2e] uppercase tracking-wider mb-0">Inquiry Details</h5>
+                                                    <span class="text-[10px] text-slate-400">From <?= htmlspecialchars($row['name']) ?> &bull; <?= date('d M Y, h:i A', strtotime($row['created_at'])) ?></span>
+                                                </div>
+                                            </div>
+                                            <button type="button" class="btn-close text-xs" data-bs-dismiss="modal"></button>
                                         </div>
-                                        <div class="modal-body p-4">
-                                            <div class="mb-3">
-                                                <small class="text-muted d-block">Subject</small>
-                                                <strong><?= htmlspecialchars($row['subject']) ?></strong>
+                                        <div class="modal-body p-4 space-y-3 bg-white text-xs">
+                                            <div>
+                                                <span class="text-[10px] text-slate-400 block uppercase font-bold">Subject</span>
+                                                <span class="font-semibold text-slate-800 text-sm"><?= htmlspecialchars($row['subject']) ?></span>
                                             </div>
-                                            <div class="mb-3">
-                                                <small class="text-muted d-block">Contact Info</small>
-                                                <span>Email: <?= htmlspecialchars($row['email']) ?> | Phone: <?= htmlspecialchars($row['phone'] ?? 'N/A') ?></span>
+                                            <div class="grid grid-cols-2 gap-2 p-2.5 bg-slate-50 rounded border border-slate-100">
+                                                <div>
+                                                    <span class="text-[10px] text-slate-400 block uppercase">Email</span>
+                                                    <a href="mailto:<?= htmlspecialchars($row['email']) ?>" class="font-semibold text-slate-800 hover:text-[#fe7c03]"><?= htmlspecialchars($row['email']) ?></a>
+                                                </div>
+                                                <div>
+                                                    <span class="text-[10px] text-slate-400 block uppercase">Phone</span>
+                                                    <span class="font-semibold text-slate-800"><?= htmlspecialchars($row['phone'] ?? 'N/A') ?></span>
+                                                </div>
                                             </div>
-                                            <div class="mb-3">
-                                                <small class="text-muted d-block">Message</small>
-                                                <div class="p-3 bg-light rounded-3 mt-1" style="white-space: pre-wrap;"><?= htmlspecialchars($row['message']) ?></div>
+                                            <div>
+                                                <span class="text-[10px] text-slate-400 block uppercase font-bold mb-1">Message Content</span>
+                                                <div class="p-3 bg-slate-50 border border-slate-200 rounded text-slate-700 leading-relaxed whitespace-pre-wrap"><?= htmlspecialchars($row['message']) ?></div>
                                             </div>
                                         </div>
-                                        <div class="modal-footer">
-                                            <a href="mailto:<?= htmlspecialchars($row['email']) ?>" class="btn btn-primary"><i class="fa-solid fa-paper-plane me-1"></i> Reply Email</a>
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <div class="modal-footer border-t border-slate-200 py-2.5 px-4 bg-slate-50">
+                                            <a href="mailto:<?= htmlspecialchars($row['email']) ?>?subject=Re: <?= urlencode($row['subject'] ?? 'Your Inquiry') ?>" class="px-3 py-1.5 text-xs font-semibold text-white bg-[#fe7c03] hover:bg-[#ea6c00] rounded-md transition-colors no-underline inline-flex items-center gap-1.5">
+                                                <i class="fa-solid fa-reply text-[10px]"></i> Reply via Email
+                                            </a>
+                                            <button type="button" class="px-3 py-1.5 text-xs text-slate-600 bg-white border border-slate-200 rounded-md hover:bg-slate-50" data-bs-dismiss="modal">Close</button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </tbody>
             </table>
         </div>
     </div>
+
 </div>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

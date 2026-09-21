@@ -45,106 +45,136 @@ $fees = $stmt->fetchAll();
 $pdo->query("UPDATE fee_submissions SET is_read = 1 WHERE is_read = 0");
 ?>
 
-<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-    <div>
-        <h4 class="fw-bold text-dark mb-1">Student Fee Submissions</h4>
-        <p class="text-muted small mb-0">Total <?= count($fees) ?> fee receipts records found</p>
-    </div>
-</div>
+<div class="space-y-4">
 
-<!-- FILTER & SEARCH -->
-<div class="card border-0 shadow-sm rounded-3 mb-4">
-    <div class="card-body p-3">
-        <form method="GET" action="fees.php" class="row g-2 align-items-center">
-            <div class="col-md-6">
-                <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-search text-muted"></i></span>
-                    <input type="text" name="search" class="form-control border-start-0" placeholder="Search by student name, email, phone, purpose..." value="<?= htmlspecialchars($search) ?>">
-                </div>
+    <!-- PAGE HEADER -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-md border border-slate-200">
+        <div>
+            <div class="flex items-center gap-2">
+                <h2 class="text-base font-bold text-[#0e1e2e]">Fee Submissions</h2>
+                <span class="px-2 py-0.5 text-[11px] font-semibold bg-slate-100 text-slate-600 rounded border border-slate-200">
+                    <?= count($fees) ?> Records
+                </span>
             </div>
-            <div class="col-md-3">
-                <select name="status" class="form-select">
+            <p class="text-xs text-slate-400 mt-0.5">Manage and verify manual fee receipts uploaded by students</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <a href="../fee-submission.php" target="_blank" class="px-3.5 py-1.5 text-xs font-semibold text-white bg-[#fe7c03] hover:bg-[#ea6c00] rounded-md transition-colors flex items-center gap-1.5 no-underline">
+                <i class="fa-solid fa-receipt text-[11px]"></i>
+                <span>Public Fee Submission</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- FILTER & SEARCH BAR -->
+    <div class="bg-white border border-slate-200 rounded-md p-3">
+        <form method="GET" action="fees.php" class="flex flex-wrap items-center justify-between gap-2.5">
+            <div class="flex flex-wrap items-center gap-2">
+                <select name="status" onchange="this.form.submit()" class="text-xs bg-white border border-slate-200 rounded-md px-2.5 py-1.5 text-slate-700 focus:outline-none focus:border-[#fe7c03]">
                     <option value="">All Statuses</option>
                     <option value="Pending" <?= $filter_status === 'Pending' ? 'selected' : '' ?>>Pending</option>
                     <option value="Verified" <?= $filter_status === 'Verified' ? 'selected' : '' ?>>Verified</option>
                     <option value="Rejected" <?= $filter_status === 'Rejected' ? 'selected' : '' ?>>Rejected</option>
                 </select>
+
+                <?php if (!empty($filter_status) || !empty($search)): ?>
+                    <a href="fees.php" class="px-2 py-1 text-xs text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded transition-colors flex items-center gap-1 no-underline">
+                        <i class="fa-solid fa-xmark text-[10px]"></i> Reset
+                    </a>
+                <?php endif; ?>
             </div>
-            <div class="col-md-3 d-flex gap-2">
-                <button type="submit" class="btn btn-primary w-100"><i class="fa-solid fa-filter me-1"></i> Filter</button>
-                <a href="fees.php" class="btn btn-light"><i class="fa-solid fa-rotate-left"></i></a>
+
+            <!-- Search Input -->
+            <div class="relative min-w-[240px]">
+                <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                <input type="text" name="search" placeholder="Search name, phone, purpose..." value="<?= htmlspecialchars($search) ?>" class="w-full text-xs pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded-md focus:outline-none focus:border-[#fe7c03] text-slate-800">
             </div>
         </form>
     </div>
-</div>
 
-<!-- FEES TABLE -->
-<div class="card border-0 shadow-sm rounded-3">
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
+    <!-- FEES TABLE -->
+    <div class="bg-white border border-slate-200 rounded-md overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase text-[10px] tracking-wider">
                     <tr>
-                        <th>#</th>
-                        <th>Student Details</th>
-                        <th>Course & Type</th>
-                        <th>Purpose</th>
-                        <th>Receipt & Signature</th>
-                        <th>Status</th>
-                        <th>Date</th>
-                        <th class="text-end">Actions</th>
+                        <th class="px-4 py-2.5">#</th>
+                        <th class="px-4 py-2.5">Student Details</th>
+                        <th class="px-4 py-2.5">Course &amp; Type</th>
+                        <th class="px-4 py-2.5">Purpose</th>
+                        <th class="px-4 py-2.5">Receipt &amp; Sign</th>
+                        <th class="px-4 py-2.5">Status</th>
+                        <th class="px-4 py-2.5">Submitted Date</th>
+                        <th class="px-4 py-2.5 text-right">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-slate-100">
                     <?php if (empty($fees)): ?>
-                        <tr><td colspan="8" class="text-center py-5 text-muted">No fee submission records found.</td></tr>
+                        <tr>
+                            <td colspan="8" class="px-4 py-8 text-center text-slate-400">
+                                <i class="fa-solid fa-receipt text-2xl mb-1 text-slate-300 block"></i>
+                                <span class="font-semibold text-slate-700 block">No fee submission records found</span>
+                                <span class="text-[11px]">No submissions match your search or filter.</span>
+                            </td>
+                        </tr>
                     <?php else: ?>
                         <?php foreach ($fees as $idx => $row): ?>
-                            <tr>
-                                <td><?= $idx + 1 ?></td>
-                                <td>
-                                    <div class="fw-bold text-dark"><?= htmlspecialchars($row['name']) ?></div>
-                                    <div class="small text-muted"><i class="fa-solid fa-phone me-1"></i> <?= htmlspecialchars($row['contact'] ?? 'N/A') ?></div>
-                                    <div class="small text-muted"><i class="fa-solid fa-envelope me-1"></i> <?= htmlspecialchars($row['email'] ?? 'N/A') ?></div>
+                            <tr class="hover:bg-slate-50/80 transition-colors">
+                                <td class="px-4 py-2.5 font-mono text-[11px] text-slate-400"><?= $idx + 1 ?></td>
+                                
+                                <td class="px-4 py-2.5">
+                                    <div class="font-semibold text-[#0e1e2e]"><?= htmlspecialchars($row['name']) ?></div>
+                                    <div class="text-[11px] text-slate-500"><i class="fa-solid fa-phone text-[9px] text-slate-400 mr-1"></i><?= htmlspecialchars($row['contact'] ?? 'N/A') ?></div>
+                                    <div class="text-[10px] text-slate-400"><i class="fa-regular fa-envelope text-[9px] text-slate-400 mr-1"></i><?= htmlspecialchars($row['email'] ?? 'N/A') ?></div>
                                 </td>
-                                <td>
-                                    <span class="badge bg-info-subtle text-info border border-info-subtle"><?= htmlspecialchars($row['course'] ?? 'N/A') ?></span>
-                                    <div class="small text-muted mt-1">Type: <?= htmlspecialchars($row['fee_type'] ?? 'N/A') ?></div>
+
+                                <td class="px-4 py-2.5">
+                                    <span class="px-2 py-0.5 text-[10px] font-semibold rounded bg-sky-50 text-sky-700 border border-sky-200 inline-block">
+                                        <?= htmlspecialchars($row['course'] ?? 'N/A') ?>
+                                    </span>
+                                    <div class="text-[10px] text-slate-400 mt-0.5">Type: <?= htmlspecialchars($row['fee_type'] ?? 'N/A') ?></div>
                                 </td>
-                                <td><?= htmlspecialchars($row['purpose'] ?? 'N/A') ?></td>
-                                <td>
-                                    <div class="d-flex gap-2">
+
+                                <td class="px-4 py-2.5 text-slate-700">
+                                    <?= htmlspecialchars($row['purpose'] ?? 'N/A') ?>
+                                </td>
+
+                                <td class="px-4 py-2.5">
+                                    <div class="flex items-center gap-1.5">
                                         <?php if (!empty($row['receipt'])): ?>
-                                            <a href="../uploads/fees/<?= htmlspecialchars($row['receipt']) ?>" target="_blank" class="btn btn-sm btn-outline-primary py-1 px-2 small">
-                                                <i class="fa-solid fa-receipt me-1"></i> Receipt
+                                            <a href="../uploads/fees/<?= htmlspecialchars($row['receipt']) ?>" target="_blank" class="px-2 py-1 text-[11px] font-medium rounded bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 no-underline inline-flex items-center gap-1">
+                                                <i class="fa-solid fa-file-invoice text-emerald-600"></i> Receipt
                                             </a>
                                         <?php endif; ?>
                                         <?php if (!empty($row['signature'])): ?>
-                                            <a href="../uploads/fees/<?= htmlspecialchars($row['signature']) ?>" target="_blank" class="btn btn-sm btn-outline-secondary py-1 px-2 small">
-                                                <i class="fa-solid fa-signature me-1"></i> Sign
+                                            <a href="../uploads/fees/<?= htmlspecialchars($row['signature']) ?>" target="_blank" class="px-2 py-1 text-[11px] font-medium rounded bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 no-underline inline-flex items-center gap-1">
+                                                <i class="fa-solid fa-signature text-purple-600"></i> Sign
                                             </a>
                                         <?php endif; ?>
                                     </div>
                                 </td>
-                                <td>
-                                    <div class="dropdown">
-                                        <button class="btn btn-sm dropdown-toggle rounded-pill px-2 py-1 <?= $row['status'] === 'Verified' ? 'btn-success' : ($row['status'] === 'Rejected' ? 'btn-danger' : 'btn-warning') ?>" type="button" data-bs-toggle="dropdown">
+
+                                <td class="px-4 py-2.5">
+                                    <div class="dropdown inline-block">
+                                        <button class="px-2 py-0.5 text-[10px] font-semibold rounded border dropdown-toggle <?= $row['status'] === 'Verified' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : ($row['status'] === 'Rejected' ? 'bg-rose-50 text-rose-700 border-rose-200' : 'bg-amber-50 text-amber-700 border-amber-200') ?>" type="button" data-bs-toggle="dropdown">
                                             <?= htmlspecialchars($row['status']) ?>
                                         </button>
-                                        <ul class="dropdown-menu">
-                                            <li><a class="dropdown-item" href="fees.php?action=Pending&id=<?= $row['id'] ?>">Set Pending</a></li>
-                                            <li><a class="dropdown-item" href="fees.php?action=Verified&id=<?= $row['id'] ?>">Set Verified</a></li>
-                                            <li><a class="dropdown-item" href="fees.php?action=Rejected&id=<?= $row['id'] ?>">Set Rejected</a></li>
+                                        <ul class="dropdown-menu text-xs border border-slate-200 rounded-md py-1">
+                                            <li><a class="dropdown-item py-1.5" href="fees.php?action=Pending&id=<?= $row['id'] ?>">Set Pending</a></li>
+                                            <li><a class="dropdown-item py-1.5 text-emerald-600" href="fees.php?action=Verified&id=<?= $row['id'] ?>">Set Verified</a></li>
+                                            <li><a class="dropdown-item py-1.5 text-rose-600" href="fees.php?action=Rejected&id=<?= $row['id'] ?>">Set Rejected</a></li>
                                         </ul>
                                     </div>
                                 </td>
-                                <td class="text-muted small">
+
+                                <td class="px-4 py-2.5 text-slate-400 text-[11px] whitespace-nowrap">
                                     <?= date('d M Y', strtotime($row['created_at'])) ?><br>
-                                    <span class="text-secondary"><?= date('h:i A', strtotime($row['created_at'])) ?></span>
+                                    <span class="text-[10px]"><?= date('h:i A', strtotime($row['created_at'])) ?></span>
                                 </td>
-                                <td class="text-end">
-                                    <a href="fees.php?action=delete&id=<?= $row['id'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this fee submission record?')" title="Delete">
-                                        <i class="fa-solid fa-trash"></i>
+
+                                <td class="px-4 py-2.5 text-right">
+                                    <a href="fees.php?action=delete&id=<?= $row['id'] ?>" onclick="return confirm('Delete this fee submission?')" class="w-7 h-7 rounded border border-slate-200 bg-white text-slate-400 hover:text-rose-600 hover:border-rose-200 inline-flex items-center justify-center transition-colors no-underline" title="Delete">
+                                        <i class="fa-regular fa-trash-can text-[10px]"></i>
                                     </a>
                                 </td>
                             </tr>
@@ -154,6 +184,7 @@ $pdo->query("UPDATE fee_submissions SET is_read = 1 WHERE is_read = 0");
             </table>
         </div>
     </div>
+
 </div>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

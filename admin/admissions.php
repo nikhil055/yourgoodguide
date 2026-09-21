@@ -1,5 +1,5 @@
 <?php
-$page_title = "Admissions Management";
+$page_title = "Admissions";
 require_once __DIR__ . '/includes/header.php';
 
 // Handle Actions (Delete / Status Change)
@@ -56,234 +56,271 @@ $admissions = $stmt->fetchAll();
 $pdo->query("UPDATE admissions SET is_read = 1 WHERE is_read = 0");
 ?>
 
-<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-    <div>
-        <h4 class="fw-bold text-dark mb-1">Admission Registrations</h4>
-        <p class="text-muted small mb-0">Total <?= count($admissions) ?> student admission applications found</p>
-    </div>
-</div>
+<div class="space-y-4">
 
-<!-- FILTER & SEARCH CARD -->
-<div class="card border-0 shadow-sm rounded-3 mb-4">
-    <div class="card-body p-3">
-        <form method="GET" action="admissions.php" class="row g-2 align-items-center">
-            <div class="col-md-4">
-                <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-search text-muted"></i></span>
-                    <input type="text" name="search" class="form-control border-start-0" placeholder="Search by name, email, phone..." value="<?= htmlspecialchars($search) ?>">
-                </div>
+    <!-- PAGE HEADER -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-md border border-slate-200">
+        <div>
+            <div class="flex items-center gap-2">
+                <h2 class="text-base font-bold text-[#0e1e2e]">Admission Applications</h2>
+                <span class="px-2 py-0.5 text-[11px] font-semibold bg-slate-100 text-slate-600 rounded border border-slate-200">
+                    <?= count($admissions) ?> Applications
+                </span>
             </div>
-            <div class="col-md-3">
-                <select name="status" class="form-select">
+            <p class="text-xs text-slate-400 mt-0.5">Review and manage student admission submissions and attached documents</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <a href="../admission.php" target="_blank" class="px-3.5 py-1.5 text-xs font-semibold text-white bg-[#fe7c03] hover:bg-[#ea6c00] rounded-md transition-colors flex items-center gap-1.5 no-underline">
+                <i class="fa-solid fa-file-signature text-[11px]"></i>
+                <span>Public Admission Form</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- FILTER & SEARCH BAR -->
+    <div class="bg-white border border-slate-200 rounded-md p-3">
+        <form method="GET" action="admissions.php" class="flex flex-wrap items-center justify-between gap-2.5">
+            <div class="flex flex-wrap items-center gap-2">
+                <!-- Status Select -->
+                <select name="status" onchange="this.form.submit()" class="text-xs bg-white border border-slate-200 rounded-md px-2.5 py-1.5 text-slate-700 focus:outline-none focus:border-[#fe7c03]">
                     <option value="">All Statuses</option>
                     <option value="Pending" <?= $filter_status === 'Pending' ? 'selected' : '' ?>>Pending</option>
                     <option value="Approved" <?= $filter_status === 'Approved' ? 'selected' : '' ?>>Approved</option>
                     <option value="Rejected" <?= $filter_status === 'Rejected' ? 'selected' : '' ?>>Rejected</option>
                 </select>
+
+                <!-- Course Input -->
+                <input type="text" name="course" placeholder="Filter by course name..." value="<?= htmlspecialchars($filter_course) ?>" class="text-xs bg-white border border-slate-200 rounded-md px-2.5 py-1.5 text-slate-700 focus:outline-none focus:border-[#fe7c03]">
+
+                <?php if (!empty($filter_status) || !empty($filter_course) || !empty($search)): ?>
+                    <a href="admissions.php" class="px-2 py-1 text-xs text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded transition-colors flex items-center gap-1 no-underline">
+                        <i class="fa-solid fa-xmark text-[10px]"></i> Reset
+                    </a>
+                <?php endif; ?>
             </div>
-            <div class="col-md-3">
-                <input type="text" name="course" class="form-control" placeholder="Filter by course..." value="<?= htmlspecialchars($filter_course) ?>">
-            </div>
-            <div class="col-md-2 d-flex gap-2">
-                <button type="submit" class="btn btn-primary w-100"><i class="fa-solid fa-filter me-1"></i> Filter</button>
-                <a href="admissions.php" class="btn btn-light"><i class="fa-solid fa-rotate-left"></i></a>
+
+            <!-- Search Input -->
+            <div class="relative min-w-[240px]">
+                <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                <input type="text" name="search" placeholder="Search applicant, email, phone..." value="<?= htmlspecialchars($search) ?>" class="w-full text-xs pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded-md focus:outline-none focus:border-[#fe7c03] text-slate-800">
             </div>
         </form>
     </div>
-</div>
 
-<!-- ADMISSIONS TABLE -->
-<div class="card border-0 shadow-sm rounded-3">
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
+    <!-- ADMISSIONS TABLE -->
+    <div class="bg-white border border-slate-200 rounded-md overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase text-[10px] tracking-wider">
                     <tr>
-                        <th>#</th>
-                        <th>Student Info</th>
-                        <th>Course & Education</th>
-                        <th>Contact & Location</th>
-                        <th>Documents</th>
-                        <th>Status</th>
-                        <th>Applied On</th>
-                        <th class="text-end">Actions</th>
+                        <th class="px-4 py-2.5">#</th>
+                        <th class="px-4 py-2.5">Applicant</th>
+                        <th class="px-4 py-2.5">Course &amp; Qualification</th>
+                        <th class="px-4 py-2.5">Contact Details</th>
+                        <th class="px-4 py-2.5">Attached Files</th>
+                        <th class="px-4 py-2.5">Status</th>
+                        <th class="px-4 py-2.5">Applied Date</th>
+                        <th class="px-4 py-2.5 text-right">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-slate-100">
                     <?php if (empty($admissions)): ?>
-                        <tr><td colspan="8" class="text-center py-5 text-muted">No admission applications found.</td></tr>
+                        <tr>
+                            <td colspan="8" class="px-4 py-8 text-center text-slate-400">
+                                <i class="fa-solid fa-id-card text-2xl mb-1 text-slate-300 block"></i>
+                                <span class="font-semibold text-slate-700 block">No admission applications found</span>
+                                <span class="text-[11px]">No applications match your current filters.</span>
+                            </td>
+                        </tr>
                     <?php else: ?>
                         <?php foreach ($admissions as $idx => $row): ?>
-                            <tr>
-                                <td><?= $idx + 1 ?></td>
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
+                            <tr class="hover:bg-slate-50/80 transition-colors">
+                                <td class="px-4 py-2.5 font-mono text-[11px] text-slate-400"><?= $idx + 1 ?></td>
+                                
+                                <!-- Student Info -->
+                                <td class="px-4 py-2.5">
+                                    <div class="flex items-center gap-2.5">
                                         <?php if (!empty($row['photo']) && file_exists(__DIR__ . '/../uploads/admissions/' . $row['photo'])): ?>
-                                            <img src="../uploads/admissions/<?= htmlspecialchars($row['photo']) ?>" class="rounded-circle object-fit-cover" width="40" height="40" alt="Avatar">
+                                            <img src="../uploads/admissions/<?= htmlspecialchars($row['photo']) ?>" class="w-8 h-8 rounded-full object-cover border border-slate-200 shrink-0" alt="Avatar">
                                         <?php else: ?>
-                                            <div class="bg-secondary-subtle text-secondary rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 40px; height: 40px;">
+                                            <div class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 text-slate-600 font-bold flex items-center justify-center text-xs shrink-0">
                                                 <?= strtoupper(substr($row['name'], 0, 1)) ?>
                                             </div>
                                         <?php endif; ?>
                                         <div>
-                                            <div class="fw-bold text-dark"><?= htmlspecialchars($row['name']) ?></div>
-                                            <small class="text-muted">Father: <?= htmlspecialchars($row['father_name'] ?? 'N/A') ?></small>
+                                            <div class="font-semibold text-[#0e1e2e] leading-tight"><?= htmlspecialchars($row['name']) ?></div>
+                                            <div class="text-[10px] text-slate-400">Father: <?= htmlspecialchars($row['father_name'] ?? 'N/A') ?></div>
                                         </div>
                                     </div>
                                 </td>
-                                <td>
-                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle"><?= htmlspecialchars($row['course'] ?? 'N/A') ?></span>
-                                    <div class="small text-muted mt-1"><?= htmlspecialchars($row['education'] ?? 'N/A') ?></div>
+
+                                <!-- Course & Education -->
+                                <td class="px-4 py-2.5">
+                                    <span class="px-2 py-0.5 text-[10px] font-semibold rounded bg-orange-50 text-[#fe7c03] border border-orange-200 inline-block">
+                                        <?= htmlspecialchars($row['course'] ?? 'N/A') ?>
+                                    </span>
+                                    <div class="text-[11px] text-slate-500 mt-0.5"><?= htmlspecialchars($row['education'] ?? 'N/A') ?></div>
                                 </td>
-                                <td>
-                                    <div><i class="fa-solid fa-phone text-muted me-1 small"></i> <?= htmlspecialchars($row['mobile'] ?? 'N/A') ?></div>
-                                    <div class="small text-muted"><i class="fa-solid fa-envelope text-muted me-1 small"></i> <?= htmlspecialchars($row['email'] ?? 'N/A') ?></div>
-                                    <div class="small text-muted"><i class="fa-solid fa-location-dot text-muted me-1 small"></i> <?= htmlspecialchars($row['city'] ?? '') ?>, <?= htmlspecialchars($row['state'] ?? '') ?></div>
+
+                                <!-- Contact & Location -->
+                                <td class="px-4 py-2.5">
+                                    <div class="font-medium text-slate-800"><?= htmlspecialchars($row['mobile'] ?? 'N/A') ?></div>
+                                    <div class="text-[11px] text-slate-400"><?= htmlspecialchars($row['email'] ?? 'N/A') ?></div>
+                                    <div class="text-[10px] text-slate-400"><?= htmlspecialchars($row['city'] ?? '') ?>, <?= htmlspecialchars($row['state'] ?? '') ?></div>
                                 </td>
-                                <td>
-                                    <div class="d-flex gap-1 flex-wrap">
+
+                                <!-- Documents -->
+                                <td class="px-4 py-2.5">
+                                    <div class="flex flex-wrap gap-1">
                                         <?php if (!empty($row['marksheet10'])): ?>
-                                            <a href="../uploads/admissions/<?= htmlspecialchars($row['marksheet10']) ?>" target="_blank" class="btn btn-xs btn-outline-secondary py-0 px-2 small" title="10th Marksheet"><i class="fa-solid fa-file-pdf"></i> 10th</a>
+                                            <a href="../uploads/admissions/<?= htmlspecialchars($row['marksheet10']) ?>" target="_blank" class="px-1.5 py-0.5 text-[10px] font-medium rounded bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 no-underline inline-flex items-center gap-1">
+                                                <i class="fa-solid fa-file-pdf text-rose-500"></i> 10th
+                                            </a>
                                         <?php endif; ?>
                                         <?php if (!empty($row['marksheet12'])): ?>
-                                            <a href="../uploads/admissions/<?= htmlspecialchars($row['marksheet12']) ?>" target="_blank" class="btn btn-xs btn-outline-secondary py-0 px-2 small" title="12th Marksheet"><i class="fa-solid fa-file-pdf"></i> 12th</a>
+                                            <a href="../uploads/admissions/<?= htmlspecialchars($row['marksheet12']) ?>" target="_blank" class="px-1.5 py-0.5 text-[10px] font-medium rounded bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 no-underline inline-flex items-center gap-1">
+                                                <i class="fa-solid fa-file-pdf text-rose-500"></i> 12th
+                                            </a>
                                         <?php endif; ?>
                                         <?php if (!empty($row['aadhaar_card'])): ?>
-                                            <a href="../uploads/admissions/<?= htmlspecialchars($row['aadhaar_card']) ?>" target="_blank" class="btn btn-xs btn-outline-secondary py-0 px-2 small" title="Aadhaar Card"><i class="fa-solid fa-id-card"></i> Aadhar</a>
+                                            <a href="../uploads/admissions/<?= htmlspecialchars($row['aadhaar_card']) ?>" target="_blank" class="px-1.5 py-0.5 text-[10px] font-medium rounded bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 no-underline inline-flex items-center gap-1">
+                                                <i class="fa-solid fa-id-card text-sky-500"></i> Aadhaar
+                                            </a>
                                         <?php endif; ?>
                                     </div>
                                 </td>
-                                <td>
-                                    <div class="dropdown">
-                                        <button class="btn btn-sm dropdown-toggle rounded-pill px-2 py-1 <?= $row['status'] === 'Approved' ? 'btn-success' : ($row['status'] === 'Rejected' ? 'btn-danger' : 'btn-warning') ?>" type="button" data-bs-toggle="dropdown">
+
+                                <!-- Status -->
+                                <td class="px-4 py-2.5">
+                                    <div class="dropdown inline-block">
+                                        <button class="px-2 py-0.5 text-[10px] font-semibold rounded border dropdown-toggle <?= $row['status'] === 'Approved' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : ($row['status'] === 'Rejected' ? 'bg-rose-50 text-rose-700 border-rose-200' : 'bg-amber-50 text-amber-700 border-amber-200') ?>" type="button" data-bs-toggle="dropdown">
                                             <?= htmlspecialchars($row['status']) ?>
                                         </button>
-                                        <ul class="dropdown-menu">
-                                            <li><a class="dropdown-item" href="admissions.php?action=Pending&id=<?= $row['id'] ?>">Set Pending</a></li>
-                                            <li><a class="dropdown-item" href="admissions.php?action=Approved&id=<?= $row['id'] ?>">Set Approved</a></li>
-                                            <li><a class="dropdown-item" href="admissions.php?action=Rejected&id=<?= $row['id'] ?>">Set Rejected</a></li>
+                                        <ul class="dropdown-menu text-xs border border-slate-200 rounded-md py-1">
+                                            <li><a class="dropdown-item py-1.5" href="admissions.php?action=Pending&id=<?= $row['id'] ?>">Set Pending</a></li>
+                                            <li><a class="dropdown-item py-1.5 text-emerald-600" href="admissions.php?action=Approved&id=<?= $row['id'] ?>">Set Approved</a></li>
+                                            <li><a class="dropdown-item py-1.5 text-rose-600" href="admissions.php?action=Rejected&id=<?= $row['id'] ?>">Set Rejected</a></li>
                                         </ul>
                                     </div>
                                 </td>
-                                <td class="text-muted small">
+
+                                <!-- Applied Date -->
+                                <td class="px-4 py-2.5 text-slate-400 text-[11px] whitespace-nowrap">
                                     <?= date('d M Y', strtotime($row['created_at'])) ?><br>
-                                    <span class="text-secondary"><?= date('h:i A', strtotime($row['created_at'])) ?></span>
+                                    <span class="text-[10px]"><?= date('h:i A', strtotime($row['created_at'])) ?></span>
                                 </td>
-                                <td class="text-end">
-                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#viewModal<?= $row['id'] ?>" title="View Full Details">
-                                        <i class="fa-solid fa-eye"></i>
-                                    </button>
-                                    <a href="admissions.php?action=delete&id=<?= $row['id'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this admission record?')" title="Delete">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </a>
+
+                                <!-- Actions -->
+                                <td class="px-4 py-2.5 text-right">
+                                    <div class="inline-flex items-center gap-1">
+                                        <!-- View Modal -->
+                                        <button type="button" class="w-7 h-7 rounded border border-slate-200 bg-white text-slate-600 hover:text-[#fe7c03] hover:border-orange-200 flex items-center justify-center transition-colors" data-bs-toggle="modal" data-bs-target="#viewModal<?= $row['id'] ?>" title="View Details">
+                                            <i class="fa-solid fa-eye text-[10px]"></i>
+                                        </button>
+                                        <!-- Delete -->
+                                        <a href="admissions.php?action=delete&id=<?= $row['id'] ?>" onclick="return confirm('Delete this admission application?')" class="w-7 h-7 rounded border border-slate-200 bg-white text-slate-400 hover:text-rose-600 hover:border-rose-200 flex items-center justify-center transition-colors no-underline" title="Delete">
+                                            <i class="fa-regular fa-trash-can text-[10px]"></i>
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
 
                             <!-- FULL DETAILS MODAL -->
-                            <div class="modal fade" id="viewModal<?= $row['id'] ?>" tabindex="-1" aria-labelledby="modalLabel<?= $row['id'] ?>" aria-hidden="true">
+                            <div class="modal fade" id="viewModal<?= $row['id'] ?>" tabindex="-1" aria-hidden="true">
                                 <div class="modal-dialog modal-lg modal-dialog-centered">
-                                    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-                                        <div class="modal-header bg-primary text-white py-3 px-4">
-                                            <div class="d-flex align-items-center gap-2">
-                                                <i class="fa-solid fa-id-badge fs-4"></i>
+                                    <div class="modal-content border border-slate-200 rounded-md shadow-none overflow-hidden">
+                                        <div class="modal-header border-b border-slate-200 py-3 px-4 bg-slate-50">
+                                            <div class="flex items-center gap-2">
+                                                <span class="w-6 text-center text-[#fe7c03]"><i class="fa-solid fa-id-badge text-sm"></i></span>
                                                 <div>
-                                                    <h5 class="modal-title fw-bold mb-0" id="modalLabel<?= $row['id'] ?>">Admission Application #<?= $row['id'] ?></h5>
-                                                    <small class="text-white-50">Submitted on <?= date('d M Y, h:i A', strtotime($row['created_at'])) ?></small>
+                                                    <h5 class="modal-title text-xs font-bold text-[#0e1e2e] uppercase tracking-wider mb-0">Admission Application #<?= $row['id'] ?></h5>
+                                                    <span class="text-[10px] text-slate-400">Submitted on <?= date('d M Y, h:i A', strtotime($row['created_at'])) ?></span>
                                                 </div>
                                             </div>
-                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            <button type="button" class="btn-close text-xs" data-bs-dismiss="modal"></button>
                                         </div>
-                                        <div class="modal-body p-4 bg-light">
-                                            <div class="row g-4">
-                                                <!-- Left Profile Box -->
-                                                <div class="col-md-4">
-                                                    <div class="card border-0 shadow-sm rounded-3 p-3 text-center bg-white h-100">
-                                                        <?php if (!empty($row['photo']) && file_exists(__DIR__ . '/../uploads/admissions/' . $row['photo'])): ?>
-                                                            <div class="mb-3">
-                                                                <img src="../uploads/admissions/<?= htmlspecialchars($row['photo']) ?>" class="rounded-3 img-fluid border shadow-sm" style="max-height: 180px; width: 100%; object-fit: cover;" alt="Photo">
-                                                            </div>
-                                                        <?php else: ?>
-                                                            <div class="bg-primary-subtle text-primary rounded-3 d-flex align-items-center justify-content-center fw-bold mx-auto mb-3" style="width: 100px; height: 100px; font-size: 2.5rem;">
-                                                                <?= strtoupper(substr($row['name'], 0, 1)) ?>
-                                                            </div>
-                                                        <?php endif; ?>
-                                                        <h5 class="fw-bold text-dark mb-1"><?= htmlspecialchars($row['name']) ?></h5>
-                                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle mb-2 px-3 py-2 text-wrap"><?= htmlspecialchars($row['course'] ?? 'N/A') ?></span>
+                                        <div class="modal-body p-4 bg-slate-50/50 space-y-3">
+                                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                <!-- Profile Box -->
+                                                <div class="bg-white border border-slate-200 rounded-md p-4 text-center">
+                                                    <?php if (!empty($row['photo']) && file_exists(__DIR__ . '/../uploads/admissions/' . $row['photo'])): ?>
+                                                        <img src="../uploads/admissions/<?= htmlspecialchars($row['photo']) ?>" class="w-24 h-28 rounded object-cover border border-slate-200 mx-auto mb-2" alt="Photo">
+                                                    <?php else: ?>
+                                                        <div class="w-20 h-20 rounded bg-slate-100 border border-slate-200 text-slate-400 text-2xl flex items-center justify-center mx-auto mb-2">
+                                                            <i class="fa-solid fa-user"></i>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                    <h5 class="text-sm font-bold text-[#0e1e2e]"><?= htmlspecialchars($row['name']) ?></h5>
+                                                    <span class="px-2 py-0.5 text-[11px] font-semibold bg-orange-50 text-[#fe7c03] border border-orange-200 rounded mt-1 inline-block">
+                                                        <?= htmlspecialchars($row['course'] ?? 'N/A') ?>
+                                                    </span>
+                                                    <div class="mt-2">
+                                                        <span class="px-2 py-0.5 text-[10px] font-bold rounded <?= $row['status'] === 'Approved' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : ($row['status'] === 'Rejected' ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-amber-50 text-amber-700 border border-amber-200') ?>">
+                                                            Status: <?= htmlspecialchars($row['status']) ?>
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Details Box -->
+                                                <div class="md:col-span-2 bg-white border border-slate-200 rounded-md p-4 space-y-3">
+                                                    <h6 class="text-xs font-bold text-[#0e1e2e] uppercase tracking-wider pb-1 border-b border-slate-100">Personal &amp; Contact Details</h6>
+                                                    <div class="grid grid-cols-2 gap-2 text-xs">
                                                         <div>
-                                                            <span class="badge <?= $row['status'] === 'Approved' ? 'bg-success' : ($row['status'] === 'Rejected' ? 'bg-danger' : 'bg-warning text-dark') ?> px-3 py-2 rounded-pill">
-                                                                Status: <?= htmlspecialchars($row['status']) ?>
+                                                            <span class="text-[10px] text-slate-400 block uppercase">Father's Name</span>
+                                                            <span class="font-semibold text-slate-800"><?= htmlspecialchars($row['father_name'] ?? 'N/A') ?></span>
+                                                        </div>
+                                                        <div>
+                                                            <span class="text-[10px] text-slate-400 block uppercase">Date of Birth</span>
+                                                            <span class="font-semibold text-slate-800"><?= htmlspecialchars($row['dob'] ?? 'N/A') ?></span>
+                                                        </div>
+                                                        <div>
+                                                            <span class="text-[10px] text-slate-400 block uppercase">Gender</span>
+                                                            <span class="font-semibold text-slate-800"><?= htmlspecialchars($row['gender'] ?? 'N/A') ?></span>
+                                                        </div>
+                                                        <div>
+                                                            <span class="text-[10px] text-slate-400 block uppercase">Highest Qualification</span>
+                                                            <span class="font-semibold text-slate-800"><?= htmlspecialchars($row['education'] ?? 'N/A') ?></span>
+                                                        </div>
+                                                        <div>
+                                                            <span class="text-[10px] text-slate-400 block uppercase">Aadhaar Number</span>
+                                                            <span class="font-mono font-semibold text-slate-800"><?= htmlspecialchars($row['aadhaar'] ?? 'N/A') ?></span>
+                                                        </div>
+                                                        <div>
+                                                            <span class="text-[10px] text-slate-400 block uppercase">Contact Mobile</span>
+                                                            <a href="tel:<?= htmlspecialchars($row['mobile'] ?? '') ?>" class="font-semibold text-slate-800 hover:text-[#fe7c03]"><?= htmlspecialchars($row['mobile'] ?? 'N/A') ?></a>
+                                                        </div>
+                                                        <div class="col-span-2">
+                                                            <span class="text-[10px] text-slate-400 block uppercase">Email Address</span>
+                                                            <a href="mailto:<?= htmlspecialchars($row['email'] ?? '') ?>" class="font-semibold text-slate-800 hover:text-[#fe7c03]"><?= htmlspecialchars($row['email'] ?? 'N/A') ?></a>
+                                                        </div>
+                                                        <div class="col-span-2">
+                                                            <span class="text-[10px] text-slate-400 block uppercase">Address</span>
+                                                            <span class="text-slate-800">
+                                                                <?= htmlspecialchars($row['address'] ?? '') ?>
+                                                                <?php if (!empty($row['city'])): ?>, <?= htmlspecialchars($row['city']) ?><?php endif; ?>
+                                                                <?php if (!empty($row['state'])): ?>, <?= htmlspecialchars($row['state']) ?><?php endif; ?>
+                                                                <?php if (!empty($row['pincode'])): ?> - <?= htmlspecialchars($row['pincode']) ?><?php endif; ?>
                                                             </span>
                                                         </div>
                                                     </div>
-                                                </div>
 
-                                                <!-- Right Details Box -->
-                                                <div class="col-md-8">
-                                                    <div class="card border-0 shadow-sm rounded-3 p-3 bg-white mb-3">
-                                                        <h6 class="fw-bold text-primary mb-3 border-bottom pb-2"><i class="fa-solid fa-user me-2"></i> Personal & Educational Information</h6>
-                                                        <div class="row g-2">
-                                                            <div class="col-sm-6">
-                                                                <small class="text-muted d-block">Father's Name</small>
-                                                                <span class="fw-semibold text-dark"><?= htmlspecialchars($row['father_name'] ?? 'N/A') ?></span>
-                                                            </div>
-                                                            <div class="col-sm-6">
-                                                                <small class="text-muted d-block">Date of Birth</small>
-                                                                <span class="fw-semibold text-dark"><?= htmlspecialchars($row['dob'] ?? 'N/A') ?></span>
-                                                            </div>
-                                                            <div class="col-sm-6">
-                                                                <small class="text-muted d-block">Gender</small>
-                                                                <span class="fw-semibold text-dark"><?= htmlspecialchars($row['gender'] ?? 'N/A') ?></span>
-                                                            </div>
-                                                            <div class="col-sm-6">
-                                                                <small class="text-muted d-block">Highest Qualification</small>
-                                                                <span class="fw-semibold text-dark"><?= htmlspecialchars($row['education'] ?? 'N/A') ?></span>
-                                                            </div>
-                                                            <div class="col-sm-6">
-                                                                <small class="text-muted d-block">Aadhaar Number</small>
-                                                                <span class="fw-semibold text-dark"><?= htmlspecialchars($row['aadhaar'] ?? 'N/A') ?></span>
-                                                            </div>
-                                                            <div class="col-sm-6">
-                                                                <small class="text-muted d-block">Contact Mobile</small>
-                                                                <a href="tel:<?= htmlspecialchars($row['mobile'] ?? '') ?>" class="fw-semibold text-decoration-none"><?= htmlspecialchars($row['mobile'] ?? 'N/A') ?></a>
-                                                            </div>
-                                                            <div class="col-12">
-                                                                <small class="text-muted d-block">Email Address</small>
-                                                                <a href="mailto:<?= htmlspecialchars($row['email'] ?? '') ?>" class="fw-semibold text-decoration-none"><?= htmlspecialchars($row['email'] ?? 'N/A') ?></a>
-                                                            </div>
-                                                            <div class="col-12">
-                                                                <small class="text-muted d-block">Full Address</small>
-                                                                <span class="fw-semibold text-dark">
-                                                                    <?= htmlspecialchars($row['address'] ?? '') ?>
-                                                                    <?php if (!empty($row['city'])): ?>, <?= htmlspecialchars($row['city']) ?><?php endif; ?>
-                                                                    <?php if (!empty($row['state'])): ?>, <?= htmlspecialchars($row['state']) ?><?php endif; ?>
-                                                                    <?php if (!empty($row['pincode'])): ?> - <?= htmlspecialchars($row['pincode']) ?><?php endif; ?>
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <!-- Uploaded Documents Box -->
-                                                    <div class="card border-0 shadow-sm rounded-3 p-3 bg-white">
-                                                        <h6 class="fw-bold text-primary mb-2 border-bottom pb-2"><i class="fa-solid fa-folder-open me-2"></i> Attached Documents</h6>
-                                                        <div class="d-flex flex-wrap gap-2 pt-1">
+                                                    <!-- Attachments in modal -->
+                                                    <div class="pt-2 border-t border-slate-100">
+                                                        <span class="text-[10px] text-slate-400 block uppercase mb-1.5 font-bold">Attached Documents</span>
+                                                        <div class="flex flex-wrap gap-1.5">
                                                             <?php if (!empty($row['marksheet10'])): ?>
-                                                                <a href="../uploads/admissions/<?= htmlspecialchars($row['marksheet10']) ?>" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill px-3">
-                                                                    <i class="fa-solid fa-file-lines me-1"></i> 10th Marksheet
+                                                                <a href="../uploads/admissions/<?= htmlspecialchars($row['marksheet10']) ?>" target="_blank" class="px-2 py-1 text-[11px] font-medium rounded bg-slate-100 border border-slate-200 hover:bg-slate-200 text-slate-700 no-underline inline-flex items-center gap-1">
+                                                                    <i class="fa-solid fa-file-pdf text-rose-500"></i> 10th Marksheet
                                                                 </a>
                                                             <?php endif; ?>
                                                             <?php if (!empty($row['marksheet12'])): ?>
-                                                                <a href="../uploads/admissions/<?= htmlspecialchars($row['marksheet12']) ?>" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill px-3">
-                                                                    <i class="fa-solid fa-file-lines me-1"></i> 12th Marksheet
+                                                                <a href="../uploads/admissions/<?= htmlspecialchars($row['marksheet12']) ?>" target="_blank" class="px-2 py-1 text-[11px] font-medium rounded bg-slate-100 border border-slate-200 hover:bg-slate-200 text-slate-700 no-underline inline-flex items-center gap-1">
+                                                                    <i class="fa-solid fa-file-pdf text-rose-500"></i> 12th Marksheet
                                                                 </a>
                                                             <?php endif; ?>
                                                             <?php if (!empty($row['aadhaar_card'])): ?>
-                                                                <a href="../uploads/admissions/<?= htmlspecialchars($row['aadhaar_card']) ?>" target="_blank" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
-                                                                    <i class="fa-solid fa-id-card me-1"></i> Aadhaar Card
-                                                                </a>
-                                                            <?php endif; ?>
-                                                            <?php if (!empty($row['photo'])): ?>
-                                                                <a href="../uploads/admissions/<?= htmlspecialchars($row['photo']) ?>" target="_blank" class="btn btn-sm btn-outline-info rounded-pill px-3">
-                                                                    <i class="fa-solid fa-image me-1"></i> Student Photo
+                                                                <a href="../uploads/admissions/<?= htmlspecialchars($row['aadhaar_card']) ?>" target="_blank" class="px-2 py-1 text-[11px] font-medium rounded bg-slate-100 border border-slate-200 hover:bg-slate-200 text-slate-700 no-underline inline-flex items-center gap-1">
+                                                                    <i class="fa-solid fa-id-card text-sky-500"></i> Aadhaar Card
                                                                 </a>
                                                             <?php endif; ?>
                                                         </div>
@@ -291,9 +328,11 @@ $pdo->query("UPDATE admissions SET is_read = 1 WHERE is_read = 0");
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="modal-footer bg-white px-4 py-3">
-                                            <a href="mailto:<?= htmlspecialchars($row['email']) ?>" class="btn btn-outline-primary"><i class="fa-solid fa-envelope me-1"></i> Send Email</a>
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <div class="modal-footer border-t border-slate-200 py-2.5 px-4 bg-slate-50">
+                                            <a href="mailto:<?= htmlspecialchars($row['email']) ?>" class="px-3 py-1.5 text-xs font-semibold text-white bg-[#fe7c03] hover:bg-[#ea6c00] rounded-md transition-colors no-underline inline-flex items-center gap-1">
+                                                <i class="fa-solid fa-paper-plane text-[10px]"></i> Send Email
+                                            </a>
+                                            <button type="button" class="px-3 py-1.5 text-xs text-slate-600 bg-white border border-slate-200 rounded-md hover:bg-slate-50" data-bs-dismiss="modal">Close</button>
                                         </div>
                                     </div>
                                 </div>
@@ -305,6 +344,7 @@ $pdo->query("UPDATE admissions SET is_read = 1 WHERE is_read = 0");
             </table>
         </div>
     </div>
+
 </div>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

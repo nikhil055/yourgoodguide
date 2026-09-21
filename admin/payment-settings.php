@@ -1,5 +1,5 @@
 <?php
-$page_title = "Payment Gateway Settings (Razorpay)";
+$page_title = "Payment Gateway";
 require_once __DIR__ . '/includes/header.php';
 
 $msg = '';
@@ -22,7 +22,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $pdo->prepare("INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
         foreach ($keys as $k) {
             $val = trim($_POST[$k] ?? '');
-            // default fallback for razorpay_enabled if unchecked
             if ($k === 'razorpay_enabled' && !isset($_POST['razorpay_enabled'])) {
                 $val = '0';
             }
@@ -51,196 +50,217 @@ $fee_amount       = $settings['seat_booking_fee'] ?? '999';
 $company_name     = $settings['razorpay_company_name'] ?? 'Finchskills Institute';
 ?>
 
-<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-    <div>
-        <h4 class="fw-bold text-dark mb-1">Razorpay Payment Gateway Setup</h4>
-        <p class="text-muted small mb-0">Configure online registration fee, test & live API keys, and payment checkout branding</p>
-    </div>
-    <div class="d-flex align-items-center gap-2">
-        <span class="badge <?= $mode === 'live' ? 'bg-success' : 'bg-warning text-dark' ?> px-3 py-2 fs-6">
-            <i class="fa-solid <?= $mode === 'live' ? 'fa-bolt' : 'fa-vial' ?> me-1"></i>
-            Active Mode: <?= strtoupper($mode) ?>
-        </span>
-    </div>
-</div>
+<div class="space-y-4">
 
-<?php if (!empty($msg)): ?>
-    <div class="alert alert-success alert-dismissible fade show d-flex align-items-center mb-4">
-        <i class="fa-solid fa-circle-check fs-4 me-2"></i>
-        <div><?= htmlspecialchars($msg) ?></div>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-<?php endif; ?>
-
-<?php if (!empty($err)): ?>
-    <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center mb-4">
-        <i class="fa-solid fa-circle-exclamation fs-4 me-2"></i>
-        <div><?= htmlspecialchars($err) ?></div>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-<?php endif; ?>
-
-<form method="POST" action="payment-settings.php">
-    <div class="row g-4">
-        <!-- Main Configuration Card -->
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm rounded-3 mb-4">
-                <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0 fw-bold text-dark">
-                        <i class="fa-solid fa-sliders text-primary me-2"></i> General Gateway Settings
-                    </h6>
-                    <div class="form-check form-switch mb-0">
-                        <input class="form-check-input" type="checkbox" role="switch" id="razorpay_enabled" name="razorpay_enabled" value="1" <?= $enabled ? 'checked' : '' ?>>
-                        <label class="form-check-label fw-semibold small" for="razorpay_enabled">Enable Gateway</label>
-                    </div>
-                </div>
-                <div class="card-body p-4">
-                    <div class="row g-3">
-                        <!-- Mode Selector -->
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">Environment Mode <span class="text-danger">*</span></label>
-                            <div class="d-flex gap-3 mt-1">
-                                <div class="form-check p-3 border rounded-3 flex-fill <?= $mode === 'test' ? 'border-primary bg-primary-subtle' : 'bg-light' ?>">
-                                    <input class="form-check-input" type="radio" name="razorpay_mode" id="modeTest" value="test" <?= $mode === 'test' ? 'checked' : '' ?>>
-                                    <label class="form-check-label fw-bold d-block cursor-pointer" for="modeTest">
-                                        <i class="fa-solid fa-vial text-warning me-1"></i> Test Sandbox
-                                        <div class="small fw-normal text-muted mt-1">Test payments without actual money deduction</div>
-                                    </label>
-                                </div>
-                                <div class="form-check p-3 border rounded-3 flex-fill <?= $mode === 'live' ? 'border-success bg-success-subtle' : 'bg-light' ?>">
-                                    <input class="form-check-input" type="radio" name="razorpay_mode" id="modeLive" value="live" <?= $mode === 'live' ? 'checked' : '' ?>>
-                                    <label class="form-check-label fw-bold d-block cursor-pointer" for="modeLive">
-                                        <i class="fa-solid fa-bolt text-success me-1"></i> Live Production
-                                        <div class="small fw-normal text-muted mt-1">Accept real payments from candidates</div>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Seat Booking Fee -->
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold" for="seat_booking_fee">Seat Reservation Fee (₹ INR) <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light fw-bold text-muted">₹</span>
-                                <input type="number" step="1" min="0" class="form-control form-control-lg fw-bold text-dark" id="seat_booking_fee" name="seat_booking_fee" value="<?= htmlspecialchars($fee_amount) ?>" required>
-                            </div>
-                            <small class="text-muted">Charged to candidates upon registration for provisional seat confirmation.</small>
-                        </div>
-
-                        <!-- Brand Name on Checkout -->
-                        <div class="col-12 mt-3">
-                            <label class="form-label fw-semibold" for="razorpay_company_name">Company / Institute Name (Displayed on Razorpay Modal)</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light"><i class="fa-solid fa-building text-muted"></i></span>
-                                <input type="text" class="form-control" id="razorpay_company_name" name="razorpay_company_name" value="<?= htmlspecialchars($company_name) ?>" placeholder="Finchskills Institute">
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <!-- PAGE HEADER -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-md border border-slate-200">
+        <div>
+            <div class="flex items-center gap-2">
+                <h2 class="text-base font-bold text-[#0e1e2e]">Razorpay Gateway Settings</h2>
+                <span class="px-2 py-0.5 text-[11px] font-semibold rounded <?= $mode === 'live' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200' ?>">
+                    <i class="fa-solid <?= $mode === 'live' ? 'fa-bolt' : 'fa-vial' ?> text-[10px] mr-1"></i>
+                    <?= strtoupper($mode) ?> MODE
+                </span>
             </div>
+            <p class="text-xs text-slate-400 mt-0.5">Configure registration fees, test and live API keys, and checkout modal branding</p>
+        </div>
+    </div>
 
-            <!-- API Keys Settings (Test & Live) -->
-            <div class="card border-0 shadow-sm rounded-3 mb-4">
-                <div class="card-header bg-white py-3 border-bottom">
-                    <h6 class="mb-0 fw-bold text-dark">
-                        <i class="fa-solid fa-key text-primary me-2"></i> Razorpay API Credentials
-                    </h6>
-                </div>
-                <div class="card-body p-4">
-                    <!-- TEST KEYS -->
-                    <div class="p-3 mb-4 rounded-3 border bg-light">
-                        <div class="d-flex align-items-center justify-content-between mb-3">
-                            <div class="fw-bold text-dark"><i class="fa-solid fa-vial text-warning me-2"></i> Test Mode Keys</div>
-                            <span class="badge bg-secondary-subtle text-secondary">Sandbox Only</span>
+    <!-- ALERTS -->
+    <?php if (!empty($msg)): ?>
+        <div class="p-3 text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-circle-check text-emerald-500"></i>
+                <span><?= htmlspecialchars($msg) ?></span>
+            </div>
+            <button type="button" onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-emerald-800">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+    <?php endif; ?>
+
+    <?php if (!empty($err)): ?>
+        <div class="p-3 text-xs bg-rose-50 text-rose-700 border border-rose-200 rounded-md flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-circle-exclamation text-rose-500"></i>
+                <span><?= htmlspecialchars($err) ?></span>
+            </div>
+            <button type="button" onclick="this.parentElement.remove()" class="text-rose-500 hover:text-rose-800">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+    <?php endif; ?>
+
+    <form method="POST" action="payment-settings.php">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            
+            <!-- Main Column (2 Cols) -->
+            <div class="lg:col-span-2 space-y-4">
+                
+                <!-- General Settings Card -->
+                <div class="bg-white border border-slate-200 rounded-md p-4 space-y-4">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                        <div class="flex items-center gap-2">
+                            <span class="w-6 text-center text-[#fe7c03]"><i class="fa-solid fa-sliders text-sm"></i></span>
+                            <h3 class="text-xs font-bold text-[#0e1e2e] uppercase tracking-wider">Gateway Configuration</h3>
                         </div>
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold small">Test Key ID</label>
-                                <input type="text" class="form-control font-monospace" name="razorpay_test_key_id" value="<?= htmlspecialchars($test_key_id) ?>" placeholder="rzp_test_...">
+                        <label class="inline-flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" name="razorpay_enabled" value="1" <?= $enabled ? 'checked' : '' ?> class="rounded border-slate-300 text-[#fe7c03] focus:ring-[#fe7c03]">
+                            <span class="text-xs font-semibold text-slate-700">Enable Gateway</span>
+                        </label>
+                    </div>
+
+                    <!-- Environment Mode Radios -->
+                    <div>
+                        <label class="text-xs font-bold text-slate-700 block mb-1.5">Environment Mode</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <label class="p-3 border rounded-md cursor-pointer transition-colors flex items-start gap-2.5 <?= $mode === 'test' ? 'border-orange-300 bg-orange-50/50' : 'border-slate-200 hover:bg-slate-50' ?>">
+                                <input type="radio" name="razorpay_mode" value="test" <?= $mode === 'test' ? 'checked' : '' ?> class="mt-0.5 text-[#fe7c03] focus:ring-[#fe7c03]">
+                                <div>
+                                    <div class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-vial text-amber-500"></i> Test Sandbox
+                                    </div>
+                                    <div class="text-[11px] text-slate-400 mt-0.5">Test simulated payments without real money</div>
+                                </div>
+                            </label>
+
+                            <label class="p-3 border rounded-md cursor-pointer transition-colors flex items-start gap-2.5 <?= $mode === 'live' ? 'border-emerald-300 bg-emerald-50/50' : 'border-slate-200 hover:bg-slate-50' ?>">
+                                <input type="radio" name="razorpay_mode" value="live" <?= $mode === 'live' ? 'checked' : '' ?> class="mt-0.5 text-emerald-600 focus:ring-emerald-500">
+                                <div>
+                                    <div class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-bolt text-emerald-500"></i> Live Production
+                                    </div>
+                                    <div class="text-[11px] text-slate-400 mt-0.5">Collect real payments from students</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Booking Fee & Brand Name -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                        <div>
+                            <label class="text-xs font-bold text-slate-700 block mb-1">Seat Booking Fee (₹ INR) <span class="text-rose-500">*</span></label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">₹</span>
+                                <input type="number" step="1" min="0" name="seat_booking_fee" value="<?= htmlspecialchars($fee_amount) ?>" required class="w-full text-xs pl-7 pr-3 py-2 border border-slate-200 rounded-md font-bold text-slate-800 focus:outline-none focus:border-[#fe7c03]">
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold small">Test Key Secret</label>
-                                <input type="password" class="form-control font-monospace" name="razorpay_test_key_secret" value="<?= htmlspecialchars($test_key_secret) ?>" placeholder="Optional for standard frontend popup">
+                            <span class="text-[10px] text-slate-400 mt-0.5 block">Amount charged for provisional admission seat</span>
+                        </div>
+
+                        <div>
+                            <label class="text-xs font-bold text-slate-700 block mb-1">Company / Brand Name</label>
+                            <input type="text" name="razorpay_company_name" value="<?= htmlspecialchars($company_name) ?>" placeholder="Finchskills Institute" class="w-full text-xs px-3 py-2 border border-slate-200 rounded-md text-slate-800 focus:outline-none focus:border-[#fe7c03]">
+                            <span class="text-[10px] text-slate-400 mt-0.5 block">Name shown on Razorpay checkout modal</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API Credentials Card -->
+                <div class="bg-white border border-slate-200 rounded-md p-4 space-y-4">
+                    <div class="flex items-center gap-2 pb-3 border-b border-slate-100">
+                        <span class="w-6 text-center text-[#fe7c03]"><i class="fa-solid fa-key text-sm"></i></span>
+                        <h3 class="text-xs font-bold text-[#0e1e2e] uppercase tracking-wider">Razorpay API Credentials</h3>
+                    </div>
+
+                    <!-- TEST KEYS -->
+                    <div class="p-3 bg-slate-50 border border-slate-200 rounded-md space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                <i class="fa-solid fa-vial text-amber-500"></i> Test Mode Keys
+                            </span>
+                            <span class="text-[10px] font-semibold text-slate-400">Sandbox</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            <div>
+                                <label class="text-[10px] uppercase font-bold text-slate-500 block mb-0.5">Test Key ID</label>
+                                <input type="text" name="razorpay_test_key_id" value="<?= htmlspecialchars($test_key_id) ?>" placeholder="rzp_test_..." class="w-full text-xs font-mono px-3 py-1.5 border border-slate-200 bg-white rounded-md focus:outline-none focus:border-[#fe7c03]">
+                            </div>
+                            <div>
+                                <label class="text-[10px] uppercase font-bold text-slate-500 block mb-0.5">Test Key Secret</label>
+                                <input type="password" name="razorpay_test_key_secret" value="<?= htmlspecialchars($test_key_secret) ?>" placeholder="Optional for standard checkout" class="w-full text-xs font-mono px-3 py-1.5 border border-slate-200 bg-white rounded-md focus:outline-none focus:border-[#fe7c03]">
                             </div>
                         </div>
                     </div>
 
                     <!-- LIVE KEYS -->
-                    <div class="p-3 rounded-3 border" style="background: #fcfdfd;">
-                        <div class="d-flex align-items-center justify-content-between mb-3">
-                            <div class="fw-bold text-dark"><i class="fa-solid fa-bolt text-success me-2"></i> Live Production Keys</div>
-                            <span class="badge bg-success-subtle text-success">Real Transactions</span>
+                    <div class="p-3 bg-slate-50 border border-slate-200 rounded-md space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                <i class="fa-solid fa-bolt text-emerald-500"></i> Live Production Keys
+                            </span>
+                            <span class="text-[10px] font-semibold text-emerald-600">Production</span>
                         </div>
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold small">Live Key ID</label>
-                                <input type="text" class="form-control font-monospace" name="razorpay_live_key_id" value="<?= htmlspecialchars($live_key_id) ?>" placeholder="rzp_live_...">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            <div>
+                                <label class="text-[10px] uppercase font-bold text-slate-500 block mb-0.5">Live Key ID</label>
+                                <input type="text" name="razorpay_live_key_id" value="<?= htmlspecialchars($live_key_id) ?>" placeholder="rzp_live_..." class="w-full text-xs font-mono px-3 py-1.5 border border-slate-200 bg-white rounded-md focus:outline-none focus:border-[#fe7c03]">
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold small">Live Key Secret</label>
-                                <input type="password" class="form-control font-monospace" name="razorpay_live_key_secret" value="<?= htmlspecialchars($live_key_secret) ?>" placeholder="Live secret key from Razorpay dashboard">
+                            <div>
+                                <label class="text-[10px] uppercase font-bold text-slate-500 block mb-0.5">Live Key Secret</label>
+                                <input type="password" name="razorpay_live_key_secret" value="<?= htmlspecialchars($live_key_secret) ?>" placeholder="Live secret key" class="w-full text-xs font-mono px-3 py-1.5 border border-slate-200 bg-white rounded-md focus:outline-none focus:border-[#fe7c03]">
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="card-footer bg-white py-3 border-top text-end">
-                    <button type="submit" class="btn btn-primary px-4 fw-semibold">
-                        <i class="fa-solid fa-floppy-disk me-1"></i> Save Gateway Configuration
-                    </button>
-                </div>
-            </div>
-        </div>
 
-        <!-- Sidebar Info & Instructions -->
-        <div class="col-lg-4">
-            <!-- How to get keys card -->
-            <div class="card border-0 shadow-sm rounded-3 mb-4">
-                <div class="card-header bg-white py-3 border-bottom">
-                    <h6 class="mb-0 fw-bold text-dark">
-                        <i class="fa-solid fa-circle-info text-info me-2"></i> How to Get Keys
-                    </h6>
+                    <div class="pt-2 text-right">
+                        <button type="submit" class="px-4 py-2 text-xs font-semibold text-white bg-[#fe7c03] hover:bg-[#ea6c00] rounded-md transition-colors inline-flex items-center gap-1.5">
+                            <i class="fa-solid fa-floppy-disk text-[11px]"></i>
+                            <span>Save Gateway Settings</span>
+                        </button>
+                    </div>
                 </div>
-                <div class="card-body p-3">
-                    <ol class="small text-muted ps-3 mb-0" style="line-height: 1.8;">
-                        <li>Log in to your <a href="https://dashboard.razorpay.com" target="_blank" class="fw-semibold text-primary">Razorpay Dashboard</a>.</li>
-                        <li>Switch between <strong>Test</strong> or <strong>Live</strong> mode from the top-left toggle.</li>
-                        <li>Navigate to <strong>Account & Settings</strong> &rarr; <strong>API Keys</strong>.</li>
-                        <li>Click <strong>Generate Key</strong> to view your <em>Key ID</em> and <em>Key Secret</em>.</li>
-                        <li>Copy and paste them into the respective fields on the left.</li>
+
+            </div>
+
+            <!-- Side Help Column (1 Col) -->
+            <div class="space-y-4">
+                
+                <!-- Status Card -->
+                <div class="bg-white border border-slate-200 rounded-md p-4">
+                    <h4 class="text-xs font-bold text-[#0e1e2e] uppercase tracking-wider pb-2 border-b border-slate-100 flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle-check text-emerald-500"></i> Current Status
+                    </h4>
+                    <div class="divide-y divide-slate-100 text-xs mt-2">
+                        <div class="py-2 flex justify-between">
+                            <span class="text-slate-400">Gateway:</span>
+                            <span class="font-bold <?= $enabled ? 'text-emerald-600' : 'text-rose-600' ?>"><?= $enabled ? 'Enabled' : 'Disabled' ?></span>
+                        </div>
+                        <div class="py-2 flex justify-between">
+                            <span class="text-slate-400">Mode:</span>
+                            <span class="font-bold text-slate-800 uppercase"><?= htmlspecialchars($mode) ?></span>
+                        </div>
+                        <div class="py-2 flex justify-between">
+                            <span class="text-slate-400">Seat Booking Fee:</span>
+                            <span class="font-bold text-[#fe7c03]">₹<?= number_format((float)$fee_amount, 2) ?></span>
+                        </div>
+                        <div class="py-2 flex justify-between">
+                            <span class="text-slate-400">Active Key:</span>
+                            <span class="font-mono text-[10px] text-slate-600 truncate max-w-[130px]">
+                                <?= htmlspecialchars(($mode === 'live') ? ($live_key_id ?: 'Not Set') : ($test_key_id ?: 'Not Set')) ?>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Instructions Card -->
+                <div class="bg-white border border-slate-200 rounded-md p-4">
+                    <h4 class="text-xs font-bold text-[#0e1e2e] uppercase tracking-wider pb-2 border-b border-slate-100 flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle-info text-sky-500"></i> How to Get Keys
+                    </h4>
+                    <ol class="text-xs text-slate-600 space-y-2 mt-3 list-decimal list-inside leading-relaxed">
+                        <li>Log in to <a href="https://dashboard.razorpay.com" target="_blank" class="text-[#fe7c03] font-semibold hover:underline">Razorpay Dashboard</a>.</li>
+                        <li>Switch to <strong>Test</strong> or <strong>Live</strong> mode from header.</li>
+                        <li>Go to <strong>Settings</strong> &rarr; <strong>API Keys</strong>.</li>
+                        <li>Click <strong>Generate Key</strong> to copy Key ID and Secret.</li>
+                        <li>Paste them here and save.</li>
                     </ol>
                 </div>
+
             </div>
 
-            <!-- Current Active Status Card -->
-            <div class="card border-0 shadow-sm rounded-3">
-                <div class="card-header bg-white py-3 border-bottom">
-                    <h6 class="mb-0 fw-bold text-dark">
-                        <i class="fa-solid fa-circle-check text-success me-2"></i> Current Status
-                    </h6>
-                </div>
-                <div class="card-body p-3">
-                    <div class="d-flex justify-content-between py-2 border-bottom small">
-                        <span class="text-muted">Gateway Status:</span>
-                        <span class="fw-bold <?= $enabled ? 'text-success' : 'text-danger' ?>"><?= $enabled ? 'Active' : 'Disabled' ?></span>
-                    </div>
-                    <div class="d-flex justify-content-between py-2 border-bottom small">
-                        <span class="text-muted">Environment:</span>
-                        <span class="fw-bold text-dark text-capitalize"><?= htmlspecialchars($mode) ?> Mode</span>
-                    </div>
-                    <div class="d-flex justify-content-between py-2 border-bottom small">
-                        <span class="text-muted">Seat Fee Amount:</span>
-                        <span class="fw-bold text-primary">₹<?= number_format((float)$fee_amount, 2) ?></span>
-                    </div>
-                    <div class="d-flex justify-content-between py-2 small">
-                        <span class="text-muted">Active Key ID:</span>
-                        <span class="fw-semibold font-monospace text-truncate ms-2" style="max-width: 140px;">
-                            <?= htmlspecialchars(($mode === 'live') ? ($live_key_id ?: 'Not Set') : ($test_key_id ?: 'Not Set')) ?>
-                        </span>
-                    </div>
-                </div>
-            </div>
         </div>
-    </div>
-</form>
+    </form>
+
+</div>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

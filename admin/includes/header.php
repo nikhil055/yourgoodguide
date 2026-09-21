@@ -3,356 +3,247 @@ require_once __DIR__ . '/auth.php';
 checkAdminAuth();
 $admin_stats = getAdminStats($pdo);
 $current_page = basename($_SERVER['PHP_SELF']);
+$admin_name = htmlspecialchars($_SESSION['admin_username'] ?? 'Admin');
+$admin_initial = strtoupper(substr($admin_name, 0, 1));
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full bg-[#f8fafc]">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $page_title ?? 'Admin Dashboard' ?> - Finchskills Portal</title>
+    <title><?= $page_title ?? 'Admin Dashboard' ?> - Finchskills Admin</title>
     
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- FontAwesome Icons -->
+    <!-- Google Fonts: Plus Jakarta Sans only -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome 6 Icons CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- Google Fonts Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap 5 CSS (for inner tables/modals compatibility) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            DEFAULT: '#fe7c03',
+                            hover: '#ea6c00',
+                            dark: '#0e1e2e',
+                            navy: '#09131e',
+                            border: '#1e3145',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     
     <style>
-        :root {
-            --primary: #4361ee;
-            --primary-hover: #3a56d4;
-            --sidebar-bg: #0f172a;
-            --sidebar-hover: #1e293b;
-            --sidebar-text: #94a3b8;
-            --sidebar-active: #4361ee;
-            --bg-light: #f8fafc;
-            --card-border: #e2e8f0;
+        body, input, button, select, textarea, table, h1, h2, h3, h4, h5, h6, p, a, div, span:not([class*="fa-"]) {
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-light);
-            color: #334155;
+            background-color: #f8fafc;
+            color: #0e1e2e;
         }
-        .sidebar {
-            width: 260px;
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background-color: var(--sidebar-bg);
-            z-index: 1000;
-            overflow-y: auto;
-            transition: all 0.3s ease;
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
         }
-        .main-wrapper {
-            margin-left: 260px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            transition: all 0.3s ease;
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
         }
-        .sidebar-brand {
-            padding: 1.5rem 1.25rem;
-            color: #fff;
-            font-weight: 700;
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
-            text-decoration: none;
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
         }
-        .sidebar-menu {
-            list-style: none;
-            padding: 1rem 0.75rem;
-            margin: 0;
-        }
-        .sidebar-item {
-            margin-bottom: 0.35rem;
-        }
-        .sidebar-link {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0.75rem 1rem;
-            color: var(--sidebar-text);
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 500;
-            font-size: 0.92rem;
-            transition: all 0.2s ease;
-        }
-        .sidebar-link:hover {
-            background-color: var(--sidebar-hover);
-            color: #fff;
-        }
-        .sidebar-link.active {
-            background-color: var(--sidebar-active);
-            color: #fff;
-        }
-        .sidebar-link-content {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .sidebar-link i {
-            font-size: 1.1rem;
-            width: 20px;
-            text-align: center;
-        }
-        .topbar-admin {
-            background: #fff;
-            height: 70px;
-            border-bottom: 1px solid var(--card-border);
-            padding: 0 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 99;
-        }
-        .content-area {
-            padding: 2rem;
-            flex-grow: 1;
-        }
+        /* Clean Flat Cards without heavy shadows */
         .stat-card {
-            border: 1px solid var(--card-border);
-            border-radius: 12px;
-            background: #fff;
-            padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            background: #ffffff;
+            padding: 1.25rem;
+            box-shadow: none !important;
+            transition: border-color 0.2s ease;
         }
         .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            border-color: #cbd5e1;
         }
         .stat-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 10px;
+            width: 38px;
+            height: 38px;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.3rem;
+            font-size: 1.1rem;
         }
-        .badge-counter {
-            font-size: 0.72rem;
-            padding: 0.25em 0.6em;
-            border-radius: 50rem;
+        /* Bootstrap compatibility adjustments */
+        .table > :not(caption) > * > * {
+            background-color: transparent;
         }
-        @media (max-width: 991.98px) {
-            .sidebar {
-                margin-left: -260px;
-            }
-            .sidebar.show {
-                margin-left: 0;
-            }
-            .main-wrapper {
-                margin-left: 0;
-            }
+        .card {
+            box-shadow: none !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 6px !important;
         }
     </style>
 </head>
-<body>
+<body class="h-full antialiased text-slate-800 bg-[#f8fafc]">
 
-<!-- SIDEBAR -->
-<aside class="sidebar" id="adminSidebar">
-    <a href="index.php" class="sidebar-brand">
-        <div class="bg-primary text-white p-2 rounded-3 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
-            <i class="fa-solid fa-graduation-cap"></i>
-        </div>
-        <span>Finchskills Admin</span>
-    </a>
+<!-- Modular Sidebar Component -->
+<?php require_once __DIR__ . '/sidebar.php'; ?>
 
-    <ul class="sidebar-menu">
-        <li class="sidebar-item">
-            <a href="index.php" class="sidebar-link <?= $current_page === 'index.php' ? 'active' : '' ?>">
-                <div class="sidebar-link-content">
-                    <i class="fa-solid fa-gauge-high"></i>
-                    <span>Dashboard</span>
-                </div>
-            </a>
-        </li>
-
-        <li class="sidebar-item">
-            <a href="courses.php" class="sidebar-link <?= in_array($current_page, ['courses.php', 'course-add.php', 'course-edit.php']) ? 'active' : '' ?>">
-                <div class="sidebar-link-content">
-                    <i class="fa-solid fa-book-open"></i>
-                    <span>Manage Courses</span>
-                </div>
-                <?php if (isset($admin_stats['total_courses'])): ?>
-                    <span class="badge bg-secondary badge-counter"><?= $admin_stats['total_courses'] ?></span>
-                <?php endif; ?>
-            </a>
-        </li>
-
-        <li class="sidebar-item">
-            <a href="students.php" class="sidebar-link <?= $current_page === 'students.php' ? 'active' : '' ?>">
-                <div class="sidebar-link-content">
-                    <i class="fa-solid fa-users"></i>
-                    <span>Registered Candidates</span>
-                </div>
-                <?php if (isset($admin_stats['total_students']) && $admin_stats['total_students'] > 0): ?>
-                    <span class="badge bg-primary badge-counter"><?= $admin_stats['total_students'] ?></span>
-                <?php endif; ?>
-            </a>
-        </li>
-
-        <li class="sidebar-item">
-            <a href="admissions.php" class="sidebar-link <?= $current_page === 'admissions.php' ? 'active' : '' ?>">
-                <div class="sidebar-link-content">
-                    <i class="fa-solid fa-user-graduate"></i>
-                    <span>Admissions</span>
-                </div>
-                <?php if ($admin_stats['unread_admissions'] > 0): ?>
-                    <span class="badge bg-danger badge-counter"><?= $admin_stats['unread_admissions'] ?></span>
-                <?php endif; ?>
-            </a>
-        </li>
-
-        <li class="sidebar-item">
-            <a href="fees.php" class="sidebar-link <?= $current_page === 'fees.php' ? 'active' : '' ?>">
-                <div class="sidebar-link-content">
-                    <i class="fa-solid fa-receipt"></i>
-                    <span>Fee Submissions</span>
-                </div>
-                <?php if ($admin_stats['unread_fees'] > 0): ?>
-                    <span class="badge bg-danger badge-counter"><?= $admin_stats['unread_fees'] ?></span>
-                <?php endif; ?>
-            </a>
-        </li>
-
-        <li class="sidebar-item">
-            <a href="contacts.php" class="sidebar-link <?= $current_page === 'contacts.php' ? 'active' : '' ?>">
-                <div class="sidebar-link-content">
-                    <i class="fa-solid fa-envelope-open-text"></i>
-                    <span>Contact Inquiries</span>
-                </div>
-                <?php if ($admin_stats['unread_inquiries'] > 0): ?>
-                    <span class="badge bg-danger badge-counter"><?= $admin_stats['unread_inquiries'] ?></span>
-                <?php endif; ?>
-            </a>
-        </li>
-
-        <li class="sidebar-item">
-            <a href="payment-settings.php" class="sidebar-link <?= $current_page === 'payment-settings.php' ? 'active' : '' ?>">
-                <div class="sidebar-link-content">
-                    <i class="fa-solid fa-credit-card"></i>
-                    <span>Payment Gateway</span>
-                </div>
-            </a>
-        </li>
-
-        <li class="sidebar-item">
-            <a href="smtp-settings.php" class="sidebar-link <?= $current_page === 'smtp-settings.php' ? 'active' : '' ?>">
-                <div class="sidebar-link-content">
-                    <i class="fa-solid fa-envelope-circle-check"></i>
-                    <span>Email &amp; SMTP</span>
-                </div>
-            </a>
-        </li>
-
-        <li class="sidebar-item">
-            <a href="settings.php" class="sidebar-link <?= $current_page === 'settings.php' ? 'active' : '' ?>">
-                <div class="sidebar-link-content">
-                    <i class="fa-solid fa-sliders"></i>
-                    <span>Site Settings</span>
-                </div>
-            </a>
-        </li>
-
-        <li class="sidebar-item mt-4 pt-3" style="border-top: 1px solid rgba(255,255,255,0.08);">
-            <a href="../index.php" target="_blank" class="sidebar-link text-info">
-                <div class="sidebar-link-content">
-                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                    <span>Visit Website</span>
-                </div>
-            </a>
-        </li>
-        <li class="sidebar-item">
-            <a href="logout.php" class="sidebar-link text-danger">
-                <div class="sidebar-link-content">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                    <span>Logout</span>
-                </div>
-            </a>
-        </li>
-    </ul>
-</aside>
-
-<!-- MAIN WRAPPER -->
-<div class="main-wrapper">
-    <!-- TOPBAR -->
-    <header class="topbar-admin">
-        <div class="d-flex align-items-center gap-3">
-            <button class="btn btn-light d-lg-none" id="sidebarToggle">
-                <i class="fa-solid fa-bars"></i>
+<!-- Main Wrapper -->
+<div class="lg:pl-64 flex flex-col min-h-screen bg-[#f8fafc]">
+    
+    <!-- Topbar Header -->
+    <header class="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 sm:px-6">
+        
+        <!-- Left Section: Mobile Toggle & Title -->
+        <div class="flex items-center gap-3">
+            <button id="sidebarOpenBtn" type="button" class="lg:hidden inline-flex items-center justify-center p-2 rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors">
+                <i class="fa-solid fa-bars text-sm"></i>
             </button>
-            <h5 class="mb-0 fw-bold text-dark"><?= $page_title ?? 'Dashboard' ?></h5>
+            
+            <div>
+                <div class="flex items-center gap-1.5 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                    <span>Admin</span>
+                    <i class="fa-solid fa-angle-right text-[9px] text-slate-300"></i>
+                    <span class="text-[#fe7c03]"><?= $page_title ?? 'Dashboard' ?></span>
+                </div>
+                <h1 class="text-base font-bold text-[#0e1e2e] leading-tight">
+                    <?= $page_title ?? 'Dashboard' ?>
+                </h1>
+            </div>
         </div>
 
-        <div class="d-flex align-items-center gap-4">
-            <!-- Notifications Dropdown -->
-            <div class="dropdown">
-                <a href="#" class="position-relative text-secondary fs-5" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fa-regular fa-bell"></i>
-                    <?php if ($admin_stats['total_unread'] > 0): ?>
-                        <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
-                            <span class="visually-hidden">New alerts</span>
+        <!-- Right Section: Live Site, Notifications, Profile -->
+        <div class="flex items-center gap-2 sm:gap-3">
+            
+            <!-- View Site Button -->
+            <a href="../index.php" target="_blank" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-[#fff8f3] hover:text-[#fe7c03] border border-slate-200 rounded-md transition-colors no-underline">
+                <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                <span>View Site</span>
+            </a>
+
+            <!-- Notification Dropdown -->
+            <div class="relative" id="notificationDropdownContainer">
+                <button id="notificationDropdownBtn" type="button" class="relative p-2 rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors">
+                    <i class="fa-regular fa-bell text-base"></i>
+                    <?php if (($admin_stats['total_unread'] ?? 0) > 0): ?>
+                        <span class="absolute top-1.5 right-1.5 flex h-2 w-2">
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-[#fe7c03]"></span>
                         </span>
                     <?php endif; ?>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 p-2" style="width: 280px;">
-                    <li class="p-2 border-bottom fw-bold text-dark d-flex justify-content-between align-items-center">
-                        <span>Notifications</span>
-                        <span class="badge bg-primary rounded-pill"><?= $admin_stats['total_unread'] ?> New</span>
-                    </li>
-                    <li>
-                        <a class="dropdown-item d-flex justify-content-between align-items-center py-2" href="admissions.php">
-                            <span><i class="fa-solid fa-user-graduate me-2 text-primary"></i> Admissions</span>
-                            <?php if ($admin_stats['unread_admissions'] > 0): ?>
-                                <span class="badge bg-danger"><?= $admin_stats['unread_admissions'] ?></span>
+                </button>
+
+                <!-- Notifications Menu -->
+                <div id="notificationDropdownMenu" class="hidden absolute right-0 mt-1.5 w-72 sm:w-80 rounded-md bg-white border border-slate-200 z-50 py-1">
+                    <div class="flex items-center justify-between px-3 py-2 border-b border-slate-100 bg-slate-50">
+                        <span class="text-xs font-bold text-[#0e1e2e]">Notifications</span>
+                        <?php if (($admin_stats['total_unread'] ?? 0) > 0): ?>
+                            <span class="px-1.5 py-0.2 text-[10px] font-bold rounded bg-orange-100 text-[#fe7c03]">
+                                <?= $admin_stats['total_unread'] ?> New
+                            </span>
+                        <?php endif; ?>
+                    </div>
+
+                    <div class="p-1 space-y-0.5">
+                        <!-- Admissions -->
+                        <a href="admissions.php" class="flex items-center justify-between p-2 rounded hover:bg-slate-50 transition-colors no-underline text-inherit">
+                            <div class="flex items-center gap-2">
+                                <span class="w-6 text-center text-[#fe7c03]"><i class="fa-solid fa-id-card text-xs"></i></span>
+                                <div>
+                                    <p class="text-xs font-semibold text-slate-800 leading-tight">Admissions</p>
+                                    <p class="text-[10px] text-slate-400">Enrollment requests</p>
+                                </div>
+                            </div>
+                            <?php if (($admin_stats['unread_admissions'] ?? 0) > 0): ?>
+                                <span class="px-1.5 py-0.2 text-[10px] font-bold rounded bg-orange-500 text-white">
+                                    <?= $admin_stats['unread_admissions'] ?>
+                                </span>
                             <?php endif; ?>
                         </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item d-flex justify-content-between align-items-center py-2" href="fees.php">
-                            <span><i class="fa-solid fa-receipt me-2 text-success"></i> Fee Submissions</span>
-                            <?php if ($admin_stats['unread_fees'] > 0): ?>
-                                <span class="badge bg-danger"><?= $admin_stats['unread_fees'] ?></span>
+
+                        <!-- Fees -->
+                        <a href="fees.php" class="flex items-center justify-between p-2 rounded hover:bg-slate-50 transition-colors no-underline text-inherit">
+                            <div class="flex items-center gap-2">
+                                <span class="w-6 text-center text-teal-600"><i class="fa-solid fa-receipt text-xs"></i></span>
+                                <div>
+                                    <p class="text-xs font-semibold text-slate-800 leading-tight">Fee Submissions</p>
+                                    <p class="text-[10px] text-slate-400">Receipts awaiting review</p>
+                                </div>
+                            </div>
+                            <?php if (($admin_stats['unread_fees'] ?? 0) > 0): ?>
+                                <span class="px-1.5 py-0.2 text-[10px] font-bold rounded bg-teal-600 text-white">
+                                    <?= $admin_stats['unread_fees'] ?>
+                                </span>
                             <?php endif; ?>
                         </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item d-flex justify-content-between align-items-center py-2" href="contacts.php">
-                            <span><i class="fa-solid fa-envelope me-2 text-warning"></i> Inquiries</span>
-                            <?php if ($admin_stats['unread_inquiries'] > 0): ?>
-                                <span class="badge bg-danger"><?= $admin_stats['unread_inquiries'] ?></span>
+
+                        <!-- Inquiries -->
+                        <a href="contacts.php" class="flex items-center justify-between p-2 rounded hover:bg-slate-50 transition-colors no-underline text-inherit">
+                            <div class="flex items-center gap-2">
+                                <span class="w-6 text-center text-sky-600"><i class="fa-solid fa-envelope text-xs"></i></span>
+                                <div>
+                                    <p class="text-xs font-semibold text-slate-800 leading-tight">Inquiries</p>
+                                    <p class="text-[10px] text-slate-400">Contact form messages</p>
+                                </div>
+                            </div>
+                            <?php if (($admin_stats['unread_inquiries'] ?? 0) > 0): ?>
+                                <span class="px-1.5 py-0.2 text-[10px] font-bold rounded bg-sky-600 text-white">
+                                    <?= $admin_stats['unread_inquiries'] ?>
+                                </span>
                             <?php endif; ?>
                         </a>
-                    </li>
-                </ul>
+                    </div>
+                </div>
             </div>
 
-            <!-- Profile dropdown -->
-            <div class="dropdown">
-                <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle gap-2" data-bs-toggle="dropdown">
-                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 36px; height: 36px;">
-                        <?= strtoupper(substr($_SESSION['admin_username'] ?? 'A', 0, 1)) ?>
+            <!-- Profile Dropdown -->
+            <div class="relative" id="profileDropdownContainer">
+                <button id="profileDropdownBtn" type="button" class="flex items-center gap-2 p-1.5 rounded-md hover:bg-slate-100 transition-colors">
+                    <div class="w-7 h-7 rounded bg-[#fe7c03] text-white font-bold flex items-center justify-center text-xs">
+                        <?= $admin_initial ?>
                     </div>
-                    <span class="fw-semibold text-dark d-none d-sm-inline"><?= htmlspecialchars($_SESSION['admin_username'] ?? 'Admin') ?></span>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
-                    <li><a class="dropdown-item py-2" href="settings.php"><i class="fa-solid fa-gear me-2"></i> Settings</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item py-2 text-danger" href="logout.php"><i class="fa-solid fa-right-from-bracket me-2"></i> Logout</a></li>
-                </ul>
+                    <span class="text-xs font-semibold text-[#0e1e2e] hidden sm:inline"><?= $admin_name ?></span>
+                    <i class="fa-solid fa-angle-down text-[10px] text-slate-400"></i>
+                </button>
+
+                <!-- Profile Menu -->
+                <div id="profileDropdownMenu" class="hidden absolute right-0 mt-1.5 w-48 rounded-md bg-white border border-slate-200 z-50 py-1">
+                    <div class="px-3 py-2 border-b border-slate-100 bg-slate-50">
+                        <p class="text-xs font-bold text-[#0e1e2e]"><?= $admin_name ?></p>
+                        <p class="text-[10px] text-slate-400 truncate"><?= htmlspecialchars($_SESSION['admin_email'] ?? 'admin@finchskills.com') ?></p>
+                    </div>
+                    <div class="p-1">
+                        <a href="settings.php" class="flex items-center gap-2 px-2.5 py-1.5 text-xs text-slate-700 hover:bg-slate-50 hover:text-[#fe7c03] rounded transition-colors no-underline">
+                            <i class="fa-solid fa-sliders text-xs w-4 text-slate-400"></i>
+                            <span>Settings</span>
+                        </a>
+                        <a href="payment-settings.php" class="flex items-center gap-2 px-2.5 py-1.5 text-xs text-slate-700 hover:bg-slate-50 hover:text-[#fe7c03] rounded transition-colors no-underline">
+                            <i class="fa-solid fa-credit-card text-xs w-4 text-slate-400"></i>
+                            <span>Payment Gateways</span>
+                        </a>
+                        <a href="logout.php" class="flex items-center gap-2 px-2.5 py-1.5 text-xs text-rose-600 hover:bg-rose-50 rounded transition-colors no-underline border-t border-slate-100 mt-1">
+                            <i class="fa-solid fa-right-from-bracket text-xs w-4"></i>
+                            <span>Logout</span>
+                        </a>
+                    </div>
+                </div>
             </div>
+
         </div>
     </header>
 
-    <!-- CONTENT AREA -->
-    <main class="content-area">
+    <!-- Main Content Container -->
+    <main class="flex-1 p-4 sm:p-5 lg:p-6">

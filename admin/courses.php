@@ -138,291 +138,65 @@ $stmt = $pdo->prepare($query);
 $stmt->execute($params);
 $courses = $stmt->fetchAll();
 
-include __DIR__ . '/includes/header.php';
+require_once __DIR__ . '/includes/header.php';
 ?>
 
-<!-- Minimalist Custom CSS for Course Management -->
-<style>
-/* Clean Minimal Page Styling */
-.course-page-wrap {
-    max-width: 1200px;
-    margin: 0 auto;
-}
-.page-title-text {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #0f172a;
-    letter-spacing: -0.2px;
-}
-.count-pill {
-    font-size: 11.5px;
-    font-weight: 600;
-    background: #f1f5f9;
-    color: #475569;
-    padding: 2px 8px;
-    border-radius: 9999px;
-    border: 1px solid #e2e8f0;
-}
+<div class="space-y-4">
 
-/* Action Buttons */
-.btn-compact {
-    font-size: 13px;
-    font-weight: 600;
-    padding: 6px 14px;
-    border-radius: 6px;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.15s ease;
-}
-.btn-compact-primary {
-    background: #4361ee;
-    color: #ffffff;
-    border: 1px solid #4361ee;
-}
-.btn-compact-primary:hover {
-    background: #3651d4;
-    color: #ffffff;
-}
-.btn-compact-outline {
-    background: #ffffff;
-    color: #475569;
-    border: 1px solid #cbd5e1;
-}
-.btn-compact-outline:hover {
-    background: #f8fafc;
-    color: #0f172a;
-    border-color: #94a3b8;
-}
-
-/* Minimal Filter Bar */
-.filter-bar {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 8px 12px;
-    margin-bottom: 16px;
-}
-.filter-select {
-    font-size: 12.5px;
-    border: 1px solid #cbd5e1;
-    border-radius: 6px;
-    padding: 5px 10px;
-    color: #334155;
-    background-color: #ffffff;
-    outline: none;
-}
-.filter-select:focus {
-    border-color: #4361ee;
-}
-.search-input-box {
-    position: relative;
-    min-width: 240px;
-}
-.search-input-box input {
-    width: 100%;
-    font-size: 12.5px;
-    border: 1px solid #cbd5e1;
-    border-radius: 6px;
-    padding: 5px 10px 5px 30px;
-    outline: none;
-}
-.search-input-box input:focus {
-    border-color: #4361ee;
-}
-.search-icon {
-    position: absolute;
-    left: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #94a3b8;
-    font-size: 11px;
-}
-
-/* Sleek Minimal Table */
-.minimal-table-card {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    overflow: hidden;
-}
-.table-minimal {
-    margin-bottom: 0;
-    font-size: 13px;
-}
-.table-minimal thead th {
-    background: #f8fafc;
-    color: #64748b;
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 10px 14px;
-    border-bottom: 1px solid #e2e8f0;
-}
-.table-minimal tbody td {
-    padding: 11px 14px;
-    vertical-align: middle;
-    border-bottom: 1px solid #f1f5f9;
-    color: #334155;
-}
-.table-minimal tbody tr:last-child td {
-    border-bottom: none;
-}
-.table-minimal tbody tr:hover td {
-    background-color: #fbfcfd;
-}
-
-/* Course Thumbnail */
-.course-thumb-mini {
-    width: 44px;
-    height: 32px;
-    border-radius: 5px;
-    object-fit: cover;
-    border: 1px solid #e2e8f0;
-    background: #f1f5f9;
-    flex-shrink: 0;
-}
-.course-title-text {
-    font-size: 13.5px;
-    font-weight: 600;
-    color: #0f172a;
-    text-decoration: none;
-}
-.course-title-text:hover {
-    color: #4361ee;
-}
-.course-slug-sub {
-    font-size: 11.5px;
-    color: #94a3b8;
-}
-
-/* Category Pill */
-.cat-tag {
-    display: inline-block;
-    font-size: 11.5px;
-    font-weight: 500;
-    color: #475569;
-    background: #f1f5f9;
-    border: 1px solid #e2e8f0;
-    padding: 2px 7px;
-    border-radius: 4px;
-}
-
-/* Status Dot Badges */
-.status-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 12px;
-    font-weight: 500;
-    padding: 2px 7px;
-    border-radius: 4px;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-}
-.status-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    display: inline-block;
-}
-.status-active {
-    color: #059669;
-}
-.status-active .status-dot {
-    background-color: #10b981;
-}
-.status-inactive {
-    color: #94a3b8;
-}
-.status-inactive .status-dot {
-    background-color: #cbd5e1;
-}
-
-/* Featured Star Button */
-.star-btn {
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    font-size: 13px;
-    padding: 2px 4px;
-}
-
-/* Action Icon Buttons */
-.act-btn {
-    width: 28px;
-    height: 28px;
-    border-radius: 5px;
-    border: 1px solid #e2e8f0;
-    background: #ffffff;
-    color: #64748b;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    text-decoration: none;
-    transition: all 0.15s ease;
-}
-.act-btn:hover {
-    color: #4361ee;
-    border-color: #cbd5e1;
-    background: #f8fafc;
-}
-.act-btn-del:hover {
-    color: #dc2626;
-    border-color: #fecaca;
-    background: #fef2f2;
-}
-</style>
-
-<div class="course-page-wrap">
-
-    <!-- ================= HEADER ================= -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <!-- PAGE HEADER -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-md border border-slate-200">
         <div>
-            <div class="d-flex align-items-center gap-2">
-                <span class="page-title-text">Courses</span>
-                <span class="count-pill"><?= $total_count ?> total &bull; <?= $active_count ?> active</span>
+            <div class="flex items-center gap-2">
+                <h2 class="text-base font-bold text-[#0e1e2e]">Courses Directory</h2>
+                <span class="px-2 py-0.5 text-[11px] font-semibold bg-slate-100 text-slate-600 rounded border border-slate-200">
+                    <?= $total_count ?> Total (<?= $active_count ?> Active)
+                </span>
             </div>
+            <p class="text-xs text-slate-400 mt-0.5">Manage training programs, categories, syllabus and tuition settings</p>
         </div>
-        <div class="d-flex gap-2">
-            <button type="button" class="btn-compact btn-compact-outline" data-bs-toggle="modal" data-bs-target="#categoryModal">
-                <i class="fa-solid fa-layer-group"></i>
+        <div class="flex items-center gap-2">
+            <button type="button" data-bs-toggle="modal" data-bs-target="#categoryModal" class="px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:text-[#fe7c03] rounded-md transition-colors flex items-center gap-1.5">
+                <i class="fa-solid fa-layer-group text-slate-400"></i>
                 <span>Categories</span>
             </button>
-            <a href="course-add.php" class="btn-compact btn-compact-primary">
-                <i class="fa-solid fa-plus"></i>
+            <a href="course-add.php" class="px-3.5 py-1.5 text-xs font-semibold text-white bg-[#fe7c03] hover:bg-[#ea6c00] rounded-md transition-colors flex items-center gap-1.5 no-underline">
+                <i class="fa-solid fa-plus text-[11px]"></i>
                 <span>Add Course</span>
             </a>
         </div>
     </div>
 
-    <!-- ================= ALERTS ================= -->
+    <!-- ALERTS -->
     <?php if (!empty($success_msg)): ?>
-        <div class="alert alert-success alert-dismissible fade show py-2 px-3 small d-flex align-items-center mb-3" role="alert">
-            <i class="fa-solid fa-circle-check me-2"></i>
-            <div><?= htmlspecialchars($success_msg) ?></div>
-            <button type="button" class="btn-close py-2" data-bs-dismiss="alert"></button>
+        <div class="p-3 text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-circle-check text-emerald-500"></i>
+                <span><?= htmlspecialchars($success_msg) ?></span>
+            </div>
+            <button type="button" onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-emerald-800">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
         </div>
     <?php endif; ?>
 
     <?php if (!empty($error_msg)): ?>
-        <div class="alert alert-danger alert-dismissible fade show py-2 px-3 small d-flex align-items-center mb-3" role="alert">
-            <i class="fa-solid fa-circle-exclamation me-2"></i>
-            <div><?= htmlspecialchars($error_msg) ?></div>
-            <button type="button" class="btn-close py-2" data-bs-dismiss="alert"></button>
+        <div class="p-3 text-xs bg-rose-50 text-rose-700 border border-rose-200 rounded-md flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-circle-exclamation text-rose-500"></i>
+                <span><?= htmlspecialchars($error_msg) ?></span>
+            </div>
+            <button type="button" onclick="this.parentElement.remove()" class="text-rose-500 hover:text-rose-800">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
         </div>
     <?php endif; ?>
 
-    <!-- ================= FILTER & SEARCH BAR ================= -->
-    <div class="filter-bar">
-        <form method="GET" action="courses.php" class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-            
-            <div class="d-flex align-items-center gap-2">
+    <!-- FILTER & SEARCH BAR -->
+    <div class="bg-white border border-slate-200 rounded-md p-3">
+        <form method="GET" action="courses.php" class="flex flex-wrap items-center justify-between gap-2.5">
+            <div class="flex flex-wrap items-center gap-2">
                 <!-- Category Select -->
-                <select name="category" class="filter-select" onchange="this.form.submit()">
+                <select name="category" onchange="this.form.submit()" class="text-xs bg-white border border-slate-200 rounded-md px-2.5 py-1.5 text-slate-700 focus:outline-none focus:border-[#fe7c03]">
                     <option value="">All Categories (<?= count($categories) ?>)</option>
                     <?php foreach ($categories as $cat): ?>
                         <option value="<?= $cat['id'] ?>" <?= $selected_category === (int)$cat['id'] ? 'selected' : '' ?>>
@@ -432,145 +206,133 @@ include __DIR__ . '/includes/header.php';
                 </select>
 
                 <!-- Status Select -->
-                <select name="status" class="filter-select" onchange="this.form.submit()">
+                <select name="status" onchange="this.form.submit()" class="text-xs bg-white border border-slate-200 rounded-md px-2.5 py-1.5 text-slate-700 focus:outline-none focus:border-[#fe7c03]">
                     <option value="">All Status</option>
                     <option value="active" <?= $selected_status === 'active' ? 'selected' : '' ?>>Active only</option>
                     <option value="inactive" <?= $selected_status === 'inactive' ? 'selected' : '' ?>>Inactive only</option>
                 </select>
 
                 <?php if ($selected_category > 0 || !empty($selected_status) || !empty($search)): ?>
-                    <a href="courses.php" class="btn-compact btn-compact-outline py-1 px-2" style="font-size: 11px;" title="Reset filters">
-                        <i class="fa-solid fa-xmark"></i> Clear
+                    <a href="courses.php" class="px-2 py-1 text-xs text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded transition-colors flex items-center gap-1 no-underline">
+                        <i class="fa-solid fa-xmark text-[10px]"></i> Reset
                     </a>
                 <?php endif; ?>
             </div>
 
             <!-- Search Input -->
-            <div class="search-input-box">
-                <i class="fa-solid fa-search search-icon"></i>
-                <input type="text" name="search" placeholder="Search course title..." value="<?= htmlspecialchars($search) ?>">
+            <div class="relative min-w-[220px]">
+                <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                <input type="text" name="search" placeholder="Search course title..." value="<?= htmlspecialchars($search) ?>" class="w-full text-xs pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded-md focus:outline-none focus:border-[#fe7c03] text-slate-800">
             </div>
-
         </form>
     </div>
 
-    <!-- ================= MINIMAL TABLE ================= -->
-    <div class="minimal-table-card">
-        <div class="table-responsive">
-            <table class="table table-minimal align-middle">
-                <thead>
+    <!-- COURSES TABLE -->
+    <div class="bg-white border border-slate-200 rounded-md overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase text-[10px] tracking-wider">
                     <tr>
-                        <th style="min-width: 300px;">Course</th>
-                        <th>Category</th>
-                        <th>Duration</th>
-                        <th>Mode</th>
-                        <th class="text-center" style="width: 70px;">Featured</th>
-                        <th style="width: 90px;">Status</th>
-                        <th class="text-end" style="width: 110px;">Actions</th>
+                        <th class="px-4 py-2.5">Course</th>
+                        <th class="px-4 py-2.5">Category</th>
+                        <th class="px-4 py-2.5">Duration</th>
+                        <th class="px-4 py-2.5">Mode</th>
+                        <th class="px-4 py-2.5 text-center">Featured</th>
+                        <th class="px-4 py-2.5">Status</th>
+                        <th class="px-4 py-2.5 text-right">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-slate-100">
                     <?php if (empty($courses)): ?>
                         <tr>
-                            <td colspan="7" class="text-center py-5 text-muted">
-                                <div class="py-3">
-                                    <i class="fa-regular fa-folder-open fa-2x mb-2 text-secondary opacity-50 d-block"></i>
-                                    <span class="d-block small fw-semibold text-dark">No courses found</span>
-                                    <span class="small text-muted">Try clearing your filters or create a new course.</span>
-                                </div>
+                            <td colspan="7" class="px-4 py-8 text-center text-slate-400">
+                                <i class="fa-regular fa-folder-open text-2xl mb-1 text-slate-300 block"></i>
+                                <span class="font-semibold text-slate-700 block">No courses found</span>
+                                <span class="text-[11px]">Try changing your filters or add a new course.</span>
                             </td>
                         </tr>
                     <?php else: ?>
                         <?php foreach ($courses as $c): ?>
-                            <tr>
-                                <!-- Course Title & Thumbnail -->
-                                <td>
-                                    <div class="d-flex align-items-center gap-2.5">
+                            <tr class="hover:bg-slate-50/80 transition-colors">
+                                <!-- Title & Thumb -->
+                                <td class="px-4 py-2.5">
+                                    <div class="flex items-center gap-2.5">
                                         <?php if (!empty($c['image'])): ?>
-                                            <img src="../<?= htmlspecialchars($c['image']) ?>" alt="" class="course-thumb-mini">
+                                            <img src="../<?= htmlspecialchars($c['image']) ?>" alt="" class="w-10 h-7 rounded object-cover border border-slate-200 bg-slate-100 shrink-0">
                                         <?php else: ?>
-                                            <div class="course-thumb-mini d-flex align-items-center justify-content-center text-muted">
-                                                <i class="fa-solid <?= htmlspecialchars($c['category_icon']) ?> small"></i>
+                                            <div class="w-10 h-7 rounded border border-slate-200 bg-slate-100 flex items-center justify-center text-slate-400 shrink-0">
+                                                <i class="fa-solid <?= htmlspecialchars($c['category_icon']) ?> text-[10px]"></i>
                                             </div>
                                         <?php endif; ?>
                                         <div>
-                                            <a href="course-edit.php?id=<?= $c['id'] ?>" class="course-title-text d-block">
+                                            <a href="course-edit.php?id=<?= $c['id'] ?>" class="font-semibold text-[#0e1e2e] hover:text-[#fe7c03] no-underline block">
                                                 <?= htmlspecialchars($c['title']) ?>
                                             </a>
-                                            <span class="course-slug-sub">/course-detail.php?slug=<?= htmlspecialchars($c['slug']) ?></span>
+                                            <span class="text-[10px] text-slate-400">/course-detail.php?slug=<?= htmlspecialchars($c['slug']) ?></span>
                                         </div>
                                     </div>
                                 </td>
 
                                 <!-- Category -->
-                                <td>
-                                    <span class="cat-tag">
-                                        <i class="fa-solid <?= htmlspecialchars($c['category_icon']) ?> me-1 text-secondary" style="font-size: 10px;"></i>
+                                <td class="px-4 py-2.5">
+                                    <span class="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
+                                        <i class="fa-solid <?= htmlspecialchars($c['category_icon']) ?> text-[9px] text-[#fe7c03]"></i>
                                         <?= htmlspecialchars($c['category_name']) ?>
                                     </span>
                                 </td>
 
                                 <!-- Duration -->
-                                <td>
-                                    <span class="text-dark small"><?= htmlspecialchars($c['duration']) ?></span>
-                                </td>
+                                <td class="px-4 py-2.5 text-slate-700 font-medium"><?= htmlspecialchars($c['duration']) ?></td>
 
-                                <!-- Study Mode -->
-                                <td>
-                                    <span class="text-muted small"><?= htmlspecialchars($c['study_mode']) ?></span>
-                                </td>
+                                <!-- Mode -->
+                                <td class="px-4 py-2.5 text-slate-500"><?= htmlspecialchars($c['study_mode']) ?></td>
 
                                 <!-- Featured Star -->
-                                <td class="text-center">
-                                    <form method="POST" action="courses.php" class="d-inline">
+                                <td class="px-4 py-2.5 text-center">
+                                    <form method="POST" action="courses.php" class="inline-block">
                                         <input type="hidden" name="action" value="toggle_featured">
                                         <input type="hidden" name="course_id" value="<?= $c['id'] ?>">
-                                        <button type="submit" class="star-btn" title="Toggle Home Feature">
+                                        <button type="submit" class="p-1 text-xs text-slate-300 hover:text-amber-400 transition-colors" title="Toggle Featured">
                                             <?php if ($c['is_featured']): ?>
-                                                <i class="fa-solid fa-star text-warning"></i>
+                                                <i class="fa-solid fa-star text-amber-400"></i>
                                             <?php else: ?>
-                                                <i class="fa-regular fa-star text-muted opacity-40"></i>
+                                                <i class="fa-regular fa-star text-slate-300"></i>
                                             <?php endif; ?>
                                         </button>
                                     </form>
                                 </td>
 
                                 <!-- Status -->
-                                <td>
-                                    <form method="POST" action="courses.php" class="d-inline">
+                                <td class="px-4 py-2.5">
+                                    <form method="POST" action="courses.php" class="inline-block">
                                         <input type="hidden" name="action" value="toggle_status">
                                         <input type="hidden" name="course_id" value="<?= $c['id'] ?>">
-                                        <?php if ($c['status'] === 'active'): ?>
-                                            <button type="submit" class="status-pill status-active" title="Click to disable">
-                                                <span class="status-dot"></span> Active
-                                            </button>
-                                        <?php else: ?>
-                                            <button type="submit" class="status-pill status-inactive" title="Click to enable">
-                                                <span class="status-dot"></span> Inactive
-                                            </button>
-                                        <?php endif; ?>
+                                        <button type="submit" class="px-2 py-0.5 text-[10px] font-semibold rounded transition-colors <?= $c['status'] === 'active' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-500 border border-slate-200' ?>" title="Click to toggle status">
+                                            <span class="inline-block w-1.5 h-1.5 rounded-full <?= $c['status'] === 'active' ? 'bg-emerald-500' : 'bg-slate-400' ?> mr-1"></span>
+                                            <?= ucfirst($c['status']) ?>
+                                        </button>
                                     </form>
                                 </td>
 
                                 <!-- Actions -->
-                                <td class="text-end">
-                                    <div class="d-inline-flex gap-1">
+                                <td class="px-4 py-2.5 text-right">
+                                    <div class="inline-flex items-center gap-1">
                                         <!-- Edit -->
-                                        <a href="course-edit.php?id=<?= $c['id'] ?>" class="act-btn" title="Edit Course">
-                                            <i class="fa-solid fa-pen"></i>
+                                        <a href="course-edit.php?id=<?= $c['id'] ?>" class="w-7 h-7 rounded border border-slate-200 bg-white text-slate-600 hover:text-[#fe7c03] hover:border-orange-200 flex items-center justify-center transition-colors no-underline" title="Edit Course">
+                                            <i class="fa-solid fa-pen text-[10px]"></i>
                                         </a>
 
                                         <!-- Live Preview -->
-                                        <a href="../course-detail.php?slug=<?= htmlspecialchars($c['slug']) ?>" target="_blank" class="act-btn" title="Live Preview">
-                                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                        <a href="../course-detail.php?slug=<?= htmlspecialchars($c['slug']) ?>" target="_blank" class="w-7 h-7 rounded border border-slate-200 bg-white text-slate-600 hover:text-sky-600 hover:border-sky-200 flex items-center justify-center transition-colors no-underline" title="Public Preview">
+                                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
                                         </a>
 
                                         <!-- Delete -->
-                                        <form method="POST" action="courses.php" onsubmit="return confirm('Delete \'<?= htmlspecialchars(addslashes($c['title'])) ?>\'?');" class="d-inline">
+                                        <form method="POST" action="courses.php" onsubmit="return confirm('Delete course \'<?= htmlspecialchars(addslashes($c['title'])) ?>\'?');" class="inline-block">
                                             <input type="hidden" name="action" value="delete_course">
                                             <input type="hidden" name="course_id" value="<?= $c['id'] ?>">
-                                            <button type="submit" class="act-btn act-btn-del" title="Delete Course">
-                                                <i class="fa-regular fa-trash-can"></i>
+                                            <button type="submit" class="w-7 h-7 rounded border border-slate-200 bg-white text-slate-400 hover:text-rose-600 hover:border-rose-200 flex items-center justify-center transition-colors" title="Delete Course">
+                                                <i class="fa-regular fa-trash-can text-[10px]"></i>
                                             </button>
                                         </form>
                                     </div>
@@ -585,55 +347,53 @@ include __DIR__ . '/includes/header.php';
 
 </div>
 
-<!-- ================= CATEGORY MANAGEMENT MODAL ================= -->
+<!-- CATEGORY MODAL -->
 <div class="modal fade" id="categoryModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-sm rounded-3">
-            <div class="modal-header border-bottom py-2.5 px-3">
-                <h6 class="modal-title fw-bold text-dark mb-0">Course Categories</h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="modal-content border border-slate-200 rounded-md shadow-none">
+            <div class="modal-header border-b border-slate-200 py-3 px-4 bg-slate-50">
+                <h6 class="modal-title text-xs font-bold text-[#0e1e2e] uppercase tracking-wider mb-0">Manage Course Categories</h6>
+                <button type="button" class="btn-close text-xs" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body p-3">
+            <div class="modal-body p-4 space-y-3">
                 
                 <!-- Quick Add -->
-                <form method="POST" action="courses.php" class="mb-3">
+                <form method="POST" action="courses.php" class="flex gap-2">
                     <input type="hidden" name="action" value="add_category">
-                    <div class="d-flex gap-2">
-                        <input type="text" name="cat_name" class="form-control form-control-sm" placeholder="New category name..." required>
-                        <input type="text" name="cat_icon" class="form-control form-control-sm" style="max-width: 130px;" value="fa-graduation-cap" placeholder="Icon class">
-                        <button type="submit" class="btn btn-sm btn-primary flex-shrink-0">Add</button>
-                    </div>
+                    <input type="text" name="cat_name" class="flex-1 text-xs border border-slate-200 rounded-md px-3 py-1.5 focus:outline-none focus:border-[#fe7c03]" placeholder="New category name..." required>
+                    <input type="text" name="cat_icon" class="w-32 text-xs border border-slate-200 rounded-md px-2.5 py-1.5 focus:outline-none focus:border-[#fe7c03]" value="fa-graduation-cap" placeholder="Icon class">
+                    <button type="submit" class="px-3 py-1.5 text-xs font-semibold text-white bg-[#fe7c03] hover:bg-[#ea6c00] rounded-md transition-colors">Add</button>
                 </form>
 
                 <!-- List -->
-                <div class="border rounded-2 overflow-hidden">
-                    <table class="table table-sm table-hover mb-0" style="font-size: 12.5px;">
-                        <thead class="table-light">
+                <div class="border border-slate-200 rounded-md overflow-hidden max-h-64 overflow-y-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold text-[10px] uppercase">
                             <tr>
-                                <th>Name</th>
-                                <th>Courses</th>
-                                <th class="text-end">Action</th>
+                                <th class="px-3 py-2">Category</th>
+                                <th class="px-3 py-2 text-center">Courses</th>
+                                <th class="px-3 py-2 text-right">Action</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="divide-y divide-slate-100">
                             <?php foreach ($categories as $cat): ?>
                                 <tr>
-                                    <td>
-                                        <i class="fa-solid <?= htmlspecialchars($cat['icon']) ?> text-muted me-1.5 small"></i>
-                                        <strong class="text-dark"><?= htmlspecialchars($cat['name']) ?></strong>
+                                    <td class="px-3 py-2">
+                                        <i class="fa-solid <?= htmlspecialchars($cat['icon']) ?> text-[#fe7c03] text-[10px] mr-1.5"></i>
+                                        <strong class="text-slate-800"><?= htmlspecialchars($cat['name']) ?></strong>
                                     </td>
-                                    <td><span class="text-muted"><?= $cat['course_count'] ?></span></td>
-                                    <td class="text-end">
+                                    <td class="px-3 py-2 text-center text-slate-500"><?= $cat['course_count'] ?></td>
+                                    <td class="px-3 py-2 text-right">
                                         <?php if ($cat['course_count'] == 0): ?>
-                                            <form method="POST" action="courses.php" onsubmit="return confirm('Delete this category?');" class="d-inline">
+                                            <form method="POST" action="courses.php" onsubmit="return confirm('Delete this category?');" class="inline-block">
                                                 <input type="hidden" name="action" value="delete_category">
                                                 <input type="hidden" name="cat_id" value="<?= $cat['id'] ?>">
-                                                <button type="submit" class="border-0 bg-transparent text-danger p-0 small" title="Delete">
+                                                <button type="submit" class="text-rose-500 hover:text-rose-700 text-xs">
                                                     <i class="fa-solid fa-trash-can"></i>
                                                 </button>
                                             </form>
                                         <?php else: ?>
-                                            <span class="text-muted small" title="Contains courses"><i class="fa-solid fa-lock" style="font-size: 10px;"></i></span>
+                                            <span class="text-slate-300 text-[10px]" title="Contains courses"><i class="fa-solid fa-lock"></i></span>
                                         <?php endif; ?>
                                     </td>
                                 </tr>
@@ -643,11 +403,11 @@ include __DIR__ . '/includes/header.php';
                 </div>
 
             </div>
-            <div class="modal-footer border-top py-2 px-3">
-                <button type="button" class="btn btn-sm btn-light border" data-bs-dismiss="modal">Close</button>
+            <div class="modal-footer border-t border-slate-200 py-2.5 px-4 bg-slate-50">
+                <button type="button" class="px-3 py-1.5 text-xs text-slate-600 bg-white border border-slate-200 rounded-md hover:bg-slate-50" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
 </div>
 
-<?php include __DIR__ . '/includes/footer.php'; ?>
+<?php require_once __DIR__ . '/includes/footer.php'; ?>

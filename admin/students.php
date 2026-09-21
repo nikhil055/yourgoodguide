@@ -1,5 +1,5 @@
 <?php
-$page_title = "Registered Candidates Management";
+$page_title = "Registered Students";
 require_once __DIR__ . '/includes/header.php';
 
 $msg = '';
@@ -97,138 +97,141 @@ $stmt->execute($params);
 $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
-<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-    <div>
-        <h4 class="fw-bold text-dark mb-1">Registered Candidates</h4>
-        <p class="text-muted small mb-0">Total <?= count($students) ?> students found (with credentials, Aadhaar, and payment details)</p>
-    </div>
-    <div class="d-flex gap-2">
-        <a href="payment-settings.php" class="btn btn-outline-primary btn-sm px-3">
-            <i class="fa-solid fa-credit-card me-1"></i> Gateway Setup
-        </a>
-        <a href="../register.php" target="_blank" class="btn btn-primary btn-sm px-3">
-            <i class="fa-solid fa-user-plus me-1"></i> New Registration Form
-        </a>
-    </div>
-</div>
+<div class="space-y-4">
 
-<?php if (!empty($msg)): ?>
-    <div class="alert alert-success alert-dismissible fade show d-flex align-items-center mb-4">
-        <i class="fa-solid fa-circle-check fs-4 me-2"></i>
-        <div><?= htmlspecialchars($msg) ?></div>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    <!-- PAGE HEADER -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-md border border-slate-200">
+        <div>
+            <div class="flex items-center gap-2">
+                <h2 class="text-base font-bold text-[#0e1e2e]">Registered Students</h2>
+                <span class="px-2 py-0.5 text-[11px] font-semibold bg-slate-100 text-slate-600 rounded border border-slate-200">
+                    <?= count($students) ?> Students Listed
+                </span>
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5">Manage candidate profiles, seat confirmations, and payment verifications</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <a href="payment-settings.php" class="px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:text-[#fe7c03] rounded-md transition-colors flex items-center gap-1.5 no-underline">
+                <i class="fa-solid fa-credit-card text-slate-400"></i>
+                <span>Gateway Setup</span>
+            </a>
+            <a href="../register.php" target="_blank" class="px-3.5 py-1.5 text-xs font-semibold text-white bg-[#fe7c03] hover:bg-[#ea6c00] rounded-md transition-colors flex items-center gap-1.5 no-underline">
+                <i class="fa-solid fa-user-plus text-[11px]"></i>
+                <span>Public Form</span>
+            </a>
+        </div>
     </div>
-<?php endif; ?>
 
-<!-- KPI STAT CARDS -->
-<div class="row g-3 mb-4">
-    <div class="col-xl-3 col-sm-6">
-        <div class="stat-card">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-muted fw-semibold small">TOTAL CANDIDATES</span>
-                <div class="stat-icon bg-primary-subtle text-primary">
-                    <i class="fa-solid fa-users"></i>
-                </div>
+    <!-- ALERTS -->
+    <?php if (!empty($msg)): ?>
+        <div class="p-3 text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-circle-check text-emerald-500"></i>
+                <span><?= htmlspecialchars($msg) ?></span>
             </div>
-            <h3 class="fw-bold mb-1 text-dark"><?= (int)($kpi['total'] ?? 0) ?></h3>
-            <span class="badge bg-light text-secondary border"><?= (int)($kpi['verified'] ?? 0) ?> Verified Emails</span>
+            <button type="button" onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-emerald-800">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
         </div>
-    </div>
-    <div class="col-xl-3 col-sm-6">
-        <div class="stat-card">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-muted fw-semibold small">CONFIRMED SEATS</span>
-                <div class="stat-icon bg-success-subtle text-success">
-                    <i class="fa-solid fa-chair"></i>
-                </div>
-            </div>
-            <h3 class="fw-bold mb-1 text-dark"><?= (int)($kpi['confirmed'] ?? 0) ?></h3>
-            <span class="badge bg-success-subtle text-success">Guaranteed Admission</span>
-        </div>
-    </div>
-    <div class="col-xl-3 col-sm-6">
-        <div class="stat-card">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-muted fw-semibold small">FEES PAID (RAZORPAY)</span>
-                <div class="stat-icon bg-info-subtle text-info">
-                    <i class="fa-solid fa-receipt"></i>
-                </div>
-            </div>
-            <h3 class="fw-bold mb-1 text-dark"><?= (int)($kpi['paid'] ?? 0) ?></h3>
-            <span class="badge bg-info-subtle text-info">Payment Verified</span>
-        </div>
-    </div>
-    <div class="col-xl-3 col-sm-6">
-        <div class="stat-card">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-muted fw-semibold small">PENDING / UNPAID</span>
-                <div class="stat-icon bg-warning-subtle text-warning">
-                    <i class="fa-solid fa-hourglass-half"></i>
-                </div>
-            </div>
-            <h3 class="fw-bold mb-1 text-dark"><?= (int)($kpi['unpaid'] ?? 0) ?></h3>
-            <span class="badge bg-warning-subtle text-warning">Requires Follow-up</span>
-        </div>
-    </div>
-</div>
+    <?php endif; ?>
 
-<!-- FILTER & SEARCH CARD -->
-<div class="card border-0 shadow-sm rounded-3 mb-4">
-    <div class="card-body p-3">
-        <form method="GET" action="students.php" class="row g-2 align-items-center">
-            <div class="col-md-5">
-                <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-search text-muted"></i></span>
-                    <input type="text" name="search" class="form-control border-start-0" placeholder="Search by name, student ID, email, phone, aadhaar..." value="<?= htmlspecialchars($search) ?>">
-                </div>
+    <!-- KPI STATS CARDS -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white border border-slate-200 rounded-md p-3.5">
+            <div class="flex items-center justify-between mb-1.5">
+                <span class="text-[11px] font-bold uppercase text-slate-400">Total Registered</span>
+                <span class="w-7 h-7 rounded bg-orange-50 text-[#fe7c03] flex items-center justify-center text-xs"><i class="fa-solid fa-users"></i></span>
             </div>
-            <div class="col-md-3">
-                <select name="seat_status" class="form-select">
+            <h4 class="text-xl font-bold text-[#0e1e2e]"><?= (int)($kpi['total'] ?? 0) ?></h4>
+            <p class="text-[10px] text-slate-400 mt-1"><?= (int)($kpi['verified'] ?? 0) ?> Emails Verified</p>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-md p-3.5">
+            <div class="flex items-center justify-between mb-1.5">
+                <span class="text-[11px] font-bold uppercase text-slate-400">Confirmed Seats</span>
+                <span class="w-7 h-7 rounded bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs"><i class="fa-solid fa-chair"></i></span>
+            </div>
+            <h4 class="text-xl font-bold text-[#0e1e2e]"><?= (int)($kpi['confirmed'] ?? 0) ?></h4>
+            <p class="text-[10px] text-emerald-600 font-medium mt-1">Guaranteed Admission</p>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-md p-3.5">
+            <div class="flex items-center justify-between mb-1.5">
+                <span class="text-[11px] font-bold uppercase text-slate-400">Fees Paid</span>
+                <span class="w-7 h-7 rounded bg-sky-50 text-sky-600 flex items-center justify-center text-xs"><i class="fa-solid fa-receipt"></i></span>
+            </div>
+            <h4 class="text-xl font-bold text-[#0e1e2e]"><?= (int)($kpi['paid'] ?? 0) ?></h4>
+            <p class="text-[10px] text-sky-600 font-medium mt-1">Razorpay Verified</p>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-md p-3.5">
+            <div class="flex items-center justify-between mb-1.5">
+                <span class="text-[11px] font-bold uppercase text-slate-400">Pending / Unpaid</span>
+                <span class="w-7 h-7 rounded bg-amber-50 text-amber-600 flex items-center justify-center text-xs"><i class="fa-solid fa-hourglass-half"></i></span>
+            </div>
+            <h4 class="text-xl font-bold text-[#0e1e2e]"><?= (int)($kpi['unpaid'] ?? 0) ?></h4>
+            <p class="text-[10px] text-amber-600 font-medium mt-1">Follow-up Required</p>
+        </div>
+    </div>
+
+    <!-- FILTER & SEARCH BAR -->
+    <div class="bg-white border border-slate-200 rounded-md p-3">
+        <form method="GET" action="students.php" class="flex flex-wrap items-center justify-between gap-2.5">
+            <div class="flex flex-wrap items-center gap-2">
+                <!-- Seat Status -->
+                <select name="seat_status" onchange="this.form.submit()" class="text-xs bg-white border border-slate-200 rounded-md px-2.5 py-1.5 text-slate-700 focus:outline-none focus:border-[#fe7c03]">
                     <option value="">All Seat Statuses</option>
                     <option value="Confirmed" <?= $filter_seat === 'Confirmed' ? 'selected' : '' ?>>Confirmed</option>
                     <option value="Reserved" <?= $filter_seat === 'Reserved' ? 'selected' : '' ?>>Reserved</option>
                     <option value="Pending" <?= $filter_seat === 'Pending' ? 'selected' : '' ?>>Pending</option>
                 </select>
-            </div>
-            <div class="col-md-2">
-                <select name="payment_status" class="form-select">
+
+                <!-- Payment Status -->
+                <select name="payment_status" onchange="this.form.submit()" class="text-xs bg-white border border-slate-200 rounded-md px-2.5 py-1.5 text-slate-700 focus:outline-none focus:border-[#fe7c03]">
                     <option value="">All Payment Statuses</option>
                     <option value="Paid" <?= $filter_payment === 'Paid' ? 'selected' : '' ?>>Paid</option>
                     <option value="Unpaid" <?= $filter_payment === 'Unpaid' ? 'selected' : '' ?>>Unpaid</option>
                     <option value="Skipped" <?= $filter_payment === 'Skipped' ? 'selected' : '' ?>>Skipped (Pay Later)</option>
                 </select>
+
+                <?php if (!empty($filter_seat) || !empty($filter_payment) || !empty($search)): ?>
+                    <a href="students.php" class="px-2 py-1 text-xs text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded transition-colors flex items-center gap-1 no-underline">
+                        <i class="fa-solid fa-xmark text-[10px]"></i> Reset
+                    </a>
+                <?php endif; ?>
             </div>
-            <div class="col-md-2 d-flex gap-2">
-                <button type="submit" class="btn btn-primary w-100"><i class="fa-solid fa-filter me-1"></i> Filter</button>
-                <a href="students.php" class="btn btn-light" title="Reset Filters"><i class="fa-solid fa-rotate-left"></i></a>
+
+            <!-- Search Input -->
+            <div class="relative min-w-[240px]">
+                <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                <input type="text" name="search" placeholder="Search name, ID, phone, email..." value="<?= htmlspecialchars($search) ?>" class="w-full text-xs pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded-md focus:outline-none focus:border-[#fe7c03] text-slate-800">
             </div>
         </form>
     </div>
-</div>
 
-<!-- STUDENTS TABLE -->
-<div class="card border-0 shadow-sm rounded-3">
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
+    <!-- STUDENTS TABLE -->
+    <div class="bg-white border border-slate-200 rounded-md overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase text-[10px] tracking-wider">
                     <tr>
-                        <th class="ps-4">Candidate</th>
-                        <th>Student ID</th>
-                        <th>Contact / Email</th>
-                        <th>Aadhaar Number</th>
-                        <th>Seat Status</th>
-                        <th>Fee / Razorpay</th>
-                        <th>Registered Date</th>
-                        <th class="text-end pe-4">Actions</th>
+                        <th class="px-4 py-2.5">Candidate</th>
+                        <th class="px-4 py-2.5">Student ID</th>
+                        <th class="px-4 py-2.5">Contact / Email</th>
+                        <th class="px-4 py-2.5">Aadhaar</th>
+                        <th class="px-4 py-2.5">Seat Status</th>
+                        <th class="px-4 py-2.5">Payment</th>
+                        <th class="px-4 py-2.5">Date</th>
+                        <th class="px-4 py-2.5 text-right">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-slate-100">
                     <?php if (empty($students)): ?>
                         <tr>
-                            <td colspan="8" class="text-center py-5 text-muted">
-                                <i class="fa-solid fa-users-slash fs-2 mb-2 d-block"></i>
-                                No candidate records found matching your filters.
+                            <td colspan="8" class="px-4 py-8 text-center text-slate-400">
+                                <i class="fa-solid fa-users-slash text-2xl mb-1 text-slate-300 block"></i>
+                                <span class="font-semibold text-slate-700 block">No candidates found</span>
+                                <span class="text-[11px]">No registered candidate records match your current filters.</span>
                             </td>
                         </tr>
                     <?php else: ?>
@@ -238,26 +241,26 @@ $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             $wa_link = "https://wa.me/91" . substr($clean_phone, -10);
                             $photo_src = (!empty($stu['photo']) && file_exists(__DIR__ . '/../' . $stu['photo'])) ? '../' . $stu['photo'] : '';
                             ?>
-                            <tr>
+                            <tr class="hover:bg-slate-50/80 transition-colors">
                                 <!-- Candidate Info -->
-                                <td class="ps-4">
-                                    <div class="d-flex align-items-center gap-3">
+                                <td class="px-4 py-2.5">
+                                    <div class="flex items-center gap-2.5">
                                         <?php if ($photo_src): ?>
-                                            <img src="<?= htmlspecialchars($photo_src) ?>" alt="Photo" class="rounded-circle border" style="width: 42px; height: 42px; object-fit: cover;">
+                                            <img src="<?= htmlspecialchars($photo_src) ?>" alt="" class="w-8 h-8 rounded-full object-cover border border-slate-200 shrink-0">
                                         <?php else: ?>
-                                            <div class="rounded-circle bg-light border text-muted d-flex align-items-center justify-content-center fw-bold" style="width: 42px; height: 42px; font-size: 14px;">
+                                            <div class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 text-slate-600 font-bold flex items-center justify-center text-xs shrink-0">
                                                 <?= strtoupper(substr($stu['name'], 0, 1)) ?>
                                             </div>
                                         <?php endif; ?>
                                         <div>
-                                            <div class="fw-bold text-dark"><?= htmlspecialchars($stu['name']) ?></div>
+                                            <div class="font-semibold text-[#0e1e2e] leading-tight"><?= htmlspecialchars($stu['name']) ?></div>
                                             <?php if ($stu['is_verified'] == 1): ?>
-                                                <span class="badge bg-success-subtle text-success border border-success-subtle py-0" style="font-size: 10px;">
-                                                    <i class="fa-solid fa-check me-1"></i>Email Verified
+                                                <span class="text-[10px] text-emerald-600 font-medium inline-flex items-center gap-0.5">
+                                                    <i class="fa-solid fa-circle-check text-[9px]"></i> Verified
                                                 </span>
                                             <?php else: ?>
-                                                <span class="badge bg-warning-subtle text-warning border border-warning-subtle py-0" style="font-size: 10px;">
-                                                    <i class="fa-solid fa-clock me-1"></i>Unverified
+                                                <span class="text-[10px] text-amber-600 font-medium inline-flex items-center gap-0.5">
+                                                    <i class="fa-regular fa-clock text-[9px]"></i> Unverified
                                                 </span>
                                             <?php endif; ?>
                                         </div>
@@ -265,124 +268,106 @@ $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 </td>
 
                                 <!-- Student ID -->
-                                <td>
-                                    <span class="badge bg-light text-dark border font-monospace px-2 py-1" style="font-size: 12px;">
-                                        <i class="fa-solid fa-id-badge text-warning me-1"></i><?= htmlspecialchars($stu['student_id']) ?>
+                                <td class="px-4 py-2.5">
+                                    <span class="px-2 py-0.5 text-[11px] font-mono font-medium rounded bg-slate-100 text-slate-700 border border-slate-200">
+                                        <?= htmlspecialchars($stu['student_id']) ?>
                                     </span>
                                 </td>
 
                                 <!-- Contact / Email -->
-                                <td>
-                                    <div class="small fw-semibold text-dark">
-                                        <a href="tel:<?= htmlspecialchars($stu['phone']) ?>" class="text-decoration-none text-dark">
-                                            <i class="fa-solid fa-phone text-muted me-1"></i><?= htmlspecialchars($stu['phone']) ?>
+                                <td class="px-4 py-2.5">
+                                    <div class="flex items-center gap-1.5 font-medium text-slate-800">
+                                        <a href="tel:<?= htmlspecialchars($stu['phone']) ?>" class="hover:text-[#fe7c03] no-underline text-inherit">
+                                            <?= htmlspecialchars($stu['phone']) ?>
                                         </a>
-                                        <a href="<?= $wa_link ?>" target="_blank" class="text-success ms-2" title="Chat on WhatsApp">
-                                            <i class="fa-brands fa-whatsapp"></i>
-                                        </a>
-                                    </div>
-                                    <div class="small text-muted">
-                                        <a href="mailto:<?= htmlspecialchars($stu['email']) ?>" class="text-decoration-none text-muted">
-                                            <i class="fa-regular fa-envelope me-1"></i><?= htmlspecialchars($stu['email']) ?>
+                                        <a href="<?= $wa_link ?>" target="_blank" class="text-emerald-600 hover:text-emerald-700" title="WhatsApp">
+                                            <i class="fa-brands fa-whatsapp text-xs"></i>
                                         </a>
                                     </div>
+                                    <a href="mailto:<?= htmlspecialchars($stu['email']) ?>" class="text-[11px] text-slate-400 hover:text-[#fe7c03] no-underline block">
+                                        <?= htmlspecialchars($stu['email']) ?>
+                                    </a>
                                 </td>
 
                                 <!-- Aadhaar -->
-                                <td>
-                                    <span class="font-monospace small text-secondary">
-                                        <i class="fa-solid fa-address-card text-muted me-1"></i><?= htmlspecialchars($stu['aadhaar']) ?>
-                                    </span>
+                                <td class="px-4 py-2.5 font-mono text-[11px] text-slate-600">
+                                    <?= htmlspecialchars($stu['aadhaar']) ?>
                                 </td>
 
                                 <!-- Seat Status -->
-                                <td>
-                                    <?php if ($stu['seat_status'] === 'Confirmed'): ?>
-                                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
-                                            <i class="fa-solid fa-circle-check me-1"></i>Confirmed
-                                        </span>
-                                    <?php elseif ($stu['seat_status'] === 'Reserved'): ?>
-                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
-                                            <i class="fa-solid fa-bookmark me-1"></i>Reserved
-                                        </span>
-                                    <?php else: ?>
-                                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1">
-                                            <i class="fa-solid fa-clock me-1"></i>Pending
-                                        </span>
-                                    <?php endif; ?>
+                                <td class="px-4 py-2.5">
+                                    <a href="students.php?action=toggle_seat&id=<?= $stu['id'] ?>" class="no-underline inline-block" title="Click to toggle seat status">
+                                        <?php if ($stu['seat_status'] === 'Confirmed'): ?>
+                                            <span class="px-2 py-0.5 text-[10px] font-semibold rounded bg-emerald-50 text-emerald-700 border border-emerald-200 inline-flex items-center gap-1">
+                                                <i class="fa-solid fa-circle-check text-[9px]"></i> Confirmed
+                                            </span>
+                                        <?php elseif ($stu['seat_status'] === 'Reserved'): ?>
+                                            <span class="px-2 py-0.5 text-[10px] font-semibold rounded bg-sky-50 text-sky-700 border border-sky-200 inline-flex items-center gap-1">
+                                                <i class="fa-solid fa-bookmark text-[9px]"></i> Reserved
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="px-2 py-0.5 text-[10px] font-semibold rounded bg-amber-50 text-amber-700 border border-amber-200 inline-flex items-center gap-1">
+                                                <i class="fa-regular fa-clock text-[9px]"></i> Pending
+                                            </span>
+                                        <?php endif; ?>
+                                    </a>
                                 </td>
 
                                 <!-- Payment Status -->
-                                <td>
-                                    <?php if ($stu['payment_status'] === 'Paid'): ?>
-                                        <span class="badge bg-success text-white px-2 py-1">
-                                            <i class="fa-solid fa-check me-1"></i>Paid ₹<?= number_format((float)($stu['payment_amount'] ?: 999), 0) ?>
-                                        </span>
-                                        <?php if (!empty($stu['payment_id'])): ?>
-                                            <div class="text-muted font-monospace" style="font-size: 10.5px; margin-top: 2px;" title="<?= htmlspecialchars($stu['payment_id']) ?>">
-                                                ID: <?= htmlspecialchars(substr($stu['payment_id'], 0, 14)) ?>...
-                                            </div>
+                                <td class="px-4 py-2.5">
+                                    <a href="students.php?action=toggle_payment&id=<?= $stu['id'] ?>" class="no-underline inline-block" title="Click to toggle payment status">
+                                        <?php if ($stu['payment_status'] === 'Paid'): ?>
+                                            <span class="px-2 py-0.5 text-[10px] font-semibold rounded bg-emerald-600 text-white inline-flex items-center gap-1">
+                                                <i class="fa-solid fa-check text-[9px]"></i> Paid ₹<?= number_format((float)($stu['payment_amount'] ?: 999), 0) ?>
+                                            </span>
+                                            <?php if (!empty($stu['payment_id'])): ?>
+                                                <div class="text-[9px] font-mono text-slate-400 mt-0.5" title="<?= htmlspecialchars($stu['payment_id']) ?>">
+                                                    <?= htmlspecialchars(substr($stu['payment_id'], 0, 12)) ?>...
+                                                </div>
+                                            <?php endif; ?>
+                                        <?php elseif ($stu['payment_status'] === 'Skipped'): ?>
+                                            <span class="px-2 py-0.5 text-[10px] font-semibold rounded bg-slate-100 text-slate-600 border border-slate-200">
+                                                Pay Later
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="px-2 py-0.5 text-[10px] font-semibold rounded bg-rose-50 text-rose-600 border border-rose-200">
+                                                Unpaid
+                                            </span>
                                         <?php endif; ?>
-                                    <?php elseif ($stu['payment_status'] === 'Skipped'): ?>
-                                        <span class="badge bg-info-subtle text-info border border-info-subtle px-2 py-1">
-                                            Pay Later (Skipped)
-                                        </span>
-                                    <?php else: ?>
-                                        <span class="badge bg-secondary-subtle text-secondary border px-2 py-1">
-                                            Unpaid
-                                        </span>
-                                    <?php endif; ?>
+                                    </a>
                                 </td>
 
-                                <!-- Registration Date -->
-                                <td class="small text-muted">
+                                <!-- Date -->
+                                <td class="px-4 py-2.5 text-[11px] text-slate-400 whitespace-nowrap">
                                     <?= date('d M Y, h:i A', strtotime($stu['created_at'])) ?>
                                 </td>
 
                                 <!-- Actions -->
-                                <td class="text-end pe-4">
-                                    <div class="dropdown">
-                                        <button class="btn btn-sm btn-light border dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                            Action
+                                <td class="px-4 py-2.5 text-right">
+                                    <div class="inline-flex items-center gap-1">
+                                        <!-- View Modal -->
+                                        <button type="button" class="w-7 h-7 rounded border border-slate-200 bg-white text-slate-600 hover:text-[#fe7c03] hover:border-orange-200 flex items-center justify-center transition-colors view-student-btn"
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#studentDetailModal"
+                                                data-id="<?= htmlspecialchars($stu['id']) ?>"
+                                                data-studentid="<?= htmlspecialchars($stu['student_id']) ?>"
+                                                data-name="<?= htmlspecialchars($stu['name']) ?>"
+                                                data-email="<?= htmlspecialchars($stu['email']) ?>"
+                                                data-phone="<?= htmlspecialchars($stu['phone']) ?>"
+                                                data-aadhaar="<?= htmlspecialchars($stu['aadhaar']) ?>"
+                                                data-seat="<?= htmlspecialchars($stu['seat_status']) ?>"
+                                                data-payment="<?= htmlspecialchars($stu['payment_status']) ?>"
+                                                data-paymentid="<?= htmlspecialchars($stu['payment_id'] ?? '') ?>"
+                                                data-photo="<?= htmlspecialchars($photo_src) ?>"
+                                                data-date="<?= date('d M Y, h:i A', strtotime($stu['created_at'])) ?>"
+                                                title="View Profile">
+                                            <i class="fa-solid fa-eye text-[10px]"></i>
                                         </button>
-                                        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                                            <li>
-                                                <button class="dropdown-item view-student-btn" 
-                                                        data-bs-toggle="modal" 
-                                                        data-bs-target="#studentDetailModal"
-                                                        data-id="<?= htmlspecialchars($stu['id']) ?>"
-                                                        data-studentid="<?= htmlspecialchars($stu['student_id']) ?>"
-                                                        data-name="<?= htmlspecialchars($stu['name']) ?>"
-                                                        data-email="<?= htmlspecialchars($stu['email']) ?>"
-                                                        data-phone="<?= htmlspecialchars($stu['phone']) ?>"
-                                                        data-aadhaar="<?= htmlspecialchars($stu['aadhaar']) ?>"
-                                                        data-seat="<?= htmlspecialchars($stu['seat_status']) ?>"
-                                                        data-payment="<?= htmlspecialchars($stu['payment_status']) ?>"
-                                                        data-paymentid="<?= htmlspecialchars($stu['payment_id'] ?? '') ?>"
-                                                        data-photo="<?= htmlspecialchars($photo_src) ?>"
-                                                        data-date="<?= date('d M Y, h:i A', strtotime($stu['created_at'])) ?>">
-                                                    <i class="fa-solid fa-eye text-primary me-2"></i> View Full Profile
-                                                </button>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item" href="students.php?action=toggle_seat&id=<?= $stu['id'] ?>">
-                                                    <i class="fa-solid fa-chair text-warning me-2"></i> 
-                                                    <?= ($stu['seat_status'] === 'Confirmed') ? 'Mark Seat Pending' : 'Confirm Seat' ?>
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item" href="students.php?action=toggle_payment&id=<?= $stu['id'] ?>">
-                                                    <i class="fa-solid fa-credit-card text-success me-2"></i> 
-                                                    <?= ($stu['payment_status'] === 'Paid') ? 'Mark as Unpaid' : 'Mark as Paid' ?>
-                                                </a>
-                                            </li>
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li>
-                                                <a class="dropdown-item text-danger" href="students.php?action=delete&id=<?= $stu['id'] ?>" onclick="return confirm('Are you sure you want to permanently delete this candidate account?')">
-                                                    <i class="fa-solid fa-trash me-2"></i> Delete Candidate
-                                                </a>
-                                            </li>
-                                        </ul>
+
+                                        <!-- Delete -->
+                                        <a href="students.php?action=delete&id=<?= $stu['id'] ?>" onclick="return confirm('Permanently delete candidate \'<?= htmlspecialchars(addslashes($stu['name'])) ?>\'?');" class="w-7 h-7 rounded border border-slate-200 bg-white text-slate-400 hover:text-rose-600 hover:border-rose-200 flex items-center justify-center transition-colors no-underline" title="Delete Candidate">
+                                            <i class="fa-regular fa-trash-can text-[10px]"></i>
+                                        </a>
                                     </div>
                                 </td>
                             </tr>
@@ -392,89 +377,85 @@ $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </table>
         </div>
     </div>
+
 </div>
 
 <!-- CANDIDATE DETAIL MODAL -->
 <div class="modal fade" id="studentDetailModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-            <div class="modal-header border-bottom py-3 px-4" style="background: #0e1e2e; color: #fff;">
-                <div class="d-flex align-items-center gap-2">
-                    <i class="fa-solid fa-id-card text-warning fs-5"></i>
-                    <h5 class="modal-title fw-bold mb-0">Candidate Full Details</h5>
+        <div class="modal-content border border-slate-200 rounded-md shadow-none overflow-hidden">
+            <div class="modal-header border-b border-slate-200 py-3 px-4 bg-slate-50">
+                <div class="flex items-center gap-2">
+                    <span class="w-6 text-center text-[#fe7c03]"><i class="fa-solid fa-id-card text-sm"></i></span>
+                    <h5 class="modal-title text-xs font-bold text-[#0e1e2e] uppercase tracking-wider mb-0">Candidate Profile Details</h5>
                 </div>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close text-xs" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body p-4 bg-light">
-                <div class="card border-0 shadow-sm rounded-3 mb-3 bg-white p-4">
-                    <div class="row align-items-center">
-                        <div class="col-md-3 text-center mb-3 mb-md-0">
-                            <div id="mPhotoContainer">
-                                <img id="mPhoto" src="" alt="Passport Photo" class="rounded-3 border shadow-sm" style="width: 110px; height: 130px; object-fit: cover; display: none;">
-                                <div id="mPhotoPlaceholder" class="rounded-3 border d-flex align-items-center justify-content-center bg-light text-muted mx-auto" style="width: 110px; height: 130px; font-size: 32px;">
-                                    <i class="fa-solid fa-user"></i>
-                                </div>
-                            </div>
+            <div class="modal-body p-4 space-y-4 bg-slate-50/50">
+                
+                <!-- Profile Header Card -->
+                <div class="bg-white border border-slate-200 rounded-md p-4 flex flex-col sm:flex-row items-center gap-4">
+                    <div id="mPhotoContainer" class="shrink-0">
+                        <img id="mPhoto" src="" alt="Passport Photo" class="w-20 h-24 rounded object-cover border border-slate-200" style="display: none;">
+                        <div id="mPhotoPlaceholder" class="w-20 h-24 rounded border border-slate-200 flex items-center justify-center bg-slate-100 text-slate-400 text-2xl">
+                            <i class="fa-solid fa-user"></i>
                         </div>
-                        <div class="col-md-9">
-                            <div class="d-flex align-items-center gap-2 mb-1">
-                                <h4 class="fw-bold text-dark mb-0" id="mName">-</h4>
-                                <span class="badge bg-warning text-dark font-monospace" id="mStudentId">-</span>
-                            </div>
-                            <p class="text-muted small mb-3"><i class="fa-solid fa-calendar-check me-1"></i> Registered on: <span id="mDate">-</span></p>
-
-                            <div class="d-flex flex-wrap gap-2">
-                                <span class="badge bg-success-subtle text-success border" id="mSeatStatus">Seat: -</span>
-                                <span class="badge bg-primary-subtle text-primary border" id="mPaymentStatus">Payment: -</span>
-                            </div>
+                    </div>
+                    <div class="space-y-1 text-center sm:text-left flex-1">
+                        <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                            <h4 class="text-base font-bold text-[#0e1e2e]" id="mName">-</h4>
+                            <span class="px-2 py-0.5 text-xs font-mono font-semibold rounded bg-orange-100 text-[#fe7c03]" id="mStudentId">-</span>
+                        </div>
+                        <p class="text-xs text-slate-400"><i class="fa-regular fa-calendar-check mr-1"></i> Registered on: <span id="mDate">-</span></p>
+                        <div class="flex flex-wrap gap-2 pt-1 justify-center sm:justify-start">
+                            <span class="px-2 py-0.5 text-[11px] font-semibold rounded bg-emerald-50 text-emerald-700 border border-emerald-200" id="mSeatStatus">Seat: -</span>
+                            <span class="px-2 py-0.5 text-[11px] font-semibold rounded bg-sky-50 text-sky-700 border border-sky-200" id="mPaymentStatus">Payment: -</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <div class="card border-0 shadow-sm rounded-3 p-3 bg-white h-100">
-                            <h6 class="fw-bold text-dark mb-3 border-bottom pb-2">
-                                <i class="fa-solid fa-address-book text-primary me-2"></i> Contact Information
-                            </h6>
-                            <div class="mb-2">
-                                <span class="text-muted small d-block">Email Address</span>
-                                <span class="fw-semibold text-dark" id="mEmail">-</span>
-                            </div>
-                            <div class="mb-2">
-                                <span class="text-muted small d-block">WhatsApp / Mobile</span>
-                                <span class="fw-semibold text-dark" id="mPhone">-</span>
-                            </div>
-                            <div>
-                                <span class="text-muted small d-block">Aadhaar Card Number</span>
-                                <span class="fw-bold text-dark font-monospace" id="mAadhaar">-</span>
-                            </div>
+                <!-- Info Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="bg-white border border-slate-200 rounded-md p-3.5 space-y-2">
+                        <h6 class="text-xs font-bold text-[#0e1e2e] uppercase tracking-wider pb-1.5 border-b border-slate-100 flex items-center gap-1.5">
+                            <i class="fa-solid fa-address-book text-sky-600"></i> Contact Details
+                        </h6>
+                        <div>
+                            <span class="text-[10px] text-slate-400 block uppercase">Email Address</span>
+                            <span class="text-xs font-semibold text-slate-800" id="mEmail">-</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-slate-400 block uppercase">Phone Number</span>
+                            <span class="text-xs font-semibold text-slate-800" id="mPhone">-</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-slate-400 block uppercase">Aadhaar Card</span>
+                            <span class="text-xs font-mono font-bold text-slate-800" id="mAadhaar">-</span>
                         </div>
                     </div>
 
-                    <div class="col-md-6">
-                        <div class="card border-0 shadow-sm rounded-3 p-3 bg-white h-100">
-                            <h6 class="fw-bold text-dark mb-3 border-bottom pb-2">
-                                <i class="fa-solid fa-credit-card text-success me-2"></i> Seat & Payment Status
-                            </h6>
-                            <div class="mb-2">
-                                <span class="text-muted small d-block">Seat Reservation</span>
-                                <span class="fw-bold text-dark" id="mSeatDetail">-</span>
-                            </div>
-                            <div class="mb-2">
-                                <span class="text-muted small d-block">Fee Payment</span>
-                                <span class="fw-bold text-dark" id="mPaymentDetail">-</span>
-                            </div>
-                            <div>
-                                <span class="text-muted small d-block">Razorpay Transaction ID</span>
-                                <span class="fw-semibold font-monospace text-muted small text-break" id="mPaymentId">None</span>
-                            </div>
+                    <div class="bg-white border border-slate-200 rounded-md p-3.5 space-y-2">
+                        <h6 class="text-xs font-bold text-[#0e1e2e] uppercase tracking-wider pb-1.5 border-b border-slate-100 flex items-center gap-1.5">
+                            <i class="fa-solid fa-receipt text-emerald-600"></i> Payment &amp; Enrollment
+                        </h6>
+                        <div>
+                            <span class="text-[10px] text-slate-400 block uppercase">Seat Confirmation</span>
+                            <span class="text-xs font-bold text-slate-800" id="mSeatDetail">-</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-slate-400 block uppercase">Payment Status</span>
+                            <span class="text-xs font-bold text-slate-800" id="mPaymentDetail">-</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-slate-400 block uppercase">Razorpay Order / ID</span>
+                            <span class="text-[11px] font-mono text-slate-600 break-all" id="mPaymentId">None</span>
                         </div>
                     </div>
                 </div>
+
             </div>
-            <div class="modal-footer bg-white border-top py-3 px-4">
-                <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Close</button>
+            <div class="modal-footer border-t border-slate-200 py-2.5 px-4 bg-slate-50">
+                <button type="button" class="px-3 py-1.5 text-xs text-slate-600 bg-white border border-slate-200 rounded-md hover:bg-slate-50" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>

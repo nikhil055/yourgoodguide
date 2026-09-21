@@ -1,0 +1,150 @@
+[2026-09-21 07:48:46] To: nikhilsinghbhadauria93@gmail.com | Subject: Your Verification OTP - Finchskills Institute
+
+    
+    
+    body{font-family:Inter,Arial,sans-serif;background:#f8fafc;margin:0;padding:20px;color:#334155;}.card{max-width:520px;margin:0 auto;background:#ffffff;border-radius:12px;border:1px solid #e2e8f0;overflow:hidden;}.header{background:#0e1e2e;padding:24px;text-align:center;color:#ffffff;}.body{padding:28px;}.otp-box{background:#fff7ed;border:1.5px dashed #fe7c03;border-radius:8px;padding:16px;text-align:center;font-size:28px;font-weight:800;letter-spacing:6px;color:#fe7c03;margin:20px 0;}.footer{background:#f8fafc;padding:16px;text-align:center;font-size:12px;color:#94a3b8;border-top:1px solid #e2e8f0;}
+    
+        
+            
+                FINCHSKILLS INSTITUTE
+                Candidate Verification
+            
+            
+                Hello Nikhil Singh Bhadauriya,
+                Thank you for starting your registration with Finchskills Institute. Please use the following 6-digit One-Time Password (OTP) to verify your email address:
+                160905
+                This OTP is valid for 15 minutes. Please do not share this code with anyone.
+            
+            
+                &copy; 2026 Finchskills Institute. All rights reserved.
+            
+        
+    
+    
+----------------------------------------
+[2026-09-21 07:49:43] To: nikhilsinghbhadauria93@gmail.com | Subject: Welcome to Finchskills! Your Student ID: FS-2026-5097
+
+    
+    
+    body{font-family:Inter,Arial,sans-serif;background:#f8fafc;margin:0;padding:20px;color:#334155;}.card{max-width:540px;margin:0 auto;background:#ffffff;border-radius:12px;border:1px solid #e2e8f0;overflow:hidden;}.header{background:#0e1e2e;padding:26px;text-align:center;color:#ffffff;}.body{padding:30px;}.id-card{background:#f8fafc;border:1px solid #cbd5e1;border-radius:10px;padding:18px;margin:20px 0;}.row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #e2e8f0;font-size:13.5px;}.row:last-child{border-bottom:none;}.btn{display:inline-block;background:#fe7c03;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:6px;font-weight:700;font-size:14px;margin-top:10px;}.footer{background:#f8fafc;padding:16px;text-align:center;font-size:12px;color:#94a3b8;border-top:1px solid #e2e8f0;}
+    
+        
+            
+                FINCHSKILLS INSTITUTE
+                Registration Successful
+            
+            
+                Congratulations, Nikhil Singh Bhadauriya!
+                Your candidate registration with Finchskills Institute is officially complete and verified. Here are your credentials:
+                
+                    
+                        Unique Student ID:
+                        FS-2026-5097
+                    
+                    
+                        Registered Name:
+                        Nikhil Singh Bhadauriya
+                    
+                    
+                        Login Email:
+                        nikhilsinghbhadauria93@gmail.com
+                    
+                
+                You can now log in at any time to check your batch allocation, reserve your seat, and access your student dashboard.
+                
+                    Log In to Your Account &rarr;
+                
+            
+            
+                Need assistance? Call counselor at +91 87508 60860 | &copy; 2026 Finchskills Institute.
+            
+        
+    
+    
+----------------------------------------
+[2026-09-21 08:07:39] TO: nikhilsinghbhadauria93@gmail.com | SUBJECT: SMTP Test Verification - Finchskills Institute
+
+            
+            
+            body{font-family:Inter,Arial,sans-serif;background:#f8fafc;padding:20px;color:#334155;}.card{max-width:500px;margin:0 auto;background:#fff;border-radius:10px;border:1px solid #e2e8f0;padding:25px;}.badge{background:#22c55e;color:#fff;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700;}
+            
+                
+                    Finchskills SMTP Configuration Test
+                    This is a live test email sent from the Finchskills Institute Admin Portal.
+                    
+                        SUCCESS
+                        Your SMTP host, credentials, and port are 100% properly configured!
+                    
+                    Timestamp: 21 Sep 2026, 08:07:39 AM
+                
+            
+            
+----------------------------------------
+[2026-09-21 08:12:38] TO: nikhilrura5@gmail.com | SUBJECT: SMTP Test Verification - Finchskills Institute
+
+            
+            
+            body{font-family:Inter,Arial,sans-serif;background:#f8fafc;padding:20px;color:#334155;}.card{max-width:500px;margin:0 auto;background:#fff;border-radius:10px;border:1px solid #e2e8f0;padding:25px;}.badge{background:#22c55e;color:#fff;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700;}
+            
+                
+                    Finchskills SMTP Configuration Test
+                    This is a live test email sent from the Finchskills Institute Admin Portal.
+                    
+                        SUCCESS
+                        Your SMTP host, credentials, and port are 100% properly configured!
+                    
+                    Timestamp: 21 Sep 2026, 08:12:38 AM
+                
+            
+            
+----------------------------------------
+[2026-09-21 08:14:50] TO: test.nikhil@example.com | SUBJECT: Password Reset OTP - Finchskills Institute
+
+    
+    
+    body{font-family:Inter,Arial,sans-serif;background:#f8fafc;margin:0;padding:20px;color:#334155;}.card{max-width:520px;margin:0 auto;background:#ffffff;border-radius:12px;border:1px solid #e2e8f0;overflow:hidden;}.header{background:#0e1e2e;padding:24px;text-align:center;color:#ffffff;}.body{padding:28px;}.otp-box{background:#fef2f2;border:1.5px dashed #ef4444;border-radius:8px;padding:16px;text-align:center;font-size:30px;font-weight:800;letter-spacing:6px;color:#ef4444;margin:20px 0;}.footer{background:#f8fafc;padding:16px;text-align:center;font-size:12px;color:#94a3b8;border-top:1px solid #e2e8f0;}
+    
+        
+            
+                FINCHSKILLS INSTITUTE
+                Password Reset Request
+            
+            
+                Hello Nikhil Sharma,
+                We received a request to reset your candidate portal account password. Use this 6-digit OTP code:
+                776126
+                This OTP is valid for 15 minutes. If you did not initiate this request, please ignore this email.
+            
+            
+                &copy; 2026 Finchskills Institute. All rights reserved.
+            
+        
+    
+    
+----------------------------------------
+[SMTP Error] SMTP Error: The following recipients failed: test.nikhil@example.com: "Sorry, you are sending to/from an address that has been blacklisted"
+
+[2026-09-21 08:15:52] TO: nikhilsinghbhadauria93@gmail.com | SUBJECT: Password Reset OTP - Finchskills Institute
+
+    
+    
+    body{font-family:Inter,Arial,sans-serif;background:#f8fafc;margin:0;padding:20px;color:#334155;}.card{max-width:520px;margin:0 auto;background:#ffffff;border-radius:12px;border:1px solid #e2e8f0;overflow:hidden;}.header{background:#0e1e2e;padding:24px;text-align:center;color:#ffffff;}.body{padding:28px;}.otp-box{background:#fef2f2;border:1.5px dashed #ef4444;border-radius:8px;padding:16px;text-align:center;font-size:30px;font-weight:800;letter-spacing:6px;color:#ef4444;margin:20px 0;}.footer{background:#f8fafc;padding:16px;text-align:center;font-size:12px;color:#94a3b8;border-top:1px solid #e2e8f0;}
+    
+        
+            
+                FINCHSKILLS INSTITUTE
+                Password Reset Request
+            
+            
+                Hello Nikhil Singh Bhadauriya,
+                We received a request to reset your candidate portal account password. Use this 6-digit OTP code:
+                610870
+                This OTP is valid for 15 minutes. If you did not initiate this request, please ignore this email.
+            
+            
+                &copy; 2026 Finchskills Institute. All rights reserved.
+            
+        
+    
+    
+----------------------------------------

@@ -1,0 +1,7 @@
+# Admin Area .htaccess
+# Disable mod_rewrite to ensure all .php files and POST forms work directly without interference
+<IfModule mod_rewrite.c>
+    RewriteEngine Off
+</IfModule>
+
+DirectoryIndex index.php

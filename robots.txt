@@ -1,0 +1,15 @@
+# robots.txt for https://finchskills.com
+
+User-agent: *
+Allow: /
+
+# Disallow backend processing scripts and libraries
+Disallow: /send-admission.php
+Disallow: /send-fee.php
+Disallow: /form-submission.php
+Disallow: /fee-submission.php
+Disallow: /PHPMailer/
+Disallow: /backup/
+
+# Link to sitemap
+Sitemap: https://finchskills.com/sitemap.xml

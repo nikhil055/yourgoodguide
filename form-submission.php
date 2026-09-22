@@ -13,11 +13,21 @@ if ($isStudentLoggedIn && !empty($_SESSION['student_db_id'])) {
 }
 
 // Fetch all active courses for the dropdown
-$courses_stmt = $pdo->query("SELECT id, title, slug, duration, study_mode FROM courses WHERE status = 'active' ORDER BY title ASC");
+$courses_stmt = $pdo->query("SELECT id, title, slug, duration, study_mode, fee FROM courses WHERE status = 'active' ORDER BY title ASC");
 $all_courses = $courses_stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Preselected course from query string (?course=...)
 $preselected_course = trim($_GET['course'] ?? '');
+
+// Razorpay Settings
+$settings = [];
+$s_stmt = $pdo->query("SELECT setting_key, setting_value FROM site_settings WHERE setting_key LIKE 'razorpay_%' OR setting_key LIKE '%discount%'");
+while ($r = $s_stmt->fetch(PDO::FETCH_ASSOC)) {
+    $settings[$r['setting_key']] = $r['setting_value'];
+}
+$mode = $settings['razorpay_mode'] ?? 'test';
+$key_id = ($mode === 'live') ? ($settings['razorpay_live_key_id'] ?? '') : ($settings['razorpay_test_key_id'] ?? 'rzp_test_1DP5mmOlF5G5ag');
+$full_pay_discount_pct = (float)($settings['full_payment_discount_percent'] ?? 10);
 
 $page_title = "Online Course Admission Application - Finchskills Institute";
 include "header.php";
@@ -25,10 +35,10 @@ include "header.php";
 
 <style>
 /* ===================================================
-   MULTI-STEP APPLICATION WIZARD STYLING (FLAT & CLEAN)
+   MULTI-STEP APPLICATION WIZARD (FLAT, MINIMAL & CLEAN)
 =================================================== */
 .wizard-section {
-    padding: 50px 0 90px;
+    padding: 40px 0 80px;
     background: #f8fafc;
     min-height: 85vh;
 }
@@ -36,42 +46,43 @@ include "header.php";
 .wizard-card {
     background: #ffffff;
     border: 1px solid #e2e8f0;
-    border-radius: 14px;
+    border-radius: 8px;
     box-shadow: none !important;
     overflow: hidden;
+    position: relative;
 }
 
 /* WIZARD PROGRESS BAR */
 .wizard-progress-header {
     background: #ffffff;
     border-bottom: 1px solid #e2e8f0;
-    padding: 24px 20px 20px;
+    padding: 20px 16px 16px;
 }
 
 .wizard-stepper {
     display: flex;
     justify-content: space-between;
     position: relative;
-    max-width: 760px;
+    max-width: 820px;
     margin: 0 auto;
 }
 
 .wizard-stepper::before {
     content: '';
     position: absolute;
-    top: 20px;
-    left: 40px;
-    right: 40px;
-    height: 3px;
+    top: 18px;
+    left: 30px;
+    right: 30px;
+    height: 2px;
     background: #e2e8f0;
     z-index: 1;
 }
 
 .wizard-stepper-progress {
     position: absolute;
-    top: 20px;
-    left: 40px;
-    height: 3px;
+    top: 18px;
+    left: 30px;
+    height: 2px;
     background: #fe7c03;
     z-index: 2;
     transition: width 0.3s ease;
@@ -88,29 +99,28 @@ include "header.php";
     background: transparent;
     border: none;
     padding: 0;
-    width: 100px;
+    width: 90px;
 }
 
 .step-circle {
-    width: 42px;
-    height: 42px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     background: #ffffff;
-    border: 2.5px solid #cbd5e1;
+    border: 2px solid #cbd5e1;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
     color: #64748b;
-    transition: all 0.25s ease;
+    transition: all 0.2s ease;
 }
 
 .step-item.active .step-circle {
     border-color: #fe7c03;
     background: #fe7c03;
     color: #ffffff;
-    transform: scale(1.08);
 }
 
 .step-item.completed .step-circle {
@@ -120,12 +130,11 @@ include "header.php";
 }
 
 .step-label {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     color: #64748b;
-    margin-top: 8px;
+    margin-top: 6px;
     text-align: center;
-    transition: color 0.2s ease;
 }
 
 .step-item.active .step-label {
@@ -139,27 +148,28 @@ include "header.php";
 
 /* WIZARD CONTENT */
 .wizard-body {
-    padding: 36px 32px 40px;
+    padding: 28px 24px 32px;
+    position: relative;
 }
 
 @media (max-width: 767px) {
     .wizard-body {
-        padding: 24px 18px;
+        padding: 20px 14px;
     }
     .wizard-stepper {
         overflow-x: auto;
-        padding-bottom: 8px;
+        padding-bottom: 6px;
     }
     .step-item {
-        width: 70px;
+        width: 60px;
     }
     .step-circle {
-        width: 34px;
-        height: 34px;
-        font-size: 12px;
+        width: 30px;
+        height: 30px;
+        font-size: 11px;
     }
     .step-label {
-        font-size: 10.5px;
+        font-size: 9.5px;
     }
 }
 
@@ -169,34 +179,28 @@ include "header.php";
 
 .wizard-step-pane.active {
     display: block;
-    animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(6px); }
-    to { opacity: 1; transform: translateY(0); }
 }
 
 .step-heading {
-    font-size: 20px;
-    font-weight: 800;
-    color: #0e1e2e;
-    letter-spacing: -0.3px;
-    margin-bottom: 6px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: -0.2px;
+    margin-bottom: 4px;
 }
 
 .step-subheading {
-    font-size: 13.5px;
+    font-size: 13px;
     color: #64748b;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
 }
 
 /* FORM FIELDS */
 .form-label-custom {
-    font-size: 13px;
+    font-size: 12.5px;
     font-weight: 600;
     color: #334155;
-    margin-bottom: 6px;
+    margin-bottom: 5px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -209,38 +213,35 @@ include "header.php";
 .form-control-custom,
 .form-select-custom {
     width: 100%;
-    padding: 11px 14px;
-    font-size: 14px;
+    padding: 9px 12px;
+    font-size: 13.5px;
     color: #0f172a;
     background: #ffffff;
-    border: 1.5px solid #cbd5e1;
-    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
     outline: none;
-    transition: all 0.2s ease;
     box-shadow: none !important;
 }
 
 .form-control-custom:focus,
 .form-select-custom:focus {
     border-color: #fe7c03;
-    background: #ffffff;
 }
 
 .form-control-custom[readonly] {
-    background: #f1f5f9;
+    background: #f8fafc;
     color: #475569;
     cursor: not-allowed;
 }
 
 /* UPLOAD BOXES */
 .file-dropzone {
-    border: 2px dashed #cbd5e1;
-    border-radius: 10px;
-    padding: 20px;
+    border: 1.5px dashed #cbd5e1;
+    border-radius: 6px;
+    padding: 16px;
     text-align: center;
     background: #f8fafc;
     cursor: pointer;
-    transition: all 0.2s ease;
     position: relative;
 }
 
@@ -259,21 +260,16 @@ include "header.php";
 }
 
 .file-dropzone-icon {
-    font-size: 28px;
+    font-size: 22px;
     color: #94a3b8;
-    margin-bottom: 8px;
-    transition: color 0.2s ease;
-}
-
-.file-dropzone:hover .file-dropzone-icon {
-    color: #fe7c03;
+    margin-bottom: 6px;
 }
 
 .file-chosen-name {
-    font-size: 12px;
+    font-size: 11.5px;
     font-weight: 600;
     color: #059669;
-    margin-top: 6px;
+    margin-top: 4px;
     display: none;
 }
 
@@ -282,70 +278,66 @@ include "header.php";
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 36px;
-    padding-top: 24px;
+    margin-top: 28px;
+    padding-top: 20px;
     border-top: 1px solid #e2e8f0;
 }
 
 .btn-wizard-prev {
     background: #ffffff;
-    border: 1.5px solid #cbd5e1;
+    border: 1px solid #cbd5e1;
     color: #475569;
     font-weight: 600;
-    font-size: 13.5px;
-    padding: 10px 22px;
-    border-radius: 8px;
-    transition: all 0.2s ease;
+    font-size: 13px;
+    padding: 8px 18px;
+    border-radius: 4px;
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     cursor: pointer;
 }
 
 .btn-wizard-prev:hover {
     background: #f1f5f9;
     color: #0f172a;
-    border-color: #94a3b8;
 }
 
 .btn-wizard-next,
 .btn-wizard-submit {
-    background: linear-gradient(135deg, #fe7c03 0%, #ea6c00 100%);
-    border: 1.5px solid transparent;
+    background: #fe7c03;
+    border: 1px solid #fe7c03;
     color: #ffffff;
-    font-weight: 700;
-    font-size: 14px;
-    padding: 11px 26px;
-    border-radius: 8px;
-    transition: all 0.2s ease;
+    font-weight: 600;
+    font-size: 13.5px;
+    padding: 9px 22px;
+    border-radius: 4px;
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     cursor: pointer;
-    box-shadow: 0 2px 4px rgba(254, 124, 3, 0.2);
+    box-shadow: none !important;
 }
 
 .btn-wizard-next:hover,
 .btn-wizard-submit:hover {
-    background: #ea6c00;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(254, 124, 3, 0.28);
+    background: #e66f00;
+    border-color: #e66f00;
 }
 
 /* SUMMARY / REVIEW TILES */
 .review-card {
     background: #f8fafc;
     border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    padding: 16px 20px;
-    margin-bottom: 16px;
+    border-radius: 6px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
 }
 
 .review-card-title {
-    font-size: 13.5px;
+    font-size: 12.5px;
     font-weight: 700;
-    color: #0e1e2e;
-    margin-bottom: 10px;
+    color: #0f172a;
+    margin-bottom: 8px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -354,8 +346,8 @@ include "header.php";
 .review-row {
     display: flex;
     justify-content: space-between;
-    padding: 5px 0;
-    font-size: 13px;
+    padding: 4px 0;
+    font-size: 12.5px;
     border-bottom: 1px dashed #e2e8f0;
 }
 
@@ -372,6 +364,77 @@ include "header.php";
     font-weight: 600;
     text-align: right;
 }
+
+/* FEE PAYMENT STEP 6 STYLES */
+.plan-option-card {
+    border: 1.5px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 16px;
+    background: #ffffff;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.plan-option-card:hover {
+    border-color: #cbd5e1;
+}
+
+.plan-option-card.selected {
+    border-color: #fe7c03;
+    background: #fffaf5;
+}
+
+.plan-badge-disc {
+    background: #ecfdf5;
+    color: #047857;
+    border: 1px solid #a7f3d0;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 3px;
+}
+
+/* IN-FORM CLEAN LOADER OVERLAY */
+.form-loading-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(2px);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    border-radius: 8px;
+}
+
+.form-loading-spinner {
+    width: 42px;
+    height: 42px;
+    border: 3.5px solid #e2e8f0;
+    border-top: 3.5px solid #fe7c03;
+    border-radius: 50%;
+    animation: spinLoader 0.75s linear infinite;
+    margin-bottom: 12px;
+}
+
+@keyframes spinLoader {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.form-loading-text {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.form-loading-sub {
+    font-size: 11.5px;
+    color: #64748b;
+    margin-top: 2px;
+}
 </style>
 
 <!-- SECTION WRAPPER -->
@@ -383,49 +446,56 @@ include "header.php";
 
                 <!-- TOP GUEST OR CANDIDATE BADGE -->
                 <?php if ($isStudentLoggedIn && $student): ?>
-                    <div class="alert alert-light border border-slate-200 rounded-3 p-3 mb-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
-                        <div class="d-flex align-items-center gap-3">
+                    <div class="alert alert-light border border-slate-200 rounded-2 p-2.5 mb-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <div class="d-flex align-items-center gap-2.5">
                             <?php if (!empty($student['photo']) && file_exists(__DIR__ . '/' . $student['photo'])): ?>
-                                <img src="<?= htmlspecialchars($student['photo']) ?>" alt="Photo" class="rounded-circle border border-warning" style="width: 46px; height: 46px; object-fit: cover;">
+                                <img src="<?= htmlspecialchars($student['photo']) ?>" alt="Photo" class="rounded-circle border border-warning" style="width: 38px; height: 38px; object-fit: cover;">
                             <?php else: ?>
-                                <div class="rounded-circle bg-warning text-dark fw-bold d-flex align-items-center justify-content-center" style="width: 46px; height: 46px; font-size: 16px;">
+                                <div class="rounded-circle bg-warning text-dark fw-bold d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; font-size: 14px;">
                                     <?= strtoupper(substr($student['name'], 0, 1)) ?>
                                 </div>
                             <?php endif; ?>
                             <div>
-                                <div class="fw-bold text-dark fs-6 d-flex align-items-center gap-2">
+                                <div class="fw-bold text-dark small d-flex align-items-center gap-1.5">
                                     <span><?= htmlspecialchars($student['name']) ?></span>
-                                    <span class="badge bg-light text-dark border font-monospace" style="font-size: 11px;">
+                                    <span class="badge bg-light text-dark border font-monospace" style="font-size: 10px;">
                                         <?= htmlspecialchars($student['student_id']) ?>
                                     </span>
                                 </div>
-                                <div class="small text-muted">
-                                    <i class="fa-solid fa-circle-check text-success me-1"></i> Logged In - Your personal info and passport photo have been auto-filled!
+                                <div class="text-muted" style="font-size: 11px;">
+                                    <i class="fa-solid fa-circle-check text-success me-1"></i> Logged In - Information auto-filled!
                                 </div>
                             </div>
                         </div>
-                        <a href="student-profile.php" class="btn btn-sm btn-outline-secondary">My Profile</a>
+                        <a href="student-profile.php" class="btn btn-sm btn-outline-secondary py-1 px-2.5" style="font-size: 12px;">My Dashboard</a>
                     </div>
                 <?php else: ?>
-                    <div class="alert alert-light border border-slate-200 rounded-3 p-3 mb-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <div class="alert alert-light border border-slate-200 rounded-2 p-2.5 mb-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
                         <div class="d-flex align-items-center gap-2 text-dark small">
-                            <i class="fa-solid fa-circle-info text-primary fs-5"></i>
-                            <span>Already registered with us? Log in to auto-fill your profile details instantly.</span>
+                            <i class="fa-solid fa-circle-info text-primary fs-6"></i>
+                            <span>Already registered? Log in to auto-fill your personal profile details.</span>
                         </div>
-                        <div class="d-flex gap-2">
-                            <a href="student-login.php?redirect=form-submission.php<?= !empty($preselected_course) ? '?course=' . urlencode($preselected_course) : '' ?>" class="btn btn-sm btn-outline-primary">
+                        <div class="d-flex gap-1.5">
+                            <a href="student-login.php?redirect=form-submission.php<?= !empty($preselected_course) ? '?course=' . urlencode($preselected_course) : '' ?>" class="btn btn-sm btn-outline-primary py-1 px-2.5" style="font-size: 12px;">
                                 <i class="fa-solid fa-arrow-right-to-bracket me-1"></i> Log In
                             </a>
-                            <a href="register.php" class="btn btn-sm btn-primary" style="background:#fe7c03; border-color:#fe7c03;">
-                                <i class="fa-solid fa-user-plus me-1"></i> Register Yourself
+                            <a href="register.php" class="btn btn-sm btn-primary py-1 px-2.5" style="background:#fe7c03; border-color:#fe7c03; font-size: 12px;">
+                                <i class="fa-solid fa-user-plus me-1"></i> Register
                             </a>
                         </div>
                     </div>
                 <?php endif; ?>
 
                 <!-- WIZARD CONTAINER -->
-                <div class="wizard-card">
+                <div class="wizard-card" id="wizardCard">
                     
+                    <!-- IN-FORM CLEAN LOADER -->
+                    <div class="form-loading-overlay" id="formLoadingOverlay">
+                        <div class="form-loading-spinner"></div>
+                        <div class="form-loading-text" id="formLoadingTitle">Processing Application...</div>
+                        <div class="form-loading-sub" id="formLoadingSubtitle">Please wait a moment</div>
+                    </div>
+
                     <!-- STEPPER HEADER -->
                     <div class="wizard-progress-header">
                         <div class="wizard-stepper">
@@ -460,27 +530,33 @@ include "header.php";
                                 <div class="step-circle"><i class="fa-solid fa-clipboard-check"></i></div>
                                 <span class="step-label">5. Review</span>
                             </div>
+
+                            <!-- STEP 6 (FEE PAYMENT MANDATORY) -->
+                            <div class="step-item" id="stepIndicator6">
+                                <div class="step-circle"><i class="fa-solid fa-credit-card"></i></div>
+                                <span class="step-label">6. Fee Payment</span>
+                            </div>
                         </div>
                     </div>
 
                     <!-- WIZARD BODY -->
                     <div class="wizard-body">
                         
-                        <form id="admissionForm" action="send-admission.php" method="POST" enctype="multipart/form-data">
+                        <form id="admissionForm" method="POST" enctype="multipart/form-data">
                             
-                            <!-- Hidden Student Reference -->
+                            <!-- Hidden Fields -->
+                            <input type="hidden" name="ajax_submit" value="1">
                             <input type="hidden" name="student_id" value="<?= htmlspecialchars($student['student_id'] ?? '') ?>">
                             <input type="hidden" name="existing_photo" value="<?= htmlspecialchars($student['photo'] ?? '') ?>">
 
                             <!-- ============================================ -->
-                            <!-- STEP 1: CANDIDATE PERSONAL DETAILS (AUTO-FILLED) -->
+                            <!-- STEP 1: CANDIDATE PERSONAL DETAILS -->
                             <!-- ============================================ -->
                             <div class="wizard-step-pane active" id="stepPane1">
-                                <h3 class="step-heading">Step 1: Personal & Identity Information</h3>
-                                <p class="step-subheading">Please review your primary candidate information. Fields marked with <span class="text-danger">*</span> are mandatory.</p>
+                                <h3 class="step-heading">Step 1: Personal &amp; Identity Information</h3>
+                                <p class="step-subheading">Please review your primary candidate information. Fields with <span class="text-danger">*</span> are mandatory.</p>
 
                                 <div class="row g-3">
-                                    <!-- Full Name -->
                                     <div class="col-md-6">
                                         <label class="form-label-custom">
                                             <span>Full Name <span class="req">*</span></span>
@@ -489,7 +565,6 @@ include "header.php";
                                         <input type="text" name="name" id="f_name" class="form-control-custom" value="<?= htmlspecialchars($student['name'] ?? '') ?>" placeholder="Your complete official name" required>
                                     </div>
 
-                                    <!-- Father's Name -->
                                     <div class="col-md-6">
                                         <label class="form-label-custom">
                                             <span>Father's / Guardian's Name <span class="req">*</span></span>
@@ -497,7 +572,6 @@ include "header.php";
                                         <input type="text" name="father_name" id="f_father_name" class="form-control-custom" placeholder="Father's or Guardian's full name" required>
                                     </div>
 
-                                    <!-- Email -->
                                     <div class="col-md-6">
                                         <label class="form-label-custom">
                                             <span>Email Address <span class="req">*</span></span>
@@ -506,7 +580,6 @@ include "header.php";
                                         <input type="email" name="email" id="f_email" class="form-control-custom" value="<?= htmlspecialchars($student['email'] ?? '') ?>" placeholder="name@example.com" required <?= $isStudentLoggedIn ? 'readonly' : '' ?>>
                                     </div>
 
-                                    <!-- Mobile -->
                                     <div class="col-md-6">
                                         <label class="form-label-custom">
                                             <span>WhatsApp / Mobile Number <span class="req">*</span></span>
@@ -515,7 +588,6 @@ include "header.php";
                                         <input type="tel" name="mobile" id="f_mobile" class="form-control-custom" value="<?= htmlspecialchars($student['phone'] ?? '') ?>" placeholder="+91 98765 43210" required>
                                     </div>
 
-                                    <!-- Aadhaar Number -->
                                     <div class="col-md-4">
                                         <label class="form-label-custom">
                                             <span>12-Digit Aadhaar Number <span class="req">*</span></span>
@@ -524,7 +596,6 @@ include "header.php";
                                         <input type="text" name="aadhaar" id="f_aadhaar" class="form-control-custom font-monospace" value="<?= htmlspecialchars($student['aadhaar'] ?? '') ?>" placeholder="XXXX XXXX XXXX" maxlength="14" required>
                                     </div>
 
-                                    <!-- Date of Birth -->
                                     <div class="col-md-4">
                                         <label class="form-label-custom">
                                             <span>Date of Birth <span class="req">*</span></span>
@@ -532,7 +603,6 @@ include "header.php";
                                         <input type="date" name="dob" id="f_dob" class="form-control-custom" required>
                                     </div>
 
-                                    <!-- Gender -->
                                     <div class="col-md-4">
                                         <label class="form-label-custom">
                                             <span>Gender <span class="req">*</span></span>
@@ -546,10 +616,9 @@ include "header.php";
                                     </div>
                                 </div>
 
-                                <!-- STEP 1 BUTTONS -->
                                 <div class="wizard-footer justify-content-end">
                                     <button type="button" class="btn-wizard-next" onclick="goToStep(2)">
-                                        <span>Next: Select Course &amp; Academics</span>
+                                        <span>Next: Course Selection</span>
                                         <i class="fa-solid fa-arrow-right"></i>
                                     </button>
                                 </div>
@@ -563,7 +632,6 @@ include "header.php";
                                 <p class="step-subheading">Choose your preferred training course and provide your academic qualifications.</p>
 
                                 <div class="row g-3">
-                                    <!-- Course Selection -->
                                     <div class="col-md-12">
                                         <label class="form-label-custom">
                                             <span>Desired Training Program / Course <span class="req">*</span></span>
@@ -580,81 +648,73 @@ include "header.php";
                                                 <option value="<?= htmlspecialchars($ac['title']) ?>" 
                                                         data-duration="<?= htmlspecialchars($ac['duration']) ?>"
                                                         data-mode="<?= htmlspecialchars($ac['study_mode']) ?>"
+                                                        data-fee="<?= htmlspecialchars($ac['fee'] ?? '') ?>"
                                                         <?= $is_selected ? 'selected' : '' ?>>
-                                                    <?= htmlspecialchars($ac['title']) ?> (<?= htmlspecialchars($ac['duration']) ?>)
+                                                    <?= htmlspecialchars($ac['title']) ?> (<?= htmlspecialchars($ac['duration']) ?> - <?= htmlspecialchars($ac['fee'] ?? '') ?>)
                                                 </option>
                                             <?php endforeach; ?>
                                         </select>
                                     </div>
 
-                                    <!-- Course Preview Badge -->
                                     <div class="col-md-12">
-                                        <div id="courseInfoBadge" class="p-3 bg-light rounded-3 border d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                        <div id="courseInfoBadge" class="p-2.5 bg-light rounded-2 border d-flex align-items-center justify-content-between flex-wrap gap-2">
                                             <div class="d-flex align-items-center gap-2">
-                                                <i class="fa-solid fa-award text-warning fs-4"></i>
+                                                <i class="fa-solid fa-award text-warning fs-5"></i>
                                                 <div>
-                                                    <div class="fw-bold text-dark" id="previewCourseName">
+                                                    <div class="fw-bold text-dark small" id="previewCourseName">
                                                         <?= !empty($preselected_course) ? htmlspecialchars($preselected_course) : 'Please select a course above' ?>
                                                     </div>
-                                                    <small class="text-muted" id="previewCourseMeta">Duration: Industry standard certification &bull; 100% Placement Support</small>
+                                                    <small class="text-muted" id="previewCourseMeta" style="font-size:11.5px;">Duration: Industry standard certification &bull; 100% Placement Support</small>
                                                 </div>
                                             </div>
-                                            <span class="badge bg-success-subtle text-success border border-success-subtle py-1 px-2.5">Batch Intake Open</span>
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1" style="font-size:11px;">
+                                                <i class="fa-solid fa-circle-check me-1"></i> Career Verified
+                                            </span>
                                         </div>
                                     </div>
 
-                                    <!-- Highest Qualification -->
                                     <div class="col-md-6">
                                         <label class="form-label-custom">
-                                            <span>Highest Academic Qualification <span class="req">*</span></span>
+                                            <span>Highest Qualification <span class="req">*</span></span>
                                         </label>
                                         <select name="education" id="f_education" class="form-select-custom" required>
                                             <option value="">Select Qualification</option>
-                                            <option value="10th Pass (Matriculation)">10th Pass (Matriculation)</option>
-                                            <option value="12th Pass (Intermediate)">12th Pass (Intermediate)</option>
-                                            <option value="Diploma Holder">Diploma Holder</option>
-                                            <option value="Graduate (Bachelor's Degree)">Graduate (Bachelor's Degree)</option>
-                                            <option value="Post Graduate (Master's Degree)">Post Graduate (Master's Degree)</option>
-                                            <option value="Pursuing Graduation">Pursuing Graduation</option>
-                                            <option value="Other">Other</option>
+                                            <option value="10th Pass">10th (Secondary)</option>
+                                            <option value="12th Pass (Pursuing)">12th (Pursuing / Appearing)</option>
+                                            <option value="12th Pass">12th (Senior Secondary)</option>
+                                            <option value="Diploma Holder">Diploma / Polytechnic</option>
+                                            <option value="Undergraduate (Pursuing)">Undergraduate (Pursuing Degree)</option>
+                                            <option value="Graduate">Graduate (Any Stream)</option>
+                                            <option value="Post Graduate">Post Graduate / Master's</option>
                                         </select>
                                     </div>
 
-                                    <!-- Board / University -->
                                     <div class="col-md-6">
                                         <label class="form-label-custom">
                                             <span>Board / University Name <span class="req">*</span></span>
                                         </label>
-                                        <input type="text" name="board_university" id="f_board" class="form-control-custom" placeholder="e.g. CBSE, ICSE, UP Board, Delhi University" required>
+                                        <input type="text" name="board_university" id="f_board" class="form-control-custom" placeholder="e.g. CBSE / ICSE / State Board / University" required>
                                     </div>
 
-                                    <!-- Passing Year -->
                                     <div class="col-md-6">
                                         <label class="form-label-custom">
-                                            <span>Passing Year <span class="req">*</span></span>
+                                            <span>Year of Passing <span class="req">*</span></span>
                                         </label>
-                                        <select name="passing_year" id="f_passing_year" class="form-select-custom" required>
-                                            <option value="">Select Year</option>
-                                            <?php for ($y = date('Y'); $y >= 2012; $y--): ?>
-                                                <option value="<?= $y ?>"><?= $y ?></option>
-                                            <?php endfor; ?>
-                                        </select>
+                                        <input type="number" name="passing_year" id="f_passing_year" class="form-control-custom font-monospace" placeholder="e.g. 2024" min="2000" max="2030" required>
                                     </div>
 
-                                    <!-- Percentage -->
                                     <div class="col-md-6">
                                         <label class="form-label-custom">
-                                            <span>Percentage / CGPA / Grade <span class="req">*</span></span>
+                                            <span>Percentage / CGPA <span class="req">*</span></span>
                                         </label>
-                                        <input type="text" name="percentage" id="f_percentage" class="form-control-custom" placeholder="e.g. 78.5% or 8.2 CGPA" required>
+                                        <input type="text" name="percentage" id="f_percentage" class="form-control-custom font-monospace" placeholder="e.g. 78.5% or 8.2 CGPA" required>
                                     </div>
                                 </div>
 
-                                <!-- STEP 2 BUTTONS -->
                                 <div class="wizard-footer">
                                     <button type="button" class="btn-wizard-prev" onclick="goToStep(1)">
                                         <i class="fa-solid fa-arrow-left"></i>
-                                        <span>Previous Step</span>
+                                        <span>Previous</span>
                                     </button>
                                     <button type="button" class="btn-wizard-next" onclick="goToStep(3)">
                                         <span>Next: Address Details</span>
@@ -664,22 +724,20 @@ include "header.php";
                             </div>
 
                             <!-- ============================================ -->
-                            <!-- STEP 3: CONTACT & PERMANENT ADDRESS -->
+                            <!-- STEP 3: CONTACT & COMMUNICATION ADDRESS -->
                             <!-- ============================================ -->
                             <div class="wizard-step-pane" id="stepPane3">
-                                <h3 class="step-heading">Step 3: Residential &amp; Contact Address</h3>
-                                <p class="step-subheading">Enter your complete permanent communication and residential address details.</p>
+                                <h3 class="step-heading">Step 3: Permanent &amp; Communication Address</h3>
+                                <p class="step-subheading">Enter your residential address for batch scheduling and official dispatch.</p>
 
                                 <div class="row g-3">
-                                    <!-- Street / Address -->
                                     <div class="col-md-12">
                                         <label class="form-label-custom">
-                                            <span>Full Street Address / House No. / Landmark <span class="req">*</span></span>
+                                            <span>Full House Address (Street / Landmark / House No.) <span class="req">*</span></span>
                                         </label>
-                                        <textarea name="address" id="f_address" class="form-control-custom" rows="2" placeholder="House/Flat No., Street, Landmark, Area" required></textarea>
+                                        <textarea name="address" id="f_address" rows="2" class="form-control-custom" placeholder="House No, Building, Street, Landmark..." required></textarea>
                                     </div>
 
-                                    <!-- City -->
                                     <div class="col-md-6">
                                         <label class="form-label-custom">
                                             <span>City / District <span class="req">*</span></span>
@@ -687,7 +745,6 @@ include "header.php";
                                         <input type="text" name="city" id="f_city" class="form-control-custom" placeholder="e.g. Ghaziabad / Noida / New Delhi" required>
                                     </div>
 
-                                    <!-- State -->
                                     <div class="col-md-6">
                                         <label class="form-label-custom">
                                             <span>State / Union Territory <span class="req">*</span></span>
@@ -709,7 +766,6 @@ include "header.php";
                                         </select>
                                     </div>
 
-                                    <!-- Post Office -->
                                     <div class="col-md-6">
                                         <label class="form-label-custom">
                                             <span>Post Office <span class="req">*</span></span>
@@ -717,7 +773,6 @@ include "header.php";
                                         <input type="text" name="post_office" id="f_post_office" class="form-control-custom" placeholder="Local Post Office name" required>
                                     </div>
 
-                                    <!-- Pin Code -->
                                     <div class="col-md-6">
                                         <label class="form-label-custom">
                                             <span>6-Digit Pin Code <span class="req">*</span></span>
@@ -726,11 +781,10 @@ include "header.php";
                                     </div>
                                 </div>
 
-                                <!-- STEP 3 BUTTONS -->
                                 <div class="wizard-footer">
                                     <button type="button" class="btn-wizard-prev" onclick="goToStep(2)">
                                         <i class="fa-solid fa-arrow-left"></i>
-                                        <span>Previous Step</span>
+                                        <span>Previous</span>
                                     </button>
                                     <button type="button" class="btn-wizard-next" onclick="goToStep(4)">
                                         <span>Next: Upload Documents</span>
@@ -746,116 +800,83 @@ include "header.php";
                                 <h3 class="step-heading">Step 4: Academic &amp; Identity Documents</h3>
                                 <p class="step-subheading">Attach clear copies of your documents. Supported formats: JPG, PNG, PDF (Max: 5MB per file).</p>
 
-                                <div class="row g-4">
-                                    <!-- Passport Photo -->
+                                <div class="row g-3">
                                     <div class="col-md-6">
                                         <label class="form-label-custom">
                                             <span>Passport Size Photo <span class="req">*</span></span>
-                                        </label>
-                                        
-                                        <?php if (!empty($student['photo']) && file_exists(__DIR__ . '/' . $student['photo'])): ?>
-                                            <div class="p-3 bg-light rounded-3 border d-flex align-items-center justify-content-between mb-2">
-                                                <div class="d-flex align-items-center gap-3">
-                                                    <img src="<?= htmlspecialchars($student['photo']) ?>" alt="Photo" class="rounded border" style="width: 50px; height: 60px; object-fit: cover;">
-                                                    <div>
-                                                        <span class="badge bg-success-subtle text-success py-1"><i class="fa-solid fa-check me-1"></i> Profile Photo Verified</span>
-                                                        <div class="small text-muted mt-1">Auto-loaded from your candidate registration.</div>
-                                                    </div>
-                                                </div>
-                                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('photoInputGroup').classList.toggle('d-none')">
-                                                    Change
-                                                </button>
-                                            </div>
-                                            <div id="photoInputGroup" class="d-none">
-                                                <div class="file-dropzone">
-                                                    <i class="fa-solid fa-camera file-dropzone-icon"></i>
-                                                    <div class="small fw-semibold text-dark">Upload New Photo</div>
-                                                    <div class="small text-muted">Click or drag image here</div>
-                                                    <input type="file" name="photo" id="f_photo" accept="image/*" onchange="previewFileName(this)">
-                                                    <div class="file-chosen-name"></div>
-                                                </div>
-                                            </div>
-                                        <?php else: ?>
-                                            <div class="file-dropzone">
-                                                <i class="fa-solid fa-camera file-dropzone-icon"></i>
-                                                <div class="small fw-semibold text-dark">Upload Recent Passport Photo <span class="text-danger">*</span></div>
-                                                <div class="small text-muted">JPG or PNG format</div>
-                                                <input type="file" name="photo" id="f_photo" accept="image/*" required onchange="previewFileName(this)">
-                                                <div class="file-chosen-name"></div>
-                                            </div>
-                                        <?php endif; ?>
-                                    </div>
-
-                                    <!-- 10th Marksheet -->
-                                    <div class="col-md-6">
-                                        <label class="form-label-custom">
-                                            <span>Class 10th Marksheet / Certificate <span class="req">*</span></span>
+                                            <?php if (!empty($student['photo'])): ?>
+                                                <span class="badge bg-success-subtle text-success py-0" style="font-size:10px;">Already Saved</span>
+                                            <?php endif; ?>
                                         </label>
                                         <div class="file-dropzone">
-                                            <i class="fa-solid fa-file-pdf file-dropzone-icon"></i>
-                                            <div class="small fw-semibold text-dark">Upload 10th Marksheet <span class="text-danger">*</span></div>
-                                            <div class="small text-muted">PDF or Image scan</div>
-                                            <input type="file" name="marksheet10" id="f_m10" accept="image/*,.pdf" required onchange="previewFileName(this)">
+                                            <input type="file" name="photo" id="f_photo" accept="image/*" onchange="previewFileName(this)" <?= empty($student['photo']) ? 'required' : '' ?>>
+                                            <i class="fa-solid fa-camera file-dropzone-icon d-block"></i>
+                                            <div class="small fw-semibold text-dark">Click to select Passport Photo</div>
+                                            <div class="file-chosen-name"><?= !empty($student['photo']) ? '✓ Current Photo Attached' : '' ?></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label-custom">
+                                            <span>Aadhaar Card (Front &amp; Back PDF/Image) <span class="req">*</span></span>
+                                        </label>
+                                        <div class="file-dropzone">
+                                            <input type="file" name="aadhaar_card" id="f_aadhaar_file" accept=".pdf,image/*" required onchange="previewFileName(this)">
+                                            <i class="fa-solid fa-id-card file-dropzone-icon d-block"></i>
+                                            <div class="small fw-semibold text-dark">Upload Aadhaar Card Copy</div>
                                             <div class="file-chosen-name"></div>
                                         </div>
                                     </div>
 
-                                    <!-- 12th / Highest Marksheet -->
                                     <div class="col-md-6">
                                         <label class="form-label-custom">
-                                            <span>Class 12th / Graduation Marksheet</span>
-                                            <span class="text-muted small">Optional</span>
+                                            <span>10th Marksheet / Certificate <span class="req">*</span></span>
                                         </label>
                                         <div class="file-dropzone">
-                                            <i class="fa-solid fa-file-lines file-dropzone-icon"></i>
+                                            <input type="file" name="marksheet10" id="f_m10" accept=".pdf,image/*" required onchange="previewFileName(this)">
+                                            <i class="fa-solid fa-file-lines file-dropzone-icon d-block"></i>
+                                            <div class="small fw-semibold text-dark">Upload 10th Marksheet</div>
+                                            <div class="file-chosen-name"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label-custom">
+                                            <span>12th Marksheet / Highest Certificate <span class="req">*</span></span>
+                                        </label>
+                                        <div class="file-dropzone">
+                                            <input type="file" name="marksheet12" id="f_m12" accept=".pdf,image/*" required onchange="previewFileName(this)">
+                                            <i class="fa-solid fa-graduation-cap file-dropzone-icon d-block"></i>
                                             <div class="small fw-semibold text-dark">Upload 12th / Degree Marksheet</div>
-                                            <div class="small text-muted">PDF or Image scan</div>
-                                            <input type="file" name="marksheet12" id="f_m12" accept="image/*,.pdf" onchange="previewFileName(this)">
-                                            <div class="file-chosen-name"></div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Aadhaar Card Document -->
-                                    <div class="col-md-6">
-                                        <label class="form-label-custom">
-                                            <span>Aadhaar Card Copy (Front &amp; Back) <span class="req">*</span></span>
-                                        </label>
-                                        <div class="file-dropzone">
-                                            <i class="fa-solid fa-id-card file-dropzone-icon"></i>
-                                            <div class="small fw-semibold text-dark">Upload Aadhaar Card Document <span class="text-danger">*</span></div>
-                                            <div class="small text-muted">PDF or Clear photo copy</div>
-                                            <input type="file" name="aadhaar_card" id="f_aadhaar_file" accept="image/*,.pdf" required onchange="previewFileName(this)">
                                             <div class="file-chosen-name"></div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- STEP 4 BUTTONS -->
                                 <div class="wizard-footer">
                                     <button type="button" class="btn-wizard-prev" onclick="goToStep(3)">
                                         <i class="fa-solid fa-arrow-left"></i>
-                                        <span>Previous Step</span>
+                                        <span>Previous</span>
                                     </button>
                                     <button type="button" class="btn-wizard-next" onclick="prepareReviewAndGo(5)">
-                                        <span>Next: Review &amp; Confirm</span>
+                                        <span>Next: Review &amp; Verify</span>
                                         <i class="fa-solid fa-arrow-right"></i>
                                     </button>
                                 </div>
                             </div>
 
                             <!-- ============================================ -->
-                            <!-- STEP 5: REVIEW & FINAL SUBMISSION -->
+                            <!-- STEP 5: REVIEW & SUMMARY -->
                             <!-- ============================================ -->
                             <div class="wizard-step-pane" id="stepPane5">
-                                <h3 class="step-heading">Step 5: Review &amp; Submit Application</h3>
-                                <p class="step-subheading">Please review all provided information carefully before submitting your online application.</p>
+                                <h3 class="step-heading">Step 5: Review Application</h3>
+                                <p class="step-subheading">Please review your submitted details. Click Proceed to select your payment option.</p>
 
                                 <div class="row g-3">
-                                    <!-- Candidate Bio Review -->
                                     <div class="col-md-6">
                                         <div class="review-card">
                                             <div class="review-card-title">
-                                                <span><i class="fa-solid fa-user text-primary me-1.5"></i> Candidate Identity</span>
+                                                <span><i class="fa-solid fa-user me-1 text-primary"></i> Candidate Details</span>
                                                 <button type="button" class="btn btn-sm btn-link p-0 text-decoration-none" onclick="goToStep(1)">Edit</button>
                                             </div>
                                             <div class="review-row">
@@ -867,65 +888,51 @@ include "header.php";
                                                 <span class="review-val" id="r_father">-</span>
                                             </div>
                                             <div class="review-row">
-                                                <span class="review-label">Date of Birth &amp; Gender</span>
+                                                <span class="review-label">DOB &amp; Gender</span>
                                                 <span class="review-val" id="r_dob_gender">-</span>
                                             </div>
                                             <div class="review-row">
                                                 <span class="review-label">Aadhaar No.</span>
                                                 <span class="review-val font-monospace" id="r_aadhaar">-</span>
                                             </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Course & Academic Review -->
-                                    <div class="col-md-6">
-                                        <div class="review-card">
-                                            <div class="review-card-title">
-                                                <span><i class="fa-solid fa-graduation-cap text-warning me-1.5"></i> Course &amp; Academics</span>
-                                                <button type="button" class="btn btn-sm btn-link p-0 text-decoration-none" onclick="goToStep(2)">Edit</button>
-                                            </div>
                                             <div class="review-row">
-                                                <span class="review-label">Selected Course</span>
-                                                <span class="review-val text-primary fw-bold" id="r_course">-</span>
-                                            </div>
-                                            <div class="review-row">
-                                                <span class="review-label">Highest Qualification</span>
-                                                <span class="review-val" id="r_education">-</span>
-                                            </div>
-                                            <div class="review-row">
-                                                <span class="review-label">Board / University</span>
-                                                <span class="review-val" id="r_board">-</span>
-                                            </div>
-                                            <div class="review-row">
-                                                <span class="review-label">Passing Year &amp; Marks</span>
-                                                <span class="review-val" id="r_passing_marks">-</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Contact & Address Review -->
-                                    <div class="col-md-6">
-                                        <div class="review-card">
-                                            <div class="review-card-title">
-                                                <span><i class="fa-solid fa-envelope text-info me-1.5"></i> Contact &amp; Communication</span>
-                                                <button type="button" class="btn btn-sm btn-link p-0 text-decoration-none" onclick="goToStep(1)">Edit</button>
-                                            </div>
-                                            <div class="review-row">
-                                                <span class="review-label">Mobile (WhatsApp)</span>
+                                                <span class="review-label">Mobile</span>
                                                 <span class="review-val" id="r_mobile">-</span>
                                             </div>
                                             <div class="review-row">
-                                                <span class="review-label">Email Address</span>
+                                                <span class="review-label">Email</span>
                                                 <span class="review-val" id="r_email">-</span>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <!-- Address Review -->
                                     <div class="col-md-6">
                                         <div class="review-card">
                                             <div class="review-card-title">
-                                                <span><i class="fa-solid fa-location-dot text-danger me-1.5"></i> Address Details</span>
+                                                <span><i class="fa-solid fa-graduation-cap me-1 text-warning"></i> Course &amp; Academics</span>
+                                                <button type="button" class="btn btn-sm btn-link p-0 text-decoration-none" onclick="goToStep(2)">Edit</button>
+                                            </div>
+                                            <div class="review-row">
+                                                <span class="review-label">Selected Course</span>
+                                                <span class="review-val text-primary" id="r_course">-</span>
+                                            </div>
+                                            <div class="review-row">
+                                                <span class="review-label">Qualification</span>
+                                                <span class="review-val" id="r_education">-</span>
+                                            </div>
+                                            <div class="review-row">
+                                                <span class="review-label">Board / Univ</span>
+                                                <span class="review-val" id="r_board">-</span>
+                                            </div>
+                                            <div class="review-row">
+                                                <span class="review-label">Passing &amp; Marks</span>
+                                                <span class="review-val font-monospace" id="r_passing_marks">-</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="review-card">
+                                            <div class="review-card-title">
+                                                <span><i class="fa-solid fa-map-pin me-1 text-success"></i> Address Summary</span>
                                                 <button type="button" class="btn btn-sm btn-link p-0 text-decoration-none" onclick="goToStep(3)">Edit</button>
                                             </div>
                                             <div class="review-row">
@@ -933,33 +940,136 @@ include "header.php";
                                                 <span class="review-val text-truncate" style="max-width: 200px;" id="r_address">-</span>
                                             </div>
                                             <div class="review-row">
-                                                <span class="review-label">City, State &amp; Pin</span>
+                                                <span class="review-label">City &amp; State</span>
                                                 <span class="review-val" id="r_location">-</span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Self Declaration -->
-                                <div class="p-3 bg-light rounded-3 border mt-3">
+                                <div class="p-2.5 bg-light rounded-2 border mt-2">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" id="declarationCheck" required>
                                         <label class="form-check-label small text-dark fw-semibold" for="declarationCheck">
-                                            I hereby declare that all details submitted above are true and complete. I agree to comply with Finchskills Institute's admission guidelines and terms.
+                                            I declare all information submitted is true. I agree to proceed to fee submission to complete my admission.
                                         </label>
                                     </div>
                                 </div>
 
-                                <!-- STEP 5 BUTTONS -->
                                 <div class="wizard-footer">
                                     <button type="button" class="btn-wizard-prev" onclick="goToStep(4)">
                                         <i class="fa-solid fa-arrow-left"></i>
                                         <span>Back to Documents</span>
                                     </button>
                                     <button type="submit" class="btn-wizard-submit" id="submitBtn">
-                                        <i class="fa-solid fa-paper-plane"></i>
-                                        <span>Submit Online Application</span>
+                                        <span>Proceed to Fee Payment</span>
+                                        <i class="fa-solid fa-arrow-right"></i>
                                     </button>
+                                </div>
+                            </div>
+
+                            <!-- ============================================ -->
+                            <!-- STEP 6: MANDATORY COURSE FEE SUBMISSION -->
+                            <!-- ============================================ -->
+                            <div class="wizard-step-pane" id="stepPane6">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <h3 class="step-heading mb-0">Step 6: Course Fee Submission</h3>
+                                    <span class="badge bg-warning-subtle text-dark border font-monospace px-2.5 py-1" style="font-size:11px;" id="dispAppRef">
+                                        Ref: ADM-PENDING
+                                    </span>
+                                </div>
+                                <p class="step-subheading">
+                                    Your application has been verified. Choose your payment plan below to complete admission and receive your official enrollment receipt.
+                                </p>
+
+                                <div class="row g-3 mb-3">
+                                    <!-- Option A: Full Payment with Discount -->
+                                    <div class="col-md-6">
+                                        <div class="plan-option-card selected" id="optCardFull" onclick="selectPaymentPlan('full')">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <div>
+                                                    <strong class="text-dark d-block">Option A: Full Payment</strong>
+                                                    <span class="plan-badge-disc"><i class="fa-solid fa-tag me-1"></i> <?= $full_pay_discount_pct ?>% Instant Discount</span>
+                                                </div>
+                                                <input type="radio" name="plan_choice" value="full" checked class="form-check-input mt-1">
+                                            </div>
+                                            <p class="small text-muted mb-2">Pay full course fee at once and get direct fee reduction.</p>
+                                            
+                                            <div class="p-2 bg-light rounded-2 border">
+                                                <div class="d-flex justify-content-between text-muted small">
+                                                    <span>Standard Course Fee:</span>
+                                                    <span class="text-decoration-line-through font-monospace" id="dispBaseFee">₹0</span>
+                                                </div>
+                                                <div class="d-flex justify-content-between text-success small">
+                                                    <span>Full Pay Discount:</span>
+                                                    <strong id="dispDiscountAmt">- ₹0</strong>
+                                                </div>
+                                                <div class="d-flex justify-content-between text-dark fw-bold pt-1 border-top mt-1" style="font-size:14px;">
+                                                    <span>Final Payable:</span>
+                                                    <span class="text-success" id="dispFullPayFinal">₹0</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Option B: Part-wise Installments -->
+                                    <div class="col-md-6">
+                                        <div class="plan-option-card" id="optCardInst" onclick="selectPaymentPlan('installment')">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <div>
+                                                    <strong class="text-dark d-block">Option B: Part-Wise Installments</strong>
+                                                    <span class="badge bg-secondary-subtle text-dark border px-2 py-0.5" style="font-size:11px;" id="dispInstBadge">2 Easy Parts</span>
+                                                </div>
+                                                <input type="radio" name="plan_choice" value="installment" class="form-check-input mt-1">
+                                            </div>
+                                            <p class="small text-muted mb-2">Split total course fees across duration. Pay Part 1 today.</p>
+
+                                            <div class="p-2 bg-light rounded-2 border">
+                                                <div class="d-flex justify-content-between text-muted small">
+                                                    <span>Part 1 (Payable Today):</span>
+                                                    <strong class="text-dark" id="dispPart1Amt">₹0</strong>
+                                                </div>
+                                                <div class="d-flex justify-content-between text-muted small">
+                                                    <span>Remaining Parts:</span>
+                                                    <span id="dispRemPartsText">Scheduled Monthly</span>
+                                                </div>
+                                                <div class="d-flex justify-content-between text-dark fw-bold pt-1 border-top mt-1" style="font-size:14px;">
+                                                    <span>Total Over Duration:</span>
+                                                    <span class="text-primary" id="dispInstTotal">₹0</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Schedule Drawer (For Installment Option) -->
+                                <div id="instScheduleDrawer" class="p-3 bg-light rounded-2 border mb-3" style="display: none;">
+                                    <div class="fw-bold text-dark small mb-2 d-flex align-items-center gap-1.5">
+                                        <i class="fa-solid fa-calendar-days text-primary"></i> Installment Breakdown Schedule:
+                                    </div>
+                                    <div id="instScheduleList" class="d-flex flex-column gap-1.5">
+                                        <!-- Populated via JS -->
+                                    </div>
+                                </div>
+
+                                <!-- Payment Action Box -->
+                                <div class="p-3 bg-white border rounded-2 d-flex align-items-center justify-content-between flex-wrap gap-3">
+                                    <div>
+                                        <span class="text-muted small d-block">Amount to pay now:</span>
+                                        <h4 class="fw-bold text-success mb-0" id="dispPayNowTotal">₹0.00</h4>
+                                    </div>
+                                    <div>
+                                        <button type="button" class="btn-wizard-submit" id="btnPayCourseFee" onclick="initiateCourseFeePayment()">
+                                            <i class="fa-solid fa-lock"></i>
+                                            <span id="btnPayText">Pay Now via Razorpay &amp; Confirm</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="text-center mt-2">
+                                    <small class="text-muted" style="font-size: 11.5px;">
+                                        <i class="fa-solid fa-shield-halved text-success me-1"></i> Official 256-Bit Encrypted Secure Gateway (UPI, Cards, Netbanking). Instant Receipt Emailed.
+                                    </small>
                                 </div>
                             </div>
 
@@ -975,10 +1085,32 @@ include "header.php";
     </div>
 </section>
 
-<!-- WIZARD STEPPER JAVASCRIPT -->
+<!-- Razorpay Official Checkout SDK -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<!-- WIZARD STEPPER & PAYMENT JAVASCRIPT -->
 <script>
 let currentStep = 1;
-const totalSteps = 5;
+const totalSteps = 6;
+let submittedAdmissionId = 0;
+let feeCalculationData = null;
+let selectedPlan = 'full';
+
+function showFormLoader(title, subtitle) {
+    const overlay = document.getElementById('formLoadingOverlay');
+    if (overlay) {
+        document.getElementById('formLoadingTitle').textContent = title || 'Processing...';
+        document.getElementById('formLoadingSubtitle').textContent = subtitle || 'Please wait';
+        overlay.style.display = 'flex';
+    }
+}
+
+function hideFormLoader() {
+    const overlay = document.getElementById('formLoadingOverlay');
+    if (overlay) {
+        overlay.style.display = 'none';
+    }
+}
 
 function updateProgressBar(step) {
     const percentage = ((step - 1) / (totalSteps - 1)) * 100;
@@ -994,11 +1126,10 @@ function updateProgressBar(step) {
                 item.querySelector('.step-circle').innerHTML = '<i class="fa-solid fa-check"></i>';
             } else if (i === step) {
                 item.classList.add('active');
-                // Restore icon for active step
-                const icons = ['fa-user', 'fa-graduation-cap', 'fa-map-location-dot', 'fa-file-arrow-up', 'fa-clipboard-check'];
+                const icons = ['fa-user', 'fa-graduation-cap', 'fa-map-location-dot', 'fa-file-arrow-up', 'fa-clipboard-check', 'fa-credit-card'];
                 item.querySelector('.step-circle').innerHTML = '<i class="fa-solid ' + icons[i - 1] + '"></i>';
             } else {
-                const icons = ['fa-user', 'fa-graduation-cap', 'fa-map-location-dot', 'fa-file-arrow-up', 'fa-clipboard-check'];
+                const icons = ['fa-user', 'fa-graduation-cap', 'fa-map-location-dot', 'fa-file-arrow-up', 'fa-clipboard-check', 'fa-credit-card'];
                 item.querySelector('.step-circle').innerHTML = '<i class="fa-solid ' + icons[i - 1] + '"></i>';
             }
         }
@@ -1009,7 +1140,6 @@ function validateCurrentStep(step) {
     const pane = document.getElementById('stepPane' + step);
     if (!pane) return true;
 
-    // Find all required visible inputs in this pane
     const inputs = pane.querySelectorAll('input[required], select[required], textarea[required]');
     for (let input of inputs) {
         if (!input.checkValidity() || input.value.trim() === '') {
@@ -1023,17 +1153,13 @@ function validateCurrentStep(step) {
 }
 
 function goToStep(step) {
-    if (step > currentStep) {
-        // Validate current step before moving forward
+    if (step > currentStep && currentStep < 5) {
         if (!validateCurrentStep(currentStep)) return;
     }
 
     currentStep = step;
 
-    // Hide all panes
     document.querySelectorAll('.wizard-step-pane').forEach(p => p.classList.remove('active'));
-
-    // Show target pane
     const targetPane = document.getElementById('stepPane' + step);
     if (targetPane) {
         targetPane.classList.add('active');
@@ -1041,17 +1167,15 @@ function goToStep(step) {
 
     updateProgressBar(step);
 
-    // Scroll gently to top of wizard
-    const card = document.querySelector('.wizard-card');
+    const card = document.getElementById('wizardCard');
     if (card) {
-        const offset = card.getBoundingClientRect().top + window.scrollY - 80;
+        const offset = card.getBoundingClientRect().top + window.scrollY - 70;
         window.scrollTo({ top: offset, behavior: 'smooth' });
     }
 }
 
 function jumpToStep(step) {
-    // Only allow clicking to steps that have already been visited / validated
-    if (step < currentStep) {
+    if (step < currentStep && currentStep < 6) {
         goToStep(step);
     }
 }
@@ -1059,7 +1183,6 @@ function jumpToStep(step) {
 function prepareReviewAndGo(step) {
     if (!validateCurrentStep(currentStep)) return;
 
-    // Populate Review Fields
     document.getElementById('r_name').textContent = document.getElementById('f_name').value || '-';
     document.getElementById('r_father').textContent = document.getElementById('f_father_name').value || '-';
     document.getElementById('r_dob_gender').textContent = (document.getElementById('f_dob').value || '-') + ' (' + (document.getElementById('f_gender').value || '-') + ')';
@@ -1087,8 +1210,8 @@ function updateCoursePreview() {
     if (select.value) {
         previewName.textContent = select.value;
         const dur = selectedOption.dataset.duration || 'Flexible';
-        const mode = selectedOption.dataset.mode || 'Classroom & Practical';
-        previewMeta.textContent = 'Duration: ' + dur + ' • Mode: ' + mode + ' • 100% Placement Support';
+        const fee = selectedOption.dataset.fee || '';
+        previewMeta.textContent = 'Duration: ' + dur + (fee ? (' • Fee: ' + fee) : '') + ' • 100% Placement Support';
     } else {
         previewName.textContent = 'Please select a course above';
         previewMeta.textContent = 'Duration: Industry standard certification • 100% Placement Support';
@@ -1103,19 +1226,199 @@ function previewFileName(input) {
     }
 }
 
-// Prevent double submission
+function selectPaymentPlan(plan) {
+    selectedPlan = plan;
+    const cardFull = document.getElementById('optCardFull');
+    const cardInst = document.getElementById('optCardInst');
+    const drawer = document.getElementById('instScheduleDrawer');
+
+    if (plan === 'full') {
+        cardFull.classList.add('selected');
+        cardInst.classList.remove('selected');
+        drawer.style.display = 'none';
+        if (feeCalculationData) {
+            document.getElementById('dispPayNowTotal').textContent = feeCalculationData.full_payment.formatted_final;
+            document.getElementById('btnPayText').textContent = 'Pay Full Fee (' + feeCalculationData.full_payment.formatted_final + ') & Confirm';
+        }
+    } else {
+        cardInst.classList.add('selected');
+        cardFull.classList.remove('selected');
+        drawer.style.display = 'block';
+        if (feeCalculationData) {
+            document.getElementById('dispPayNowTotal').textContent = feeCalculationData.installment_payment.formatted_part_amount;
+            document.getElementById('btnPayText').textContent = 'Pay Part 1 (' + feeCalculationData.installment_payment.formatted_part_amount + ') & Confirm';
+        }
+    }
+}
+
+// Fetch fee calculations from backend
+function fetchFeeCalculations(courseTitle) {
+    showFormLoader('Calculating Course Fees...', 'Fetching discount and installment plan');
+
+    fetch('process-fee-payment.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'calculate_fee', course: courseTitle })
+    })
+    .then(res => res.json())
+    .then(data => {
+        hideFormLoader();
+        if (data.success) {
+            feeCalculationData = data;
+            
+            // Full Pay
+            document.getElementById('dispBaseFee').textContent = data.course.formatted_fee;
+            document.getElementById('dispDiscountAmt').textContent = '- ' + data.full_payment.formatted_discount;
+            document.getElementById('dispFullPayFinal').textContent = data.full_payment.formatted_final;
+
+            // Installment
+            document.getElementById('dispInstBadge').textContent = data.installment_payment.total_parts + ' Easy Installments';
+            document.getElementById('dispPart1Amt').textContent = data.installment_payment.formatted_part_amount;
+            document.getElementById('dispRemPartsText').textContent = (data.installment_payment.total_parts - 1) + ' Scheduled Parts Remaining';
+            document.getElementById('dispInstTotal').textContent = data.course.formatted_fee;
+
+            // Render Schedule
+            const list = document.getElementById('instScheduleList');
+            list.innerHTML = '';
+            data.installment_payment.schedule.forEach(item => {
+                const row = document.createElement('div');
+                row.className = 'd-flex justify-content-between align-items-center p-2 rounded border bg-white small';
+                row.innerHTML = `
+                    <div>
+                        <strong class="${item.is_now ? 'text-success' : 'text-dark'}">${item.title}</strong>
+                        <div class="text-muted" style="font-size:11px;">Due Date: <strong>${item.due_date}</strong> ${item.is_now ? '(Today)' : ''}</div>
+                    </div>
+                    <span class="fw-bold font-monospace ${item.is_now ? 'text-success' : 'text-dark'}">₹${Number(item.amount).toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+                `;
+                list.appendChild(row);
+            });
+
+            // Initial view
+            selectPaymentPlan('full');
+        } else {
+            alert(data.message || 'Unable to load course fee data.');
+        }
+    })
+    .catch(err => {
+        hideFormLoader();
+        console.error(err);
+        alert('Network error while calculating fee details.');
+    });
+}
+
+// FORM SUBMISSION (STEP 5 -> AJAX -> STEP 6)
 document.getElementById('admissionForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
     const dec = document.getElementById('declarationCheck');
     if (!dec.checked) {
-        e.preventDefault();
-        alert('Please accept the declaration before submitting.');
+        alert('Please accept the declaration before proceeding.');
         dec.focus();
         return;
     }
-    const btn = document.getElementById('submitBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> Submitting Application...';
+
+    showFormLoader('Saving Application Documents...', 'Generating application reference number');
+    
+    const formData = new FormData(this);
+
+    fetch('send-admission.php', {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        hideFormLoader();
+        if (data.success) {
+            submittedAdmissionId = data.admission_id;
+            document.getElementById('dispAppRef').textContent = 'Ref: ' + data.app_ref;
+
+            // Move to mandatory fee payment Step 6
+            goToStep(6);
+
+            // Fetch live fee and installment schedule
+            fetchFeeCalculations(data.course);
+        } else {
+            alert(data.message || 'Application submission failed.');
+        }
+    })
+    .catch(err => {
+        hideFormLoader();
+        console.error(err);
+        alert('Error uploading application files. Please check file sizes and try again.');
+    });
 });
+
+// INITIATE RAZORPAY PAYMENT
+function initiateCourseFeePayment() {
+    if (!feeCalculationData || submittedAdmissionId <= 0) {
+        alert('Application data missing. Please re-check application.');
+        return;
+    }
+
+    const payAmount = (selectedPlan === 'full') 
+        ? feeCalculationData.full_payment.final_amount 
+        : feeCalculationData.installment_payment.part_amount;
+    
+    const payAmountPaise = Math.round(payAmount * 100);
+
+    const studentName = document.getElementById('f_name').value;
+    const studentEmail = document.getElementById('f_email').value;
+    const studentPhone = document.getElementById('f_mobile').value;
+
+    const options = {
+        "key": "<?= htmlspecialchars($key_id) ?>",
+        "amount": payAmountPaise,
+        "currency": "INR",
+        "name": "Finchskills Institute",
+        "description": "Course Fee (" + (selectedPlan === 'full' ? 'Full Payment' : 'Part 1 Installment') + ")",
+        "image": "img/favicon.png",
+        "prefill": {
+            "name": studentName,
+            "email": studentEmail,
+            "contact": studentPhone
+        },
+        "theme": {
+            "color": "#fe7c03"
+        },
+        "handler": function (response) {
+            showFormLoader('Verifying Payment & Generating Receipt...', 'Finalizing course admission registration');
+
+            fetch('process-fee-payment.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'verify_course_fee',
+                    admission_id: submittedAdmissionId,
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    plan_type: selectedPlan,
+                    paid_amount: payAmount
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                hideFormLoader();
+                if (data.success) {
+                    window.location.href = 'student-profile.php?payment=success&ref=' + encodeURIComponent(data.receipt_no);
+                } else {
+                    alert('Payment recorded. ' + (data.message || 'Please check your dashboard.'));
+                    window.location.href = 'student-profile.php';
+                }
+            })
+            .catch(err => {
+                hideFormLoader();
+                console.error(err);
+                window.location.href = 'student-profile.php?payment=done';
+            });
+        }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.on('payment.failed', function (response) {
+        alert("Payment failed: " + response.error.description);
+    });
+    rzp.open();
+}
 </script>
 
 <?php include "footer.php"; ?>

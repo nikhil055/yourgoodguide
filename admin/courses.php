@@ -236,6 +236,7 @@ require_once __DIR__ . '/includes/header.php';
                         <th class="px-4 py-2.5">Course</th>
                         <th class="px-4 py-2.5">Category</th>
                         <th class="px-4 py-2.5">Duration</th>
+                        <th class="px-4 py-2.5">Fee</th>
                         <th class="px-4 py-2.5">Mode</th>
                         <th class="px-4 py-2.5 text-center">Featured</th>
                         <th class="px-4 py-2.5">Status</th>
@@ -245,7 +246,7 @@ require_once __DIR__ . '/includes/header.php';
                 <tbody class="divide-y divide-slate-100">
                     <?php if (empty($courses)): ?>
                         <tr>
-                            <td colspan="7" class="px-4 py-8 text-center text-slate-400">
+                            <td colspan="8" class="px-4 py-8 text-center text-slate-400">
                                 <i class="fa-regular fa-folder-open text-2xl mb-1 text-slate-300 block"></i>
                                 <span class="font-semibold text-slate-700 block">No courses found</span>
                                 <span class="text-[11px]">Try changing your filters or add a new course.</span>
@@ -283,6 +284,11 @@ require_once __DIR__ . '/includes/header.php';
 
                                 <!-- Duration -->
                                 <td class="px-4 py-2.5 text-slate-700 font-medium"><?= htmlspecialchars($c['duration']) ?></td>
+
+                                <!-- Fee -->
+                                <td class="px-4 py-2.5 font-semibold text-emerald-700">
+                                    <?= !empty($c['fee']) ? htmlspecialchars($c['fee']) : '<span class="text-slate-300 font-normal text-[11px]">Not set</span>' ?>
+                                </td>
 
                                 <!-- Mode -->
                                 <td class="px-4 py-2.5 text-slate-500"><?= htmlspecialchars($c['study_mode']) ?></td>

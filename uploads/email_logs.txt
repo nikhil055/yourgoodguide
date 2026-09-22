@@ -276,3 +276,131 @@
             
         
 ----------------------------------------
+[2026-09-22 21:42:11] TO: nikhilbhadauriya.gspt@gmail.com | SUBJECT: Your Verification OTP - Finchskills Institute
+
+    
+    
+    body{font-family:Inter,Arial,sans-serif;background:#f8fafc;margin:0;padding:20px;color:#334155;}.card{max-width:520px;margin:0 auto;background:#ffffff;border-radius:12px;border:1px solid #e2e8f0;overflow:hidden;}.header{background:#0e1e2e;padding:24px;text-align:center;color:#ffffff;}.body{padding:28px;}.otp-box{background:#fff7ed;border:1.5px dashed #fe7c03;border-radius:8px;padding:16px;text-align:center;font-size:30px;font-weight:800;letter-spacing:6px;color:#fe7c03;margin:20px 0;}.footer{background:#f8fafc;padding:16px;text-align:center;font-size:12px;color:#94a3b8;border-top:1px solid #e2e8f0;}
+    
+        
+            
+                FINCHSKILLS INSTITUTE
+                Candidate Email Verification
+            
+            
+                Hello Nikhil singh,
+                Thank you for registering with Finchskills Institute. Please enter the following 6-digit One-Time Password (OTP) on the verification screen:
+                457657
+                This OTP is valid for 15 minutes. For your security, please do not share this code with anyone.
+            
+            
+                &copy; 2026 Finchskills Institute. All rights reserved.
+            
+        
+    
+    
+----------------------------------------
+[2026-09-22 21:42:33] TO: nikhilbhadauriya.gspt@gmail.com | SUBJECT: Welcome to Finchskills! Your Student ID: FS-2026-2546
+
+    
+    
+    body{font-family:Inter,Arial,sans-serif;background:#f8fafc;margin:0;padding:20px;color:#334155;}.card{max-width:540px;margin:0 auto;background:#ffffff;border-radius:12px;border:1px solid #e2e8f0;overflow:hidden;}.header{background:#0e1e2e;padding:26px;text-align:center;color:#ffffff;}.body{padding:30px;}.id-card{background:#f8fafc;border:1.5px solid #fe7c03;border-radius:10px;padding:18px;margin:20px 0;}.row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #e2e8f0;font-size:13.5px;}.row:last-child{border-bottom:none;}.btn{display:inline-block;background:#fe7c03;color:#ffffff !important;text-decoration:none;padding:12px 26px;border-radius:6px;font-weight:700;font-size:14px;margin-top:10px;}.footer{background:#f8fafc;padding:16px;text-align:center;font-size:12px;color:#94a3b8;border-top:1px solid #e2e8f0;}
+    
+        
+            
+                FINCHSKILLS INSTITUTE
+                Registration Confirmed
+            
+            
+                Congratulations, Nikhil singh!
+                Your candidate registration with Finchskills Institute is officially verified and confirmed. Here are your credentials:
+                
+                    
+                        Unique Student ID:
+                        FS-2026-2546
+                    
+                    
+                        Full Name:
+                        Nikhil singh
+                    
+                    
+                        Registered Email:
+                        nikhilbhadauriya.gspt@gmail.com
+                    
+                
+                You can use your Student ID or Email along with your chosen password to log in to your Candidate Portal anytime.
+                
+                    Log In to Candidate Portal &rarr;
+                
+            
+            
+                Need help? Contact helpline at +91 96503 86711 | &copy; 2026 Finchskills Institute.
+            
+        
+    
+    
+----------------------------------------
+[2026-09-22 22:35:40] TO: support@finchskills.com | SUBJECT: New Online Application: Nikhil singh - Certificate Course in Travel & Air Ticketing (ADM-00001)
+
+    
+        
+            New Admission Application
+            Ref: ADM-00001
+        
+        
+            
+                Student IDFS-2026-2546
+                Applicant NameNikhil singh
+                Father's Namefsdf
+                Course AppliedCertificate Course in Travel & Air Ticketing
+                Emailnikhilbhadauriya.gspt@gmail.com
+                Mobile (WhatsApp)06676767677
+                Aadhaar559687401326
+                DOB & Gender2026-09-24 (Male)
+                Qualification12th Pass (Pursuing) (dfsd - 2001 - fsdf)
+                LocationNoida, Uttar Pradesh - 201307
+                Full AddressMamura, Noida, Dadri, Gautam Buddha Nagar, Uttar Pradesh, 201307, India
+            
+        
+    
+----------------------------------------
+[2026-09-22 22:35:45] TO: nikhilbhadauriya.gspt@gmail.com | SUBJECT: Application Received - Certificate Course in Travel & Air Ticketing (Ref: ADM-00001) - Finchskills
+
+        
+            
+                FINCHSKILLS INSTITUTE
+                Application Submission Confirmed
+            
+            
+                Dear Nikhil singh,
+                
+                    Thank you for applying to Certificate Course in Travel & Air Ticketing at Finchskills Institute. We have successfully received your admission documents and application details.
+                
+                
+                    
+                        Application Ref No:
+                        ADM-00001
+                    
+                    
+                    
+                        Student ID:
+                        FS-2026-2546
+                    
+                    
+                        Selected Course:
+                        Certificate Course in Travel & Air Ticketing
+                    
+                    
+                        Status:
+                        Under Review
+                    
+                
+                
+                    Our admissions counselor will review your credentials and contact you within 24 hours to confirm your batch allocation.
+                
+            
+            
+                Helpline: +91 96503 86711 | hello@finchskills.com &bull; Finchskills Institute
+            
+        
+----------------------------------------

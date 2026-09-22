@@ -45,11 +45,9 @@ $admin_initial = strtoupper(substr($admin_name, 0, 1));
                         <span class="w-4 text-center"><i class="fa-solid fa-gauge-high <?= $current_page === 'index.php' ? 'text-white' : 'text-slate-400' ?>"></i></span>
                         <span>Dashboard</span>
                     </div>
-                    <?php if (($admin_stats['total_unread'] ?? 0) > 0): ?>
-                        <span class="px-1.5 py-0.5 text-[10px] font-bold rounded <?= $current_page === 'index.php' ? 'bg-white text-[#fe7c03]' : 'bg-[#fe7c03] text-white' ?>">
-                            <?= $admin_stats['total_unread'] ?>
-                        </span>
-                    <?php endif; ?>
+                    <span id="sidebarOverviewBadge" class="px-1.5 py-0.5 text-[10px] font-bold rounded <?= ($admin_stats['total_unread'] ?? 0) > 0 ? '' : 'hidden ' ?><?= $current_page === 'index.php' ? 'bg-white text-[#fe7c03]' : 'bg-[#fe7c03] text-white' ?>">
+                        <?= $admin_stats['total_unread'] ?? 0 ?>
+                    </span>
                 </a>
             </nav>
         </div>
@@ -77,24 +75,20 @@ $admin_initial = strtoupper(substr($admin_name, 0, 1));
                         <span class="w-4 text-center"><i class="fa-solid fa-users <?= $current_page === 'students.php' ? 'text-white' : 'text-slate-400' ?>"></i></span>
                         <span>Registered Students</span>
                     </div>
-                    <?php if (isset($admin_stats['total_students']) && $admin_stats['total_students'] > 0): ?>
-                        <span class="px-1.5 py-0.2 rounded text-[10px] font-semibold <?= $current_page === 'students.php' ? 'bg-white text-[#fe7c03]' : 'bg-slate-100 text-slate-600' ?>">
-                            <?= $admin_stats['total_students'] ?>
-                        </span>
-                    <?php endif; ?>
+                    <span id="sidebarStudentsBadge" class="px-1.5 py-0.2 rounded text-[10px] font-semibold <?= isset($admin_stats['total_students']) && $admin_stats['total_students'] > 0 ? '' : 'hidden ' ?><?= $current_page === 'students.php' ? 'bg-white text-[#fe7c03]' : 'bg-slate-100 text-slate-600' ?>">
+                        <?= $admin_stats['total_students'] ?? 0 ?>
+                    </span>
                 </a>
 
                 <!-- Admissions -->
-                <a href="admissions.php" class="flex items-center justify-between px-2.5 py-2 rounded-md font-medium text-xs transition-colors no-underline <?= $current_page === 'admissions.php' ? 'bg-[#fe7c03] text-white font-semibold' : 'text-slate-700 hover:text-[#fe7c03] hover:bg-[#fff8f3]' ?>">
+                <a href="admissions.php" class="flex items-center justify-between px-2.5 py-2 rounded-md font-medium text-xs transition-colors no-underline <?= in_array($current_page, ['admissions.php', 'admission-add.php']) ? 'bg-[#fe7c03] text-white font-semibold' : 'text-slate-700 hover:text-[#fe7c03] hover:bg-[#fff8f3]' ?>">
                     <div class="flex items-center gap-2.5">
-                        <span class="w-4 text-center"><i class="fa-solid fa-id-card <?= $current_page === 'admissions.php' ? 'text-white' : 'text-slate-400' ?>"></i></span>
+                        <span class="w-4 text-center"><i class="fa-solid fa-id-card <?= in_array($current_page, ['admissions.php', 'admission-add.php']) ? 'text-white' : 'text-slate-400' ?>"></i></span>
                         <span>Admissions</span>
                     </div>
-                    <?php if (($admin_stats['unread_admissions'] ?? 0) > 0): ?>
-                        <span class="px-1.5 py-0.5 text-[10px] font-bold rounded <?= $current_page === 'admissions.php' ? 'bg-white text-[#fe7c03]' : 'bg-rose-500 text-white' ?>">
-                            <?= $admin_stats['unread_admissions'] ?>
-                        </span>
-                    <?php endif; ?>
+                    <span id="sidebarAdmissionsBadge" class="px-1.5 py-0.5 text-[10px] font-bold rounded <?= ($admin_stats['unread_admissions'] ?? 0) > 0 ? '' : 'hidden ' ?><?= in_array($current_page, ['admissions.php', 'admission-add.php']) ? 'bg-white text-[#fe7c03]' : 'bg-rose-500 text-white' ?>">
+                        <?= $admin_stats['unread_admissions'] ?? 0 ?>
+                    </span>
                 </a>
 
                 <!-- Fee Submissions -->
@@ -103,11 +97,9 @@ $admin_initial = strtoupper(substr($admin_name, 0, 1));
                         <span class="w-4 text-center"><i class="fa-solid fa-receipt <?= $current_page === 'fees.php' ? 'text-white' : 'text-slate-400' ?>"></i></span>
                         <span>Fee Submissions</span>
                     </div>
-                    <?php if (($admin_stats['unread_fees'] ?? 0) > 0): ?>
-                        <span class="px-1.5 py-0.5 text-[10px] font-bold rounded <?= $current_page === 'fees.php' ? 'bg-white text-[#fe7c03]' : 'bg-teal-600 text-white' ?>">
-                            <?= $admin_stats['unread_fees'] ?>
-                        </span>
-                    <?php endif; ?>
+                    <span id="sidebarFeesBadge" class="px-1.5 py-0.5 text-[10px] font-bold rounded <?= ($admin_stats['unread_fees'] ?? 0) > 0 ? '' : 'hidden ' ?><?= $current_page === 'fees.php' ? 'bg-white text-[#fe7c03]' : 'bg-teal-600 text-white' ?>">
+                        <?= $admin_stats['unread_fees'] ?? 0 ?>
+                    </span>
                 </a>
 
                 <!-- Contact Inquiries -->
@@ -116,11 +108,17 @@ $admin_initial = strtoupper(substr($admin_name, 0, 1));
                         <span class="w-4 text-center"><i class="fa-solid fa-envelope <?= $current_page === 'contacts.php' ? 'text-white' : 'text-slate-400' ?>"></i></span>
                         <span>Inquiries</span>
                     </div>
-                    <?php if (($admin_stats['unread_inquiries'] ?? 0) > 0): ?>
-                        <span class="px-1.5 py-0.5 text-[10px] font-bold rounded <?= $current_page === 'contacts.php' ? 'bg-white text-[#fe7c03]' : 'bg-sky-600 text-white' ?>">
-                            <?= $admin_stats['unread_inquiries'] ?>
-                        </span>
-                    <?php endif; ?>
+                    <span id="sidebarInquiriesBadge" class="px-1.5 py-0.5 text-[10px] font-bold rounded <?= ($admin_stats['unread_inquiries'] ?? 0) > 0 ? '' : 'hidden ' ?><?= $current_page === 'contacts.php' ? 'bg-white text-[#fe7c03]' : 'bg-sky-600 text-white' ?>">
+                        <?= $admin_stats['unread_inquiries'] ?? 0 ?>
+                    </span>
+                </a>
+
+                <!-- Pages & Policies -->
+                <a href="pages.php" class="flex items-center justify-between px-2.5 py-2 rounded-md font-medium text-xs transition-colors no-underline <?= in_array($current_page, ['pages.php', 'page-edit.php']) ? 'bg-[#fe7c03] text-white font-semibold' : 'text-slate-700 hover:text-[#fe7c03] hover:bg-[#fff8f3]' ?>">
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-4 text-center"><i class="fa-solid fa-file-lines <?= in_array($current_page, ['pages.php', 'page-edit.php']) ? 'text-white' : 'text-slate-400' ?>"></i></span>
+                        <span>Pages &amp; Policies</span>
+                    </div>
                 </a>
             </nav>
         </div>

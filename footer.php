@@ -49,13 +49,11 @@
                             <li><a href="about.php">About</a></li>
                             <li><a href="courses.php">Courses</a></li>
                             <li><a href="placement.php">Placement</a></li>
-                            <li><a href="register.php">Register Yourself</a></li>
-                            <li><a href="student-login.php">Student Portal</a></li>
-                            <li><a href="contact.php">Contact</a></li>
-                            <li><a href="terms-conditions.php">Terms & Conditions</a></li>
-
+                            <li><a href="privacy-policy.php">Privacy Policy</a></li>
+                            <li><a href="terms-conditions.php">Terms &amp; Conditions</a></li>
+                            <li><a href="refund-policy.php">Refund Policy</a></li>
+                            <li><a href="contact.php">Contact Us</a></li>
                         </ul>
-
                     </div>
 
                     <!-- Courses -->

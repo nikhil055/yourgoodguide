@@ -356,3 +356,232 @@ function sendPaymentReceiptEmail($email, $name, $studentId, $paymentId, $amount)
 
     return sendFinchMail($email, $subject, $html);
 }
+
+/**
+ * 5. Send Detailed Course Admission Fee & Installment Receipt Email
+ */
+function sendCourseFeeReceiptEmail($email, $name, $studentId, $courseTitle, $receiptDetails) {
+    $subject = "Official Fee Receipt & Admission Confirmed - {$courseTitle} (Receipt #{$receiptDetails['receipt_no']})";
+    $paid_amt = "₹" . number_format((float)$receiptDetails['paid_amount'], 2);
+    $total_fee = "₹" . number_format((float)$receiptDetails['total_fee'], 2);
+    $pending_balance = "₹" . number_format((float)$receiptDetails['pending_balance'], 2);
+
+    $html = '
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+            body { font-family: Inter, Arial, sans-serif; background: #f8fafc; margin: 0; padding: 24px 12px; color: #334155; }
+            .card { max-width: 580px; margin: 0 auto; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; }
+            .header { background: #0e1e2e; padding: 26px 20px; text-align: center; color: #ffffff; }
+            .body { padding: 26px 24px; }
+            .receipt-box { background: #f8fafc; border: 1.5px solid #0f172a; border-radius: 10px; padding: 20px; margin: 20px 0; }
+            .row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e2e8f0; font-size: 13.5px; }
+            .row:last-child { border-bottom: none; }
+            .badge-success { background: #15803d; color: #fff; padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+            .next-due-box { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 14px 16px; margin-top: 18px; font-size: 13px; color: #92400e; }
+            .footer { background: #f8fafc; padding: 16px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0; }
+        </style>
+    </head>
+    <body>
+        <div class="card">
+            <div class="header">
+                <h2 style="margin: 0; font-size: 22px; color: #ffffff; letter-spacing: 0.5px;">FINCHSKILLS INSTITUTE</h2>
+                <p style="margin: 4px 0 0; font-size: 13px; color: #fe7c03; font-weight: 700;">Official Admission &amp; Course Fee Receipt</p>
+            </div>
+            <div class="body">
+                <h3 style="margin-top: 0; color: #0f172a; font-size: 17px;">Dear ' . htmlspecialchars($name) . ',</h3>
+                <p style="font-size: 13.5px; line-height: 1.6; color: #475569;">
+                    Congratulations! Your course admission payment for <strong>' . htmlspecialchars($courseTitle) . '</strong> has been successfully verified. Your enrollment is now officially <strong>CONFIRMED</strong>.
+                </p>
+
+                <div class="receipt-box">
+                    <div class="row">
+                        <span style="color: #64748b;">Receipt Number:</span>
+                        <strong style="color: #0f172a; font-family: monospace;">' . htmlspecialchars($receiptDetails['receipt_no']) . '</strong>
+                    </div>
+                    <div class="row">
+                        <span style="color: #64748b;">Student ID:</span>
+                        <strong style="color: #0f172a; font-family: monospace;">' . htmlspecialchars($studentId) . '</strong>
+                    </div>
+                    <div class="row">
+                        <span style="color: #64748b;">Payment Plan:</span>
+                        <strong style="color: #0f172a; text-transform: capitalize;">' . htmlspecialchars($receiptDetails['plan_title']) . '</strong>
+                    </div>
+                    <div class="row">
+                        <span style="color: #64748b;">Total Course Fee:</span>
+                        <span style="color: #0f172a;">' . htmlspecialchars($total_fee) . '</span>
+                    </div>
+                    ' . (!empty($receiptDetails['discount_amount']) ? '
+                    <div class="row">
+                        <span style="color: #15803d;">Full Payment Discount:</span>
+                        <strong style="color: #15803d;">- ₹' . number_format((float)$receiptDetails['discount_amount'], 2) . '</strong>
+                    </div>' : '') . '
+                    <div class="row" style="background: #f0fdf4; margin: 0 -20px; padding: 10px 20px;">
+                        <span style="color: #166534; font-weight: bold;">Amount Paid (Now):</span>
+                        <strong style="color: #15803d; font-size: 16px;">' . htmlspecialchars($paid_amt) . '</strong>
+                    </div>
+                    <div class="row">
+                        <span style="color: #64748b;">Transaction / Payment ID:</span>
+                        <span style="font-family: monospace; font-size: 12px; color: #0f172a;">' . htmlspecialchars($receiptDetails['payment_id']) . '</span>
+                    </div>
+                    <div class="row">
+                        <span style="color: #64748b;">Remaining Course Balance:</span>
+                        <strong style="color: ' . ((float)$receiptDetails['pending_balance'] > 0 ? '#b91c1c' : '#15803d') . ';">' . htmlspecialchars($pending_balance) . '</strong>
+                    </div>
+                </div>
+
+                ' . (!empty($receiptDetails['next_due_date']) ? '
+                <div class="next-due-box">
+                    <strong><i class="fa-solid fa-clock me-1"></i> Next Installment Schedule:</strong><br>
+                    <span>Your next installment of <strong>₹' . number_format((float)$receiptDetails['next_due_amount'], 2) . '</strong> is due on <strong>' . date('d M Y', strtotime($receiptDetails['next_due_date'])) . '</strong>. You will receive an email reminder before this date.</span>
+                </div>' : '<div style="padding: 10px; background: #ecfdf5; border-radius: 6px; color: #065f46; font-size: 13px; font-weight: 600; text-align: center;">✓ Course fee paid in full. No further payments due.</div>') . '
+
+                <p style="font-size: 13px; color: #64748b; margin-top: 20px; line-height: 1.5;">
+                    You can log in to your <a href="student-profile.php" style="color: #fe7c03; font-weight: 600;">Student Dashboard</a> anytime to track your enrolled courses, view payment breakdown, and download receipts.
+                </p>
+            </div>
+            <div class="footer">
+                Helpline: +91 96503 86711 | accounts@finchskills.com &bull; Finchskills Institute
+            </div>
+        </div>
+    </body>
+    </html>';
+
+    return sendFinchMail($email, $subject, $html);
+}
+
+/**
+ * 6. Send Comprehensive Payment Alert Notification to Admin
+ */
+function sendAdminFeePaymentNotificationEmail($studentData, $courseData, $paymentDetails) {
+    $cfg = getSmtpConfig();
+    $admin_email = !empty($cfg['smtp_admin_email']) ? $cfg['smtp_admin_email'] : (!empty($cfg['smtp_username']) ? $cfg['smtp_username'] : 'finchskillsinstitute@gmail.com');
+
+    $studentName = $studentData['name'] ?? 'Student';
+    $studentId   = $studentData['student_id'] ?? 'N/A';
+    $mobile      = $studentData['mobile'] ?? 'N/A';
+    $email       = $studentData['email'] ?? 'N/A';
+
+    $courseTitle = $courseData['title'] ?? 'Selected Course';
+    $duration    = $courseData['duration'] ?? 'N/A';
+
+    $subject = "💳 New Fee Received: ₹" . number_format((float)$paymentDetails['paid_amount'], 2) . " from {$studentName} ({$studentId})";
+
+    $html = '
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+            body { font-family: Inter, Arial, sans-serif; background: #0f172a; margin: 0; padding: 24px 12px; color: #334155; }
+            .card { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; }
+            .header { background: #0e1e2e; padding: 24px 20px; border-bottom: 3px solid #fe7c03; }
+            .body { padding: 24px; }
+            .badge-plan { display: inline-block; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; font-weight: 700; padding: 4px 10px; border-radius: 6px; font-size: 12px; text-transform: uppercase; }
+            .info-table { width: 100%; border-collapse: collapse; margin-top: 16px; margin-bottom: 18px; }
+            .info-table td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; font-size: 13.5px; }
+            .info-table tr:last-child td { border-bottom: none; }
+            .label-td { color: #64748b; width: 40%; }
+            .val-td { color: #0f172a; font-weight: 600; }
+            .alert-box { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 14px 16px; margin: 16px 0; }
+            .btn-admin { display: inline-block; background: #fe7c03; color: #ffffff !important; text-decoration: none; padding: 11px 22px; border-radius: 6px; font-weight: 700; font-size: 13.5px; }
+            .footer { background: #f8fafc; padding: 16px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0; }
+        </style>
+    </head>
+    <body>
+        <div class="card">
+            <div class="header">
+                <h2 style="margin: 0; font-size: 20px; color: #ffffff;">FINCHSKILLS INSTITUTE</h2>
+                <p style="margin: 4px 0 0; font-size: 13px; color: #fe7c03; font-weight: 700;">Admin Fee Payment Notification Alert</p>
+            </div>
+            <div class="body">
+                <div class="alert-box">
+                    <span style="color: #166534; font-size: 15px; font-weight: 700;">✓ Payment Successfully Received &amp; Processed</span>
+                    <div style="font-size: 13px; color: #15803d; margin-top: 4px;">
+                        A student has just submitted course fees through the portal.
+                    </div>
+                </div>
+
+                <h4 style="margin: 16px 0 8px; color: #0f172a; font-size: 15px; text-transform: uppercase; letter-spacing: 0.5px;">Student Details</h4>
+                <table class="info-table">
+                    <tr>
+                        <td class="label-td">Student Name:</td>
+                        <td class="val-td">' . htmlspecialchars($studentName) . '</td>
+                    </tr>
+                    <tr>
+                        <td class="label-td">Student ID:</td>
+                        <td class="val-td" style="color: #fe7c03; font-family: monospace; font-size: 15px;">' . htmlspecialchars($studentId) . '</td>
+                    </tr>
+                    <tr>
+                        <td class="label-td">Mobile Contact:</td>
+                        <td class="val-td">' . htmlspecialchars($mobile) . '</td>
+                    </tr>
+                    <tr>
+                        <td class="label-td">Email Address:</td>
+                        <td class="val-td">' . htmlspecialchars($email) . '</td>
+                    </tr>
+                </table>
+
+                <h4 style="margin: 20px 0 8px; color: #0f172a; font-size: 15px; text-transform: uppercase; letter-spacing: 0.5px;">Course &amp; Fee Breakdown</h4>
+                <table class="info-table">
+                    <tr>
+                        <td class="label-td">Enrolled Course:</td>
+                        <td class="val-td">' . htmlspecialchars($courseTitle) . '</td>
+                    </tr>
+                    <tr>
+                        <td class="label-td">Course Duration:</td>
+                        <td class="val-td">' . htmlspecialchars($duration) . '</td>
+                    </tr>
+                    <tr>
+                        <td class="label-td">Payment Mode / Plan:</td>
+                        <td class="val-td"><span class="badge-plan">' . htmlspecialchars($paymentDetails['plan_title']) . '</span></td>
+                    </tr>
+                    <tr>
+                        <td class="label-td">Total Course Fee:</td>
+                        <td class="val-td">₹' . number_format((float)$paymentDetails['total_fee'], 2) . '</td>
+                    </tr>
+                    ' . (!empty($paymentDetails['discount_amount']) ? '
+                    <tr>
+                        <td class="label-td" style="color: #15803d;">Full Pay Discount Applied:</td>
+                        <td class="val-td" style="color: #15803d;">- ₹' . number_format((float)$paymentDetails['discount_amount'], 2) . '</td>
+                    </tr>' : '') . '
+                    <tr style="background: #f8fafc;">
+                        <td class="label-td" style="font-weight: 700; color: #0f172a;">Amount Paid (Now):</td>
+                        <td class="val-td" style="color: #16a34a; font-size: 16px;">₹' . number_format((float)$paymentDetails['paid_amount'], 2) . '</td>
+                    </tr>
+                    <tr>
+                        <td class="label-td">Transaction / Payment ID:</td>
+                        <td class="val-td" style="font-family: monospace;">' . htmlspecialchars($paymentDetails['payment_id']) . '</td>
+                    </tr>
+                    <tr>
+                        <td class="label-td">Receipt Number:</td>
+                        <td class="val-td" style="font-family: monospace;">' . htmlspecialchars($paymentDetails['receipt_no']) . '</td>
+                    </tr>
+                    <tr>
+                        <td class="label-td">Remaining Fee Balance:</td>
+                        <td class="val-td" style="color: ' . ((float)$paymentDetails['pending_balance'] > 0 ? '#b91c1c' : '#15803d') . ';">₹' . number_format((float)$paymentDetails['pending_balance'], 2) . '</td>
+                    </tr>
+                    ' . (!empty($paymentDetails['next_due_date']) ? '
+                    <tr style="background: #fffbeb;">
+                        <td class="label-td" style="color: #92400e; font-weight: 700;">Next Installment Due:</td>
+                        <td class="val-td" style="color: #92400e;">₹' . number_format((float)$paymentDetails['next_due_amount'], 2) . ' on ' . date('d M Y', strtotime($paymentDetails['next_due_date'])) . '</td>
+                    </tr>' : '') . '
+                </table>
+
+                <div style="text-align: center; margin-top: 24px;">
+                    <a href="http://' . ($_SERVER['HTTP_HOST'] ?? 'localhost:8000') . '/admin/admissions.php" class="btn-admin">View Admissions in Admin Panel &rarr;</a>
+                </div>
+            </div>
+            <div class="footer">
+                Finchskills Institute &bull; Automated Payment Notification System
+            </div>
+        </div>
+    </body>
+    </html>';
+
+    return sendFinchMail($admin_email, $subject, $html);
+}
+
+

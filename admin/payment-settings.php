@@ -15,6 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'razorpay_live_key_id',
         'razorpay_live_key_secret',
         'seat_booking_fee',
+        'full_payment_discount_percent',
         'razorpay_company_name'
     ];
 
@@ -35,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Fetch current settings
 $settings = [];
-$s_stmt = $pdo->query("SELECT setting_key, setting_value FROM site_settings WHERE setting_key LIKE 'razorpay_%' OR setting_key = 'seat_booking_fee'");
+$s_stmt = $pdo->query("SELECT setting_key, setting_value FROM site_settings WHERE setting_key LIKE 'razorpay_%' OR setting_key = 'seat_booking_fee' OR setting_key = 'full_payment_discount_percent'");
 while ($row = $s_stmt->fetch(PDO::FETCH_ASSOC)) {
     $settings[$row['setting_key']] = $row['setting_value'];
 }
@@ -136,21 +137,30 @@ $company_name     = $settings['razorpay_company_name'] ?? 'Finchskills Institute
                         </div>
                     </div>
 
-                    <!-- Booking Fee & Brand Name -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                    <!-- Booking Fee & Brand Name & Full Payment Discount -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                         <div>
                             <label class="text-xs font-bold text-slate-700 block mb-1">Seat Booking Fee (₹ INR) <span class="text-rose-500">*</span></label>
                             <div class="relative">
                                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">₹</span>
                                 <input type="number" step="1" min="0" name="seat_booking_fee" value="<?= htmlspecialchars($fee_amount) ?>" required class="w-full text-xs pl-7 pr-3 py-2 border border-slate-200 rounded-md font-bold text-slate-800 focus:outline-none focus:border-[#fe7c03]">
                             </div>
-                            <span class="text-[10px] text-slate-400 mt-0.5 block">Amount charged for provisional admission seat</span>
+                            <span class="text-[10px] text-slate-400 mt-0.5 block">Fixed seat reservation amount (No discount applies)</span>
+                        </div>
+
+                        <div>
+                            <label class="text-xs font-bold text-slate-700 block mb-1">Full Course Fee Discount (%) <span class="text-emerald-600 font-extrabold">*</span></label>
+                            <div class="relative">
+                                <input type="number" step="1" min="0" max="100" name="full_payment_discount_percent" value="<?= htmlspecialchars($settings['full_payment_discount_percent'] ?? '10') ?>" required class="w-full text-xs px-3 py-2 border border-slate-200 rounded-md font-bold text-emerald-700 focus:outline-none focus:border-[#fe7c03]">
+                                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">%</span>
+                            </div>
+                            <span class="text-[10px] text-emerald-600 font-semibold mt-0.5 block">Discount applied exclusively on total Course Fee</span>
                         </div>
 
                         <div>
                             <label class="text-xs font-bold text-slate-700 block mb-1">Company / Brand Name</label>
                             <input type="text" name="razorpay_company_name" value="<?= htmlspecialchars($company_name) ?>" placeholder="Finchskills Institute" class="w-full text-xs px-3 py-2 border border-slate-200 rounded-md text-slate-800 focus:outline-none focus:border-[#fe7c03]">
-                            <span class="text-[10px] text-slate-400 mt-0.5 block">Name shown on Razorpay checkout modal</span>
+                            <span class="text-[10px] text-slate-400 mt-0.5 block">Name on Razorpay checkout modal</span>
                         </div>
                     </div>
                 </div>

@@ -43,6 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $duration = trim($_POST['duration'] ?? '12 Months');
     $study_mode = trim($_POST['study_mode'] ?? 'Classroom & Practical Labs');
+    $fee = trim($_POST['fee'] ?? '');
     $short_desc = trim($_POST['short_desc'] ?? '');
     $full_desc = trim($_POST['full_desc'] ?? '');
     $what_you_learn = trim($_POST['what_you_learn'] ?? '');
@@ -90,12 +91,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (empty($error_msg)) {
             $stmt = $pdo->prepare("UPDATE courses SET 
-                category_id = ?, title = ?, slug = ?, duration = ?, study_mode = ?, image = ?,
+                category_id = ?, title = ?, slug = ?, duration = ?, study_mode = ?, fee = ?, image = ?,
                 short_desc = ?, full_desc = ?, what_you_learn = ?, how_we_teach = ?, 
                 career_roles = ?, eligibility = ?, certification = ?, is_featured = ?, status = ?
                 WHERE id = ?");
             $stmt->execute([
-                $category_id, $title, $slug, $duration, $study_mode, $image_path,
+                $category_id, $title, $slug, $duration, $study_mode, $fee, $image_path,
                 $short_desc, $full_desc, $what_you_learn, $how_we_teach,
                 $career_roles, $eligibility, $certification, $is_featured, $status,
                 $course_id
@@ -326,6 +327,11 @@ require_once __DIR__ . '/includes/header.php';
                         <div>
                             <label class="font-bold text-slate-700 block mb-1">Study Mode</label>
                             <input type="text" name="study_mode" class="w-full text-xs px-3 py-1.5 border border-slate-200 rounded-md focus:outline-none focus:border-[#fe7c03]" value="<?= htmlspecialchars($_POST['study_mode'] ?? $course['study_mode']) ?>">
+                        </div>
+
+                        <div>
+                            <label class="font-bold text-slate-700 block mb-1">Course Fee</label>
+                            <input type="text" name="fee" class="w-full text-xs px-3 py-1.5 border border-slate-200 rounded-md focus:outline-none focus:border-[#fe7c03]" placeholder="e.g. ₹45,000 or ₹35,000 / Installment" value="<?= htmlspecialchars($_POST['fee'] ?? $course['fee'] ?? '') ?>">
                         </div>
 
                         <div>

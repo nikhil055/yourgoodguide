@@ -70,9 +70,13 @@ $pdo->query("UPDATE admissions SET is_read = 1 WHERE is_read = 0");
             <p class="text-xs text-slate-400 mt-0.5">Review and manage student admission submissions and attached documents</p>
         </div>
         <div class="flex items-center gap-2">
-            <a href="../admission.php" target="_blank" class="px-3.5 py-1.5 text-xs font-semibold text-white bg-[#fe7c03] hover:bg-[#ea6c00] rounded-md transition-colors flex items-center gap-1.5 no-underline">
+            <a href="admission-add.php" class="px-3.5 py-1.5 text-xs font-bold text-white bg-[#fe7c03] hover:bg-[#ea6c00] rounded-md transition-colors flex items-center gap-1.5 no-underline">
+                <i class="fa-solid fa-plus text-[11px]"></i>
+                <span>+ New Offline Admission</span>
+            </a>
+            <a href="../admission.php" target="_blank" class="px-3.5 py-1.5 text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-md transition-colors flex items-center gap-1.5 no-underline">
                 <i class="fa-solid fa-file-signature text-[11px]"></i>
-                <span>Public Admission Form</span>
+                <span>Public Form</span>
             </a>
         </div>
     </div>
@@ -169,12 +173,22 @@ $pdo->query("UPDATE admissions SET is_read = 1 WHERE is_read = 0");
                                     </div>
                                 </td>
 
-                                <!-- Course & Education -->
+                                <!-- Course & Fee Plan -->
                                 <td class="px-4 py-2.5">
                                     <span class="px-2 py-0.5 text-[10px] font-semibold rounded bg-orange-50 text-[#fe7c03] border border-orange-200 inline-block">
                                         <?= htmlspecialchars($row['course'] ?? 'N/A') ?>
                                     </span>
                                     <div class="text-[11px] text-slate-500 mt-0.5"><?= htmlspecialchars($row['education'] ?? 'N/A') ?></div>
+                                    <?php if (!empty($row['fee_total'])): ?>
+                                        <div class="text-[10.5px] mt-1 font-mono">
+                                            <span class="text-slate-500">Paid: <strong class="text-emerald-700">₹<?= number_format((float)$row['fee_paid'], 0) ?></strong> / ₹<?= number_format((float)$row['fee_total'], 0) ?></span>
+                                            <?php if ((float)$row['fee_pending'] > 0): ?>
+                                                <span class="text-rose-600 block text-[9.5px]">Due: ₹<?= number_format((float)$row['fee_pending'], 0) ?></span>
+                                            <?php else: ?>
+                                                <span class="text-emerald-600 block text-[9.5px] font-bold">✓ Full Paid</span>
+                                            <?php endif; ?>
+                                        </div>
+                                    <?php endif; ?>
                                 </td>
 
                                 <!-- Contact & Location -->
@@ -217,6 +231,13 @@ $pdo->query("UPDATE admissions SET is_read = 1 WHERE is_read = 0");
                                             <li><a class="dropdown-item py-1.5 text-rose-600" href="admissions.php?action=Rejected&id=<?= $row['id'] ?>">Set Rejected</a></li>
                                         </ul>
                                     </div>
+                                    <?php if (!empty($row['payment_status'])): ?>
+                                        <div class="mt-1">
+                                            <span class="text-[9.5px] font-bold px-1.5 py-0.2 rounded <?= $row['payment_status'] === 'Fully Paid' ? 'bg-emerald-100 text-emerald-800' : ($row['payment_status'] === 'Partial Paid' ? 'bg-sky-100 text-sky-800' : 'bg-amber-100 text-amber-800') ?>">
+                                                <?= htmlspecialchars($row['payment_status']) ?>
+                                            </span>
+                                        </div>
+                                    <?php endif; ?>
                                 </td>
 
                                 <!-- Applied Date -->
@@ -349,6 +370,11 @@ $pdo->query("UPDATE admissions SET is_read = 1 WHERE is_read = 0");
                                                             <?php if (!empty($row['aadhaar_card'])): ?>
                                                                 <a href="../uploads/admissions/<?= htmlspecialchars($row['aadhaar_card']) ?>" target="_blank" class="px-2 py-1 text-[11px] font-medium rounded bg-slate-100 border border-slate-200 hover:bg-slate-200 text-slate-700 no-underline inline-flex items-center gap-1">
                                                                     <i class="fa-solid fa-id-card text-sky-500"></i> Aadhaar Card
+                                                                </a>
+                                                            <?php endif; ?>
+                                                            <?php if (!empty($row['signature'])): ?>
+                                                                <a href="../uploads/admissions/<?= htmlspecialchars($row['signature']) ?>" target="_blank" class="px-2 py-1 text-[11px] font-medium rounded bg-slate-100 border border-slate-200 hover:bg-slate-200 text-slate-700 no-underline inline-flex items-center gap-1">
+                                                                    <i class="fa-solid fa-signature text-amber-500"></i> Signature
                                                                 </a>
                                                             <?php endif; ?>
                                                         </div>

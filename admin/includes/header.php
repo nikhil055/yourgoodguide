@@ -139,22 +139,19 @@ $admin_initial = strtoupper(substr($admin_name, 0, 1));
             <div class="relative" id="notificationDropdownContainer">
                 <button id="notificationDropdownBtn" type="button" class="relative p-2 rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors">
                     <i class="fa-regular fa-bell text-base"></i>
-                    <?php if (($admin_stats['total_unread'] ?? 0) > 0): ?>
-                        <span class="absolute top-1.5 right-1.5 flex h-2 w-2">
-                            <span class="relative inline-flex rounded-full h-2 w-2 bg-[#fe7c03]"></span>
-                        </span>
-                    <?php endif; ?>
+                    <span id="headerBellDot" class="<?= ($admin_stats['total_unread'] ?? 0) > 0 ? '' : 'hidden ' ?>absolute top-1.5 right-1.5 flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#fe7c03] opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-[#fe7c03]"></span>
+                    </span>
                 </button>
 
                 <!-- Notifications Menu -->
-                <div id="notificationDropdownMenu" class="hidden absolute right-0 mt-1.5 w-72 sm:w-80 rounded-md bg-white border border-slate-200 z-50 py-1">
+                <div id="notificationDropdownMenu" class="hidden absolute right-0 mt-1.5 w-72 sm:w-80 rounded-md bg-white border border-slate-200 z-50 py-1 shadow-lg">
                     <div class="flex items-center justify-between px-3 py-2 border-b border-slate-100 bg-slate-50">
                         <span class="text-xs font-bold text-[#0e1e2e]">Notifications</span>
-                        <?php if (($admin_stats['total_unread'] ?? 0) > 0): ?>
-                            <span class="px-1.5 py-0.2 text-[10px] font-bold rounded bg-orange-100 text-[#fe7c03]">
-                                <?= $admin_stats['total_unread'] ?> New
-                            </span>
-                        <?php endif; ?>
+                        <span id="headerNotifBadgeTotal" class="<?= ($admin_stats['total_unread'] ?? 0) > 0 ? '' : 'hidden ' ?>px-1.5 py-0.2 text-[10px] font-bold rounded bg-orange-100 text-[#fe7c03]">
+                            <?= $admin_stats['total_unread'] ?? 0 ?> New
+                        </span>
                     </div>
 
                     <div class="p-1 space-y-0.5">
@@ -167,11 +164,9 @@ $admin_initial = strtoupper(substr($admin_name, 0, 1));
                                     <p class="text-[10px] text-slate-400">Enrollment requests</p>
                                 </div>
                             </div>
-                            <?php if (($admin_stats['unread_admissions'] ?? 0) > 0): ?>
-                                <span class="px-1.5 py-0.2 text-[10px] font-bold rounded bg-orange-500 text-white">
-                                    <?= $admin_stats['unread_admissions'] ?>
-                                </span>
-                            <?php endif; ?>
+                            <span id="headerAdmBadge" class="<?= ($admin_stats['unread_admissions'] ?? 0) > 0 ? '' : 'hidden ' ?>px-1.5 py-0.2 text-[10px] font-bold rounded bg-orange-500 text-white">
+                                <?= $admin_stats['unread_admissions'] ?? 0 ?>
+                            </span>
                         </a>
 
                         <!-- Fees -->
@@ -183,11 +178,9 @@ $admin_initial = strtoupper(substr($admin_name, 0, 1));
                                     <p class="text-[10px] text-slate-400">Receipts awaiting review</p>
                                 </div>
                             </div>
-                            <?php if (($admin_stats['unread_fees'] ?? 0) > 0): ?>
-                                <span class="px-1.5 py-0.2 text-[10px] font-bold rounded bg-teal-600 text-white">
-                                    <?= $admin_stats['unread_fees'] ?>
-                                </span>
-                            <?php endif; ?>
+                            <span id="headerFeeBadge" class="<?= ($admin_stats['unread_fees'] ?? 0) > 0 ? '' : 'hidden ' ?>px-1.5 py-0.2 text-[10px] font-bold rounded bg-teal-600 text-white">
+                                <?= $admin_stats['unread_fees'] ?? 0 ?>
+                            </span>
                         </a>
 
                         <!-- Inquiries -->
@@ -199,12 +192,16 @@ $admin_initial = strtoupper(substr($admin_name, 0, 1));
                                     <p class="text-[10px] text-slate-400">Contact form messages</p>
                                 </div>
                             </div>
-                            <?php if (($admin_stats['unread_inquiries'] ?? 0) > 0): ?>
-                                <span class="px-1.5 py-0.2 text-[10px] font-bold rounded bg-sky-600 text-white">
-                                    <?= $admin_stats['unread_inquiries'] ?>
-                                </span>
-                            <?php endif; ?>
+                            <span id="headerInqBadge" class="<?= ($admin_stats['unread_inquiries'] ?? 0) > 0 ? '' : 'hidden ' ?>px-1.5 py-0.2 text-[10px] font-bold rounded bg-sky-600 text-white">
+                                <?= $admin_stats['unread_inquiries'] ?? 0 ?>
+                            </span>
                         </a>
+                    </div>
+
+                    <!-- Live feed list -->
+                    <div id="headerRecentAlertsContainer" class="border-t border-slate-100 p-1 hidden">
+                        <p class="px-2 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Latest Alerts</p>
+                        <div id="headerRecentAlertsList" class="space-y-1 max-h-48 overflow-y-auto custom-scrollbar"></div>
                     </div>
                 </div>
             </div>

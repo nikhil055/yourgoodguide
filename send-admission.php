@@ -175,7 +175,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         sendFinchMail($email, $candidate_subject, $candidate_html);
     }
 
-    // 4. Redirect to thank you page
+    // Check if request is AJAX (FormData submission from modern wizard)
+    $is_ajax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest' || isset($_POST['ajax_submit']);
+
+    if ($is_ajax) {
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success' => true,
+            'message' => 'Application submitted! Please proceed to fee payment.',
+            'admission_id' => $application_id,
+            'app_ref' => $app_ref,
+            'name' => $name,
+            'email' => $email,
+            'mobile' => $mobile,
+            'course' => $course
+        ]);
+        exit;
+    }
+
+    // 4. Fallback standard redirect
     header("Location: thank-you.php?type=admission&ref=" . urlencode($app_ref) . "&course=" . urlencode($course));
     exit;
 } else {

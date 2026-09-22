@@ -61,15 +61,15 @@ include "header.php";
 
 <?php if (!$course): ?>
     <!-- 404 NOT FOUND STATE -->
-    <section class="py-5 text-center" style="min-height: 50vh; display: flex; align-items: center; background: #fafbfc;">
+    <section class="py-5 text-center" style="min-height: 55vh; display: flex; align-items: center; background: #f8fafc;">
         <div class="container py-5">
-            <div class="card border p-5 max-w-600 mx-auto rounded-4 bg-white shadow-none" style="max-width: 540px;">
+            <div class="card border p-5 max-w-600 mx-auto rounded-4 bg-white shadow-sm" style="max-width: 520px; border-color: #e2e8f0;">
                 <i class="fa-solid fa-graduation-cap text-secondary opacity-25 fa-4x mb-3"></i>
                 <h3 class="fw-bold text-dark mb-2">Course Not Found</h3>
-                <p class="text-secondary small mb-4">The course you are looking for may have been updated, relocated, or is currently inactive.</p>
+                <p class="text-secondary small mb-4">The course you are looking for may have been updated or is currently inactive.</p>
                 <div class="d-flex justify-content-center gap-2">
-                    <a href="courses.php" class="cd-btn-primary" style="width: auto; padding: 10px 22px;">Explore All Courses</a>
-                    <a href="index.php" class="header-btn header-btn-outline" style="width: auto;">Home</a>
+                    <a href="courses.php" class="cd-btn-primary" style="width: auto; padding: 10px 24px;">Explore All Courses</a>
+                    <a href="index.php" class="btn btn-outline-secondary px-4 py-2" style="font-size: 13.5px; font-weight: 600;">Home</a>
                 </div>
             </div>
         </div>
@@ -90,61 +90,78 @@ include "header.php";
         </div>
     </div>
 
-    <!-- ================= HERO SECTION ================= -->
+    <!-- ================= HERO HEADER ================= -->
     <section class="cd-hero-section">
         <div class="container">
-            <div class="row align-items-center gy-4">
+            <div class="row gy-4">
                 <div class="col-lg-12">
-                    <!-- BADGES -->
-                    <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                    <!-- TAGS & STATUS -->
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
                         <span class="cd-cat-pill">
                             <i class="fa-solid <?= htmlspecialchars($course['category_icon']) ?>"></i>
                             <?= htmlspecialchars($course['category_name']) ?>
                         </span>
                         <span class="cd-status-pill">
                             <span class="cd-pulse-dot"></span>
-                            Admissions Open &bull; Limited Seats
+                            Admissions Open &bull; Limited Batch Seats
+                        </span>
+                        <span class="cd-rating-pill">
+                            <i class="fa-solid fa-star text-warning me-1"></i>
+                            <span>4.9 (500+ Placed Students)</span>
                         </span>
                     </div>
 
-                    <!-- TITLE -->
+                    <!-- COURSE TITLE -->
                     <h1 class="cd-course-title">
                         <?= htmlspecialchars($course['title']) ?>
                     </h1>
 
                     <!-- SHORT INTRO -->
                     <p class="cd-course-intro">
-                        <?= htmlspecialchars($course['short_desc']) ?>
+                        <?= htmlspecialchars($course['short_desc'] ?: 'Comprehensive, industry-aligned professional training program designed to prepare you for high-growth careers with hands-on practical skills and placement support.') ?>
                     </p>
 
-                    <!-- METRIC HORIZONTAL STRIP -->
+                    <!-- METRIC HORIZONTAL QUICK SPECS (5 CLEAN CARDS) -->
                     <div class="cd-metric-strip">
                         <div class="cd-metric-item">
                             <div class="cd-metric-icon"><i class="fa-regular fa-clock"></i></div>
                             <div>
                                 <span class="cd-metric-label">Duration</span>
-                                <div class="cd-metric-val"><?= htmlspecialchars($course['duration']) ?></div>
+                                <div class="cd-metric-val"><?= htmlspecialchars($course['duration'] ?: '12 Months') ?></div>
                             </div>
                         </div>
+
+                        <?php if (!empty($course['fee'])): ?>
+                            <div class="cd-metric-item cd-metric-fee">
+                                <div class="cd-metric-icon"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+                                <div>
+                                    <span class="cd-metric-label">Course Fee</span>
+                                    <div class="cd-metric-val text-success"><?= htmlspecialchars($course['fee']) ?></div>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+
                         <div class="cd-metric-item">
                             <div class="cd-metric-icon"><i class="fa-solid fa-graduation-cap"></i></div>
                             <div>
                                 <span class="cd-metric-label">Eligibility</span>
-                                <div class="cd-metric-val"><?= htmlspecialchars($course['eligibility']) ?></div>
+                                <div class="cd-metric-val"><?= htmlspecialchars($course['eligibility'] ?: '10+2 / Any Graduate') ?></div>
                             </div>
                         </div>
+
                         <div class="cd-metric-item">
                             <div class="cd-metric-icon"><i class="fa-solid fa-laptop-file"></i></div>
                             <div>
                                 <span class="cd-metric-label">Training Mode</span>
-                                <div class="cd-metric-val"><?= htmlspecialchars($course['study_mode']) ?></div>
+                                <div class="cd-metric-val"><?= htmlspecialchars($course['study_mode'] ?: 'Classroom & Labs') ?></div>
                             </div>
                         </div>
+
                         <div class="cd-metric-item">
                             <div class="cd-metric-icon"><i class="fa-solid fa-briefcase"></i></div>
                             <div>
-                                <span class="cd-metric-label">Placement Support</span>
-                                <div class="cd-metric-val">100% Interview Assistance</div>
+                                <span class="cd-metric-label">Placement</span>
+                                <div class="cd-metric-val text-primary">100% Support</div>
                             </div>
                         </div>
                     </div>
@@ -154,31 +171,38 @@ include "header.php";
         </div>
     </section>
 
-    <!-- ================= STICKY SUB-NAV BAR ================= -->
+    <!-- ================= SUB-NAVIGATION BAR ================= -->
     <div class="cd-sticky-nav">
         <div class="container">
             <div class="cd-nav-links">
                 <a href="#overview" class="cd-nav-link active">About Program</a>
-                <a href="#curriculum" class="cd-nav-link">Curriculum &amp; Modules</a>
-                <a href="#methodology" class="cd-nav-link">Practical Training</a>
-                <a href="#careers" class="cd-nav-link">Job Opportunities</a>
-                <a href="#eligibility" class="cd-nav-link">Eligibility &amp; Certification</a>
+                <?php if (!empty($course['what_you_learn'])): ?>
+                    <a href="#curriculum" class="cd-nav-link">Curriculum</a>
+                <?php endif; ?>
+                <?php if (!empty($course['how_we_teach'])): ?>
+                    <a href="#methodology" class="cd-nav-link">Practical Training</a>
+                <?php endif; ?>
+                <?php if (!empty($course['career_roles'])): ?>
+                    <a href="#careers" class="cd-nav-link">Job Roles</a>
+                <?php endif; ?>
+                <a href="#eligibility" class="cd-nav-link">Eligibility &amp; Certificate</a>
                 <a href="#faq" class="cd-nav-link">FAQs</a>
             </div>
         </div>
     </div>
 
-    <!-- ================= MAIN SECTION ================= -->
+    <!-- ================= MAIN CONTENT & SIDEBAR ================= -->
     <section class="cd-main-wrap">
         <div class="container">
             <div class="row g-4 g-xl-5">
 
-                <!-- LEFT COLUMN: CONTENT -->
+                <!-- LEFT COLUMN: CONTENT CARDS -->
                 <div class="col-lg-8">
 
                     <!-- 1. COURSE OVERVIEW -->
                     <div class="cd-sec-card" id="overview">
                         <span class="cd-sec-kicker"><i class="fa-solid fa-circle-info"></i> Course Overview</span>
+                        <h2 class="cd-sec-title">About This Professional Program</h2>
                         <div class="cd-body-text">
                             <?php
                             $desc_content = $course['full_desc'] ?: $course['short_desc'];
@@ -191,48 +215,48 @@ include "header.php";
                         </div>
 
                         <!-- 4 KEY HIGHLIGHT PILLARS -->
-                        <div class="row g-3 mt-3">
+                        <div class="row g-3 mt-4">
                             <div class="col-sm-6">
                                 <div class="cd-highlight-box">
-                                    <div class="cd-hl-icon"><i class="fa-solid fa-flask-vial"></i></div>
+                                    <div class="cd-hl-icon cd-icon-blue"><i class="fa-solid fa-flask-vial"></i></div>
                                     <h5>Simulation &amp; Roleplay Labs</h5>
-                                    <p>Practice passenger check-in, ramp operations, in-flight etiquette, and emergency scenarios in real lab settings.</p>
+                                    <p>Practice live terminal procedures, in-flight grooming standards, passenger check-in handling, and safety drills in realistic lab setups.</p>
                                 </div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="cd-highlight-box">
-                                    <div class="cd-hl-icon"><i class="fa-solid fa-book-open-reader"></i></div>
+                                    <div class="cd-hl-icon cd-icon-emerald"><i class="fa-solid fa-book-open-reader"></i></div>
                                     <h5>Industry-Vetted Syllabus</h5>
-                                    <p>Curriculum designed by active airline managers, airport officers, and luxury hospitality experts.</p>
+                                    <p>Step-by-step curriculum aligned with current airline, airport, and luxury hospitality hiring requirements.</p>
                                 </div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="cd-highlight-box">
-                                    <div class="cd-hl-icon"><i class="fa-solid fa-user-tie"></i></div>
+                                    <div class="cd-hl-icon cd-icon-amber"><i class="fa-solid fa-user-tie"></i></div>
                                     <h5>Executive Grooming &amp; Etiquette</h5>
-                                    <p>Rigorous grooming masterclasses, spoken English fluency, body language refinement, and personality enhancement.</p>
+                                    <p>Master communication skills, corporate body language, professional makeup, and interview confidence.</p>
                                 </div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="cd-highlight-box">
-                                    <div class="cd-hl-icon"><i class="fa-solid fa-handshake"></i></div>
+                                    <div class="cd-hl-icon cd-icon-indigo"><i class="fa-solid fa-handshake"></i></div>
                                     <h5>Dedicated Placement Cell</h5>
-                                    <p>Direct interview scheduling, CV building, mock panel rounds, and job placement assistance.</p>
+                                    <p>Resume review, 1-on-1 mock HR interviews, campus recruitment drives, and verified career assistance.</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- 2. WHAT WE PROVIDE / CURRICULUM -->
+                    <!-- 2. CURRICULUM MODULES -->
                     <?php if (!empty($course['what_you_learn'])): ?>
                         <?php 
                         $modules = array_filter(array_map('trim', explode("\n", $course['what_you_learn'])));
                         ?>
                         <div class="cd-sec-card" id="curriculum">
-                            <span class="cd-sec-kicker"><i class="fa-solid fa-list-check"></i> What We Provide</span>
+                            <span class="cd-sec-kicker"><i class="fa-solid fa-list-check"></i> What You Learn</span>
                             <h2 class="cd-sec-title">Course Curriculum &amp; Training Modules</h2>
-                            <p class="cd-body-text mb-4">
-                                Our step-by-step syllabus covers the exact operational standards required by domestic and international recruiters:
+                            <p class="cd-body-text mb-3">
+                                Structured, practical modules designed to take you from foundational concepts to advanced operational excellence:
                             </p>
 
                             <div class="accordion cd-module-accordion" id="curriculumAccordion">
@@ -244,18 +268,18 @@ include "header.php";
                                         <h2 class="accordion-header" id="heading_<?= $mod_id ?>">
                                             <button class="accordion-button <?= $is_first ? '' : 'collapsed' ?>" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_<?= $mod_id ?>" aria-expanded="<?= $is_first ? 'true' : 'false' ?>" aria-controls="collapse_<?= $mod_id ?>">
                                                 <span class="cd-mod-pill">Module <?= sprintf('%02d', $index + 1) ?></span>
-                                                <span><?= htmlspecialchars($mod) ?></span>
+                                                <span class="fw-semibold text-dark"><?= htmlspecialchars($mod) ?></span>
                                             </button>
                                         </h2>
                                         <div id="collapse_<?= $mod_id ?>" class="accordion-collapse collapse <?= $is_first ? 'show' : '' ?>" aria-labelledby="heading_<?= $mod_id ?>" data-bs-parent="#curriculumAccordion">
                                             <div class="accordion-body">
                                                 <div class="d-flex align-items-start gap-2 mb-2">
                                                     <i class="fa-solid fa-circle-check text-success mt-1"></i>
-                                                    <span>Core concepts, hands-on operational practice, and standard operating procedures (SOPs).</span>
+                                                    <span>Core concepts, practical demonstrations, standard operating guidelines, and interactive sessions.</span>
                                                 </div>
                                                 <div class="d-flex align-items-start gap-2">
                                                     <i class="fa-solid fa-circle-check text-success mt-1"></i>
-                                                    <span>Practical simulation exercises and real-world case study evaluations.</span>
+                                                    <span>Practical roleplay assessments and real-world workplace scenario evaluations.</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -265,16 +289,16 @@ include "header.php";
                         </div>
                     <?php endif; ?>
 
-                    <!-- 3. HOW WE WORK & TEACH (PRACTICAL METHODOLOGY) -->
+                    <!-- 3. TRAINING METHODOLOGY -->
                     <?php if (!empty($course['how_we_teach'])): ?>
                         <?php 
                         $teach_methods = array_filter(array_map('trim', explode("\n", $course['how_we_teach'])));
                         ?>
                         <div class="cd-sec-card" id="methodology">
-                            <span class="cd-sec-kicker"><i class="fa-solid fa-chalkboard-user"></i> Training Methodology</span>
-                            <h2 class="cd-sec-title">How We Work &amp; Prepare You</h2>
+                            <span class="cd-sec-kicker"><i class="fa-solid fa-chalkboard-user"></i> Practical Approach</span>
+                            <h2 class="cd-sec-title">How We Train &amp; Prepare You</h2>
                             <p class="cd-body-text mb-4">
-                                Finchskills focuses 70% on practical application and 30% on conceptual mastery so you are interview-ready from day one:
+                                Our training methodology emphasizes 70% practical experiential learning so you step into interviews with complete confidence:
                             </p>
 
                             <div class="row g-3">
@@ -283,7 +307,7 @@ include "header.php";
                                         <div class="cd-step-card">
                                             <div class="cd-step-num"><?= sprintf('%02d', $idx + 1) ?></div>
                                             <div>
-                                                <h5>Practical Experience</h5>
+                                                <h5>Hands-On Focus</h5>
                                                 <p><?= htmlspecialchars($method) ?></p>
                                             </div>
                                         </div>
@@ -299,16 +323,16 @@ include "header.php";
                         $roles = array_filter(array_map('trim', explode(',', $course['career_roles'])));
                         ?>
                         <div class="cd-sec-card" id="careers">
-                            <span class="cd-sec-kicker"><i class="fa-solid fa-briefcase"></i> Career Paths</span>
-                            <h2 class="cd-sec-title">Target Job Profiles &amp; Opportunities</h2>
+                            <span class="cd-sec-kicker"><i class="fa-solid fa-briefcase"></i> Placement Scope</span>
+                            <h2 class="cd-sec-title">Target Job Profiles &amp; Career Opportunities</h2>
                             <p class="cd-body-text mb-3">
-                                Students completing this certification become eligible to apply for top positions in leading aviation, travel, and hospitality firms:
+                                Graduates of this program become qualified for sought-after job positions across top airlines, airports, hotels, and travel companies:
                             </p>
 
                             <div class="d-flex flex-wrap gap-2 mb-4">
                                 <?php foreach ($roles as $role): ?>
                                     <span class="cd-career-tag">
-                                        <i class="fa-solid fa-check"></i>
+                                        <i class="fa-solid fa-check text-warning"></i>
                                         <?= htmlspecialchars($role) ?>
                                     </span>
                                 <?php endforeach; ?>
@@ -317,38 +341,40 @@ include "header.php";
                             <div class="p-3 bg-light rounded-3 border">
                                 <div class="d-flex align-items-center gap-2 mb-1">
                                     <i class="fa-solid fa-handshake-angle text-primary fs-6"></i>
-                                    <strong class="text-dark small">Placement Guarantee &amp; Recruitment Drives</strong>
+                                    <strong class="text-dark small">Active Recruitment Drives &amp; Placement Guarantee</strong>
                                 </div>
                                 <p class="small text-muted mb-0">
-                                    Our dedicated recruitment team coordinates on-campus and off-campus interview drives with domestic airlines, international airports, leading travel agencies, and 5-star hotel chains.
+                                    Our career cell organizes regular interview drives with leading aviation networks, international airlines, premium hotel properties, and global tourism agencies.
                                 </p>
                             </div>
                         </div>
                     <?php endif; ?>
 
-                    <!-- 5. ELIGIBILITY & RECOGNIZED CERTIFICATION -->
+                    <!-- 5. ELIGIBILITY & CERTIFICATION -->
                     <div class="cd-sec-card" id="eligibility">
-                        <span class="cd-sec-kicker"><i class="fa-solid fa-certificate"></i> Credentials</span>
-                        <h2 class="cd-sec-title">Eligibility &amp; Recognized Certification</h2>
+                        <span class="cd-sec-kicker"><i class="fa-solid fa-certificate"></i> Qualifications</span>
+                        <h2 class="cd-sec-title">Eligibility Criteria &amp; Certification</h2>
 
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <div class="cd-info-card">
-                                    <h6><i class="fa-solid fa-user-check text-primary"></i> Eligibility Criteria</h6>
-                                    <p><?= htmlspecialchars($course['eligibility']) ?></p>
-                                    <ul class="list-unstyled small text-muted mt-2 mb-0 d-flex flex-column gap-1">
-                                        <li><i class="fa-solid fa-check text-success me-1"></i> 10th / 12th pass or graduate from any recognized board</li>
-                                        <li><i class="fa-solid fa-check text-success me-1"></i> Basic English communication &amp; positive learning attitude</li>
+                                    <h6><i class="fa-solid fa-user-check text-primary"></i> Eligibility Requirements</h6>
+                                    <p class="fw-semibold text-dark mb-2"><?= htmlspecialchars($course['eligibility'] ?: '10+2 / Any Graduate') ?></p>
+                                    <ul class="list-unstyled small text-muted mt-2 mb-0 d-flex flex-column gap-1.5">
+                                        <li><i class="fa-solid fa-check text-success me-1.5"></i> 10th / 12th pass or graduation from any recognized board/university</li>
+                                        <li><i class="fa-solid fa-check text-success me-1.5"></i> Basic verbal communication skills &amp; professional grooming willingness</li>
+                                        <li><i class="fa-solid fa-check text-success me-1.5"></i> Minimum age 17+ years</li>
                                     </ul>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="cd-info-card">
                                     <h6><i class="fa-solid fa-award text-warning"></i> Recognized Certification</h6>
-                                    <p><?= htmlspecialchars($course['certification']) ?></p>
-                                    <ul class="list-unstyled small text-muted mt-2 mb-0 d-flex flex-column gap-1">
-                                        <li><i class="fa-solid fa-check text-success me-1"></i> Industry-aligned verifiable digital credential</li>
-                                        <li><i class="fa-solid fa-check text-success me-1"></i> Recognized across domestic &amp; global employers</li>
+                                    <p class="fw-semibold text-dark mb-2"><?= htmlspecialchars($course['certification'] ?: 'Industry Recognized Certification') ?></p>
+                                    <ul class="list-unstyled small text-muted mt-2 mb-0 d-flex flex-column gap-1.5">
+                                        <li><i class="fa-solid fa-check text-success me-1.5"></i> Industry-recognized verifiable certification</li>
+                                        <li><i class="fa-solid fa-check text-success me-1.5"></i> Validated credentials for domestic &amp; global recruiters</li>
+                                        <li><i class="fa-solid fa-check text-success me-1.5"></i> Includes lifetime placement assistance registration</li>
                                     </ul>
                                 </div>
                             </div>
@@ -357,19 +383,19 @@ include "header.php";
 
                     <!-- 6. FREQUENTLY ASKED QUESTIONS (FAQS) -->
                     <div class="cd-sec-card" id="faq">
-                        <span class="cd-sec-kicker"><i class="fa-solid fa-circle-question"></i> Help &amp; Support</span>
+                        <span class="cd-sec-kicker"><i class="fa-solid fa-circle-question"></i> Help &amp; FAQs</span>
                         <h2 class="cd-sec-title">Frequently Asked Questions</h2>
 
                         <div class="accordion cd-faq-accordion" id="courseFaqAccordion">
                             <div class="accordion-item">
                                 <h2 class="accordion-header" id="faqH1">
                                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqC1" aria-expanded="false" aria-controls="faqC1">
-                                        Who is eligible to enroll in this program?
+                                        What is the fee structure and can I pay in easy installments?
                                     </button>
                                 </h2>
                                 <div id="faqC1" class="accordion-collapse collapse" aria-labelledby="faqH1" data-bs-parent="#courseFaqAccordion">
                                     <div class="accordion-body">
-                                        Candidates who have completed 10th, 12th, or Graduation in any stream with basic communication skills are eligible to enroll. There are no prior technical prerequisites.
+                                        <?= !empty($course['fee']) ? 'The total course fee is <strong>' . htmlspecialchars($course['fee']) . '</strong>. ' : '' ?>Yes, we offer flexible, interest-free monthly installment options so you can manage your course fees comfortably. Contact our counselor for installment breakdown.
                                     </div>
                                 </div>
                             </div>
@@ -377,12 +403,12 @@ include "header.php";
                             <div class="accordion-item">
                                 <h2 class="accordion-header" id="faqH2">
                                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqC2" aria-expanded="false" aria-controls="faqC2">
-                                        Will I receive job placement assistance after the course?
+                                        Who is eligible to enroll in this course?
                                     </button>
                                 </h2>
                                 <div id="faqC2" class="accordion-collapse collapse" aria-labelledby="faqH2" data-bs-parent="#courseFaqAccordion">
                                     <div class="accordion-body">
-                                        Yes! Finchskills provides 100% placement assistance including CV structuring, airline/hotel interview grooming, mock interviews with HR panels, and direct interview scheduling.
+                                        Candidates who have completed 10th, 12th, or graduation in any stream with basic communication skills are eligible. No prior industry experience is required.
                                     </div>
                                 </div>
                             </div>
@@ -390,12 +416,12 @@ include "header.php";
                             <div class="accordion-item">
                                 <h2 class="accordion-header" id="faqH3">
                                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqC3" aria-expanded="false" aria-controls="faqC3">
-                                        What is the training mode available?
+                                        Will I receive job placement support after completing the course?
                                     </button>
                                 </h2>
                                 <div id="faqC3" class="accordion-collapse collapse" aria-labelledby="faqH3" data-bs-parent="#courseFaqAccordion">
                                     <div class="accordion-body">
-                                        We offer flexible batches including Campus Classroom Training with live lab simulations, Online Live Instructor-led Batches, and Hybrid combinations tailored for students and working professionals.
+                                        Yes! Finchskills Institute provides 100% placement support including resume structuring, grooming classes, mock HR interview drills, and direct interview scheduling with airlines, airports, and hotels.
                                     </div>
                                 </div>
                             </div>
@@ -403,12 +429,12 @@ include "header.php";
                             <div class="accordion-item">
                                 <h2 class="accordion-header" id="faqH4">
                                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqC4" aria-expanded="false" aria-controls="faqC4">
-                                        Can I pay the program fees in installments?
+                                        What are the available batch timings and study modes?
                                     </button>
                                 </h2>
                                 <div id="faqC4" class="accordion-collapse collapse" aria-labelledby="faqH4" data-bs-parent="#courseFaqAccordion">
                                     <div class="accordion-body">
-                                        Yes, convenient installment options are available. Our admissions counselor will walk you through transparent fee structures and flexible monthly payment plans.
+                                        We offer flexible weekday and weekend batches in Classroom / Lab Mode, Live Interactive Online Mode, and Hybrid combinations to suit your daily schedule.
                                     </div>
                                 </div>
                             </div>
@@ -417,12 +443,12 @@ include "header.php";
 
                 </div>
 
-                <!-- RIGHT COLUMN: UNIFIED STICKY SIDEBAR -->
+                <!-- RIGHT COLUMN: MINIMALIST STICKY SIDEBAR -->
                 <div class="col-lg-4">
                     <div class="cd-sticky-sidebar" id="enrollSidebar">
 
                         <div class="cd-sidebar-card">
-                            <!-- THUMBNAIL -->
+                            <!-- COURSE THUMBNAIL -->
                             <div class="cd-sidebar-thumb-wrap">
                                 <?php if (!empty($course['image'])): ?>
                                     <img src="<?= htmlspecialchars($course['image']) ?>" alt="<?= htmlspecialchars($course['title']) ?>">
@@ -437,17 +463,29 @@ include "header.php";
                                 </span>
                             </div>
 
-                            <!-- BODY -->
+                            <!-- SIDEBAR BODY -->
                             <div class="cd-sidebar-body">
-                                <span class="cd-intake-badge">
+                                <div class="cd-intake-badge">
                                     <span class="cd-pulse-dot"></span>
-                                    Upcoming Batch Enrollment Open
-                                </span>
+                                    <span>Admissions Open &bull; Limited Seats</span>
+                                </div>
 
                                 <h4 class="cd-sidebar-title"><?= htmlspecialchars($course['title']) ?></h4>
-                                <p class="cd-sidebar-sub">Join certified practical training designed for immediate industry hiring.</p>
+                                <p class="cd-sidebar-sub">Professional certified training designed for direct placement.</p>
 
-                                <!-- PRIMARY CTA BUTTON -->
+                                <!-- PROMINENT FEE BOX -->
+                                <div class="cd-fee-box">
+                                    <div class="d-flex align-items-baseline justify-content-between mb-1">
+                                        <span class="cd-fee-label">Total Program Fee</span>
+                                        <span class="cd-fee-amount"><?= !empty($course['fee']) ? htmlspecialchars($course['fee']) : 'Flexible Fee Plan' ?></span>
+                                    </div>
+                                    <div class="cd-fee-sub">
+                                        <i class="fa-solid fa-circle-check text-success me-1"></i>
+                                        <span>No hidden charges &bull; Easy monthly installments available</span>
+                                    </div>
+                                </div>
+
+                                <!-- PRIMARY ACTION CTA -->
                                 <?php if (!empty($isStudentLoggedIn)): ?>
                                     <a href="form-submission.php?course=<?= urlencode($course['title']) ?>" class="cd-btn-primary" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
                                         <i class="fa-solid fa-file-signature me-1"></i>
@@ -462,29 +500,35 @@ include "header.php";
                                     </a>
                                 <?php endif; ?>
 
-                                <!-- SECONDARY CTA: WHATSAPP -->
-                                <a href="https://wa.me/918750860860?text=<?= urlencode("Hello Finchskills, I want to inquire about the " . $course['title'] . " program.") ?>" target="_blank" rel="noopener" class="cd-btn-whatsapp">
+                                <!-- SECONDARY ACTION: WHATSAPP COUNSELOR -->
+                                <a href="https://wa.me/919650386711?text=<?= urlencode("Hello Finchskills, I would like to inquire about the " . $course['title'] . " course fee and batch schedule.") ?>" target="_blank" rel="noopener" class="cd-btn-whatsapp">
                                     <i class="fa-brands fa-whatsapp fs-5"></i>
-                                    <span>Chat with Counselor on WhatsApp</span>
+                                    <span>Chat on WhatsApp</span>
                                 </a>
 
                                 <!-- COURSE FACTS LIST -->
                                 <ul class="cd-facts-list">
                                     <li class="cd-fact-row">
                                         <span class="cd-fact-label"><i class="fa-regular fa-clock"></i> Duration</span>
-                                        <span class="cd-fact-val"><?= htmlspecialchars($course['duration']) ?></span>
+                                        <span class="cd-fact-val"><?= htmlspecialchars($course['duration'] ?: '12 Months') ?></span>
                                     </li>
+                                    <?php if (!empty($course['fee'])): ?>
+                                        <li class="cd-fact-row">
+                                            <span class="cd-fact-label"><i class="fa-solid fa-indian-rupee-sign"></i> Course Fee</span>
+                                            <span class="cd-fact-val text-success"><?= htmlspecialchars($course['fee']) ?></span>
+                                        </li>
+                                    <?php endif; ?>
                                     <li class="cd-fact-row">
                                         <span class="cd-fact-label"><i class="fa-solid fa-graduation-cap"></i> Eligibility</span>
-                                        <span class="cd-fact-val"><?= htmlspecialchars($course['eligibility']) ?></span>
+                                        <span class="cd-fact-val"><?= htmlspecialchars($course['eligibility'] ?: '10+2 Pass') ?></span>
                                     </li>
                                     <li class="cd-fact-row">
                                         <span class="cd-fact-label"><i class="fa-solid fa-laptop-file"></i> Study Mode</span>
-                                        <span class="cd-fact-val"><?= htmlspecialchars($course['study_mode']) ?></span>
+                                        <span class="cd-fact-val"><?= htmlspecialchars($course['study_mode'] ?: 'Classroom & Labs') ?></span>
                                     </li>
                                     <li class="cd-fact-row">
-                                        <span class="cd-fact-label"><i class="fa-solid fa-certificate"></i> Certificate</span>
-                                        <span class="cd-fact-val">Industry Recognized</span>
+                                        <span class="cd-fact-label"><i class="fa-solid fa-certificate"></i> Certification</span>
+                                        <span class="cd-fact-val">Recognized</span>
                                     </li>
                                     <li class="cd-fact-row">
                                         <span class="cd-fact-label"><i class="fa-solid fa-briefcase"></i> Placement</span>
@@ -492,18 +536,18 @@ include "header.php";
                                     </li>
                                 </ul>
 
-                                <!-- QUICK CALLBACK BOX (MINIMAL & CONFUSION-FREE) -->
+                                <!-- QUICK CALLBACK BOX -->
                                 <div class="cd-callback-box">
-                                    <h6><i class="fa-solid fa-phone-volume text-primary"></i> Request a Quick Callback</h6>
-                                    <p>Have questions on fees or schedule? Get a call from our counselor in 15 minutes.</p>
+                                    <h6><i class="fa-solid fa-phone-volume text-primary"></i> Request Quick Callback</h6>
+                                    <p>Get instant guidance on batch dates, eligibility, and fee discount plans.</p>
 
                                     <?php if ($inquiry_success): ?>
-                                        <div class="alert alert-success py-2 px-2.5 small mb-0" role="alert">
+                                        <div class="alert alert-success py-2 px-2.5 small mb-0 rounded-2" role="alert">
                                             <i class="fa-solid fa-circle-check me-1"></i> Request received! Our counselor will call you shortly.
                                         </div>
                                     <?php else: ?>
                                         <?php if (!empty($inquiry_error)): ?>
-                                            <div class="alert alert-danger py-1.5 px-2 small mb-2" role="alert">
+                                            <div class="alert alert-danger py-1.5 px-2 small mb-2 rounded-2" role="alert">
                                                 <?= htmlspecialchars($inquiry_error) ?>
                                             </div>
                                         <?php endif; ?>
@@ -511,7 +555,7 @@ include "header.php";
                                         <form method="POST" action="course-detail.php?slug=<?= urlencode($course['slug']) ?>#enrollSidebar">
                                             <input type="hidden" name="submit_course_inquiry" value="1">
                                             <input type="text" name="inquiry_name" class="cd-callback-input" placeholder="Your Full Name" required>
-                                            <input type="tel" name="inquiry_phone" class="cd-callback-input" placeholder="WhatsApp / Mobile Number" required>
+                                            <input type="tel" name="inquiry_phone" class="cd-callback-input" placeholder="Mobile / WhatsApp Number" required>
                                             <button type="submit" class="cd-callback-btn">
                                                 <span>Request Free Call</span>
                                                 <i class="fa-solid fa-arrow-right ms-1"></i>
@@ -521,7 +565,7 @@ include "header.php";
                                 </div>
 
                                 <div class="cd-helpline-note">
-                                    Need urgent assistance? Call <a href="tel:+918750860860">+91 87508 60860</a>
+                                    Direct Admissions Helpline: <a href="tel:+919650386711">+91 96503 86711</a>
                                 </div>
 
                             </div>
@@ -571,18 +615,16 @@ include "header.php";
                                 <div class="course-content">
                                     <h3><?= htmlspecialchars($rc['title']) ?></h3>
                                     <p><?= htmlspecialchars($rc['short_desc']) ?></p>
+                                    
+                                    <?php if (!empty($rc['fee'])): ?>
+                                        <div class="course-meta mb-3">
+                                            <span class="cm-item"><i class="fa-solid fa-indian-rupee-sign"></i> Fee: <strong><?= htmlspecialchars($rc['fee']) ?></strong></span>
+                                            <span class="cm-item"><i class="fa-solid fa-briefcase"></i> 100% Placement</span>
+                                        </div>
+                                    <?php endif; ?>
+
                                     <div class="course-card-footer">
-                                        <?php if (!empty($isStudentLoggedIn)): ?>
-                                            <a href="form-submission.php?course=<?= urlencode($rc['title']) ?>" class="enroll-btn" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
-                                                <i class="fa-solid fa-file-signature"></i>
-                                                <span>Apply Online</span>
-                                            </a>
-                                        <?php else: ?>
-                                            <a href="register.php?redirect=form-submission.php?course=<?= urlencode($rc['title']) ?>" class="enroll-btn">
-                                                <i class="fa-solid fa-user-pen"></i>
-                                                <span>Register Yourself</span>
-                                            </a>
-                                        <?php endif; ?>
+                                        <?= renderEnrollBtn($rc['title']) ?>
                                         <a href="course-detail.php?slug=<?= urlencode($rc['slug']) ?>" class="course-details-link">
                                             <span>View Details</span>
                                             <i class="fa-solid fa-chevron-right"></i>
@@ -599,14 +641,79 @@ include "header.php";
 
 <?php endif; ?>
 
-<!-- Smooth scroll script for sticky sub-nav -->
+<!-- Dynamic ScrollSpy script for sticky sub-nav -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const navLinks = document.querySelectorAll('.cd-nav-link');
+    const sections = [];
+
+    navLinks.forEach(link => {
+        const targetId = link.getAttribute('href');
+        if (targetId && targetId.startsWith('#')) {
+            const el = document.querySelector(targetId);
+            if (el) {
+                sections.push({ id: targetId, element: el, link: link });
+            }
+        }
+    });
+
+    function updateActiveTab() {
+        // Adjust for sticky header + sub-nav height (~150px)
+        const scrollPosition = window.scrollY + 160;
+
+        let activeSection = null;
+
+        for (let i = 0; i < sections.length; i++) {
+            const sec = sections[i];
+            const top = sec.element.offsetTop;
+            const height = sec.element.offsetHeight;
+
+            if (scrollPosition >= top && scrollPosition < top + height) {
+                activeSection = sec;
+                break;
+            } else if (scrollPosition >= top) {
+                activeSection = sec;
+            }
+        }
+
+        if (activeSection) {
+            navLinks.forEach(l => l.classList.remove('active'));
+            activeSection.link.classList.add('active');
+
+            // Scroll the horizontal nav strip smoothly if active tab goes out of view (on mobile)
+            const navContainer = document.querySelector('.cd-nav-links');
+            if (navContainer) {
+                const linkLeft = activeSection.link.offsetLeft;
+                const linkWidth = activeSection.link.offsetWidth;
+                const containerWidth = navContainer.offsetWidth;
+                if (linkLeft < navContainer.scrollLeft || (linkLeft + linkWidth) > (navContainer.scrollLeft + containerWidth)) {
+                    navContainer.scrollTo({
+                        left: linkLeft - (containerWidth / 2) + (linkWidth / 2),
+                        behavior: 'smooth'
+                    });
+                }
+            }
+        }
+    }
+
+    window.addEventListener('scroll', updateActiveTab, { passive: true });
+    updateActiveTab(); // Initial check
+
+    // Smooth click handler
     navLinks.forEach(link => {
         link.addEventListener('click', function(e) {
-            navLinks.forEach(l => l.classList.remove('active'));
-            this.classList.add('active');
+            const targetId = this.getAttribute('href');
+            if (targetId && targetId.startsWith('#')) {
+                const targetEl = document.querySelector(targetId);
+                if (targetEl) {
+                    e.preventDefault();
+                    const targetTop = targetEl.offsetTop - 140;
+                    window.scrollTo({
+                        top: targetTop,
+                        behavior: 'smooth'
+                    });
+                }
+            }
         });
     });
 });

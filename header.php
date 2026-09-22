@@ -15,6 +15,25 @@ $isStudentLoggedIn = isset($_SESSION['student_logged_in']) && $_SESSION['student
 $studentName = $_SESSION['student_name'] ?? 'Candidate';
 $studentPhoto = $_SESSION['student_photo'] ?? '';
 $studentCustomId = $_SESSION['student_id'] ?? '';
+
+if (!function_exists('renderEnrollBtn')) {
+    function renderEnrollBtn($courseTitle = '', $extraClass = '') {
+        $isLoggedIn = !empty($_SESSION['student_logged_in']);
+        $courseParam = $courseTitle ? '?course=' . urlencode($courseTitle) : '';
+        if ($isLoggedIn) {
+            return '<a href="form-submission.php' . $courseParam . '" class="enroll-btn ' . htmlspecialchars($extraClass) . '" title="Apply Online for ' . htmlspecialchars($courseTitle) . '">'
+                . '<i class="fa-solid fa-file-signature"></i> '
+                . '<span>Apply Online</span>'
+                . '</a>';
+        } else {
+            $redirect = 'form-submission.php' . $courseParam;
+            return '<a href="register.php?redirect=' . urlencode($redirect) . '" class="enroll-btn ' . htmlspecialchars($extraClass) . '" title="Register to Apply">'
+                . '<i class="fa-solid fa-user-pen"></i> '
+                . '<span>Register Yourself</span>'
+                . '</a>';
+        }
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -243,6 +262,11 @@ $studentCustomId = $_SESSION['student_id'] ?? '';
                                 <li>
                                     <a class="dropdown-item mt-1" href="student-profile.php">
                                         <i class="fa-solid fa-address-card text-primary me-2"></i>My Profile & ID Slip
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="form-submission.php">
+                                        <i class="fa-solid fa-file-signature text-warning me-2"></i>Apply Online
                                     </a>
                                 </li>
                                 <li>

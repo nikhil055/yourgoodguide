@@ -53,6 +53,7 @@ DROP TABLE IF EXISTS `admissions`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `admissions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `student_id` varchar(50) DEFAULT NULL,
   `name` varchar(150) NOT NULL,
   `father_name` varchar(150) DEFAULT NULL,
   `email` varchar(150) DEFAULT NULL,
@@ -62,6 +63,9 @@ CREATE TABLE `admissions` (
   `gender` varchar(20) DEFAULT NULL,
   `course` varchar(150) DEFAULT NULL,
   `education` varchar(150) DEFAULT NULL,
+  `percentage` varchar(20) DEFAULT NULL,
+  `passing_year` varchar(20) DEFAULT NULL,
+  `board_university` varchar(150) DEFAULT NULL,
   `state` varchar(100) DEFAULT NULL,
   `city` varchar(100) DEFAULT NULL,
   `post_office` varchar(100) DEFAULT NULL,
@@ -298,4 +302,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-09-21 13:48:23
+-- Dump completed on 2026-09-22 14:00:00

@@ -137,18 +137,33 @@ $pdo->query("UPDATE admissions SET is_read = 1 WHERE is_read = 0");
                             <tr class="hover:bg-slate-50/80 transition-colors">
                                 <td class="px-4 py-2.5 font-mono text-[11px] text-slate-400"><?= $idx + 1 ?></td>
                                 
-                                <!-- Student Info -->
+                                 <!-- Student Info -->
                                 <td class="px-4 py-2.5">
                                     <div class="flex items-center gap-2.5">
-                                        <?php if (!empty($row['photo']) && file_exists(__DIR__ . '/../uploads/admissions/' . $row['photo'])): ?>
-                                            <img src="../uploads/admissions/<?= htmlspecialchars($row['photo']) ?>" class="w-8 h-8 rounded-full object-cover border border-slate-200 shrink-0" alt="Avatar">
+                                        <?php 
+                                        $photoSrc = '';
+                                        if (!empty($row['photo'])) {
+                                            if (file_exists(__DIR__ . '/../uploads/admissions/' . $row['photo'])) {
+                                                $photoSrc = '../uploads/admissions/' . htmlspecialchars($row['photo']);
+                                            } elseif (file_exists(__DIR__ . '/../' . $row['photo'])) {
+                                                $photoSrc = '../' . htmlspecialchars($row['photo']);
+                                            }
+                                        }
+                                        ?>
+                                        <?php if (!empty($photoSrc)): ?>
+                                            <img src="<?= $photoSrc ?>" class="w-8 h-8 rounded-full object-cover border border-slate-200 shrink-0" alt="Avatar">
                                         <?php else: ?>
                                             <div class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 text-slate-600 font-bold flex items-center justify-center text-xs shrink-0">
                                                 <?= strtoupper(substr($row['name'], 0, 1)) ?>
                                             </div>
                                         <?php endif; ?>
                                         <div>
-                                            <div class="font-semibold text-[#0e1e2e] leading-tight"><?= htmlspecialchars($row['name']) ?></div>
+                                            <div class="font-semibold text-[#0e1e2e] leading-tight flex items-center gap-1.5">
+                                                <span><?= htmlspecialchars($row['name']) ?></span>
+                                                <?php if (!empty($row['student_id'])): ?>
+                                                    <span class="font-mono text-[9px] px-1 py-0.2 rounded bg-slate-100 text-slate-600 border border-slate-200"><?= htmlspecialchars($row['student_id']) ?></span>
+                                                <?php endif; ?>
+                                            </div>
                                             <div class="text-[10px] text-slate-400">Father: <?= htmlspecialchars($row['father_name'] ?? 'N/A') ?></div>
                                         </div>
                                     </div>
@@ -241,17 +256,22 @@ $pdo->query("UPDATE admissions SET is_read = 1 WHERE is_read = 0");
                                         </div>
                                         <div class="modal-body p-4 bg-slate-50/50 space-y-3">
                                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                                <!-- Profile Box -->
+                                                 <!-- Profile Box -->
                                                 <div class="bg-white border border-slate-200 rounded-md p-4 text-center">
-                                                    <?php if (!empty($row['photo']) && file_exists(__DIR__ . '/../uploads/admissions/' . $row['photo'])): ?>
-                                                        <img src="../uploads/admissions/<?= htmlspecialchars($row['photo']) ?>" class="w-24 h-28 rounded object-cover border border-slate-200 mx-auto mb-2" alt="Photo">
+                                                    <?php if (!empty($photoSrc)): ?>
+                                                        <img src="<?= $photoSrc ?>" class="w-24 h-28 rounded object-cover border border-slate-200 mx-auto mb-2" alt="Photo">
                                                     <?php else: ?>
                                                         <div class="w-20 h-20 rounded bg-slate-100 border border-slate-200 text-slate-400 text-2xl flex items-center justify-center mx-auto mb-2">
                                                             <i class="fa-solid fa-user"></i>
                                                         </div>
                                                     <?php endif; ?>
                                                     <h5 class="text-sm font-bold text-[#0e1e2e]"><?= htmlspecialchars($row['name']) ?></h5>
-                                                    <span class="px-2 py-0.5 text-[11px] font-semibold bg-orange-50 text-[#fe7c03] border border-orange-200 rounded mt-1 inline-block">
+                                                    <?php if (!empty($row['student_id'])): ?>
+                                                        <div class="font-mono text-[10px] text-slate-500 mt-0.5">
+                                                            <i class="fa-solid fa-id-badge text-[#fe7c03] me-1"></i><?= htmlspecialchars($row['student_id']) ?>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                    <span class="px-2 py-0.5 text-[11px] font-semibold bg-orange-50 text-[#fe7c03] border border-orange-200 rounded mt-1.5 inline-block">
                                                         <?= htmlspecialchars($row['course'] ?? 'N/A') ?>
                                                     </span>
                                                     <div class="mt-2">
@@ -280,6 +300,14 @@ $pdo->query("UPDATE admissions SET is_read = 1 WHERE is_read = 0");
                                                         <div>
                                                             <span class="text-[10px] text-slate-400 block uppercase">Highest Qualification</span>
                                                             <span class="font-semibold text-slate-800"><?= htmlspecialchars($row['education'] ?? 'N/A') ?></span>
+                                                        </div>
+                                                        <div>
+                                                            <span class="text-[10px] text-slate-400 block uppercase">Board / University</span>
+                                                            <span class="font-semibold text-slate-800"><?= htmlspecialchars($row['board_university'] ?? 'N/A') ?></span>
+                                                        </div>
+                                                        <div>
+                                                            <span class="text-[10px] text-slate-400 block uppercase">Passing Year &amp; Marks</span>
+                                                            <span class="font-semibold text-slate-800"><?= htmlspecialchars($row['passing_year'] ?? 'N/A') ?><?= !empty($row['percentage']) ? ' (' . htmlspecialchars($row['percentage']) . ')' : '' ?></span>
                                                         </div>
                                                         <div>
                                                             <span class="text-[10px] text-slate-400 block uppercase">Aadhaar Number</span>

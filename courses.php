@@ -193,10 +193,17 @@ include "header.php";
                                 </div>
 
                                 <div class="course-card-footer">
-                                    <a href="form-submission.php?course=<?= urlencode($c['title']) ?>" class="enroll-btn">
-                                        <span>Register Your Seat</span>
-                                        <i class="fa-solid fa-arrow-right"></i>
-                                    </a>
+                                    <?php if (!empty($isStudentLoggedIn)): ?>
+                                        <a href="form-submission.php?course=<?= urlencode($c['title']) ?>" class="enroll-btn" title="Apply Online for this course">
+                                            <i class="fa-solid fa-file-signature"></i>
+                                            <span>Apply Online</span>
+                                        </a>
+                                    <?php else: ?>
+                                        <a href="register.php?redirect=form-submission.php?course=<?= urlencode($c['title']) ?>" class="enroll-btn" title="Register to apply for this course">
+                                            <i class="fa-solid fa-user-pen"></i>
+                                            <span>Register Yourself</span>
+                                        </a>
+                                    <?php endif; ?>
                                     <a href="course-detail.php?slug=<?= urlencode($c['slug']) ?>" class="course-details-link">
                                         <span>View Details</span>
                                         <i class="fa-solid fa-chevron-right"></i>

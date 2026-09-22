@@ -70,11 +70,19 @@
 
                         <div class="hero-btns">
 
-                            <a href="form-submission.php" class="hero-btn hero-btn-register">
-                                <i class="fa-solid fa-user-graduate me-2"></i>
-                                <span>Register Now</span>
-                                <i class="fa-solid fa-arrow-right ms-2 hero-btn-arrow"></i>
-                            </a>
+                            <?php if (!empty($isStudentLoggedIn)): ?>
+                                <a href="form-submission.php" class="hero-btn hero-btn-register">
+                                    <i class="fa-solid fa-file-signature me-2"></i>
+                                    <span>Apply Online</span>
+                                    <i class="fa-solid fa-arrow-right ms-2 hero-btn-arrow"></i>
+                                </a>
+                            <?php else: ?>
+                                <a href="register.php?redirect=form-submission.php" class="hero-btn hero-btn-register">
+                                    <i class="fa-solid fa-user-pen me-2"></i>
+                                    <span>Register Yourself</span>
+                                    <i class="fa-solid fa-arrow-right ms-2 hero-btn-arrow"></i>
+                                </a>
+                            <?php endif; ?>
 
                             <a href="fee-submission.php" class="hero-btn hero-btn-fee">
                                 <i class="fa-solid fa-receipt me-2"></i>
@@ -327,10 +335,17 @@
                                 <span>Explore All Courses</span>
                                 <i class="fa-solid fa-arrow-right ms-2 hero-btn-arrow"></i>
                             </a>
-                            <a href="form-submission.php" class="hero-btn hero-btn-fee">
-                                <i class="fa-solid fa-user-plus me-2"></i>
-                                <span>Register With Us</span>
-                            </a>
+                            <?php if (!empty($isStudentLoggedIn)): ?>
+                                <a href="form-submission.php" class="hero-btn hero-btn-fee">
+                                    <i class="fa-solid fa-file-signature me-2"></i>
+                                    <span>Apply Online</span>
+                                </a>
+                            <?php else: ?>
+                                <a href="register.php?redirect=form-submission.php" class="hero-btn hero-btn-fee">
+                                    <i class="fa-solid fa-user-plus me-2"></i>
+                                    <span>Register Yourself</span>
+                                </a>
+                            <?php endif; ?>
                         </div>
 
                     </div>
@@ -423,10 +438,7 @@
                             </div>
 
                             <div class="course-card-footer">
-                                <a href="form-submission.php?course=Professional+Course+in+Air+Hostess" class="enroll-btn">
-                                    <span>Enroll Now</span>
-                                    <i class="fa-solid fa-arrow-right"></i>
-                                </a>
+                                <?= renderEnrollBtn('Professional Course in Air Hostess') ?>
                                 <a href="course-detail.php?slug=professional-course-in-air-hostess" class="course-details-link">
                                     <span>View Details</span>
                                     <i class="fa-solid fa-chevron-right"></i>
@@ -473,10 +485,7 @@
                             </div>
 
                             <div class="course-card-footer">
-                                <a href="form-submission.php?course=Professional+Course+in+Ground+Staff+%26+Hospitality" class="enroll-btn">
-                                    <span>Enroll Now</span>
-                                    <i class="fa-solid fa-arrow-right"></i>
-                                </a>
+                                <?= renderEnrollBtn('Professional Course in Ground Staff & Hospitality') ?>
                                 <a href="course-detail.php?slug=ground-staff-hospitality-course" class="course-details-link">
                                     <span>View Details</span>
                                     <i class="fa-solid fa-chevron-right"></i>
@@ -524,10 +533,7 @@
                             </div>
 
                             <div class="course-card-footer">
-                                <a href="form-submission.php?course=Professional+Course+in+Travel+%26+Tourism" class="enroll-btn">
-                                    <span>Enroll Now</span>
-                                    <i class="fa-solid fa-arrow-right"></i>
-                                </a>
+                                <?= renderEnrollBtn('Professional Course in Travel & Tourism') ?>
                                 <a href="course-detail.php?slug=professional-course-in-travel-tourism" class="course-details-link">
                                     <span>View Details</span>
                                     <i class="fa-solid fa-chevron-right"></i>
@@ -574,10 +580,7 @@
                             </div>
 
                             <div class="course-card-footer">
-                                <a href="form-submission.php?course=Foundation+Course+in+Hotel+Management" class="enroll-btn">
-                                    <span>Enroll Now</span>
-                                    <i class="fa-solid fa-arrow-right"></i>
-                                </a>
+                                <?= renderEnrollBtn('Foundation Course in Hotel Management') ?>
                                 <a href="course-detail.php?slug=foundation-course-in-hotel-management" class="course-details-link">
                                     <span>View Details</span>
                                     <i class="fa-solid fa-chevron-right"></i>
@@ -624,10 +627,7 @@
                             </div>
 
                             <div class="course-card-footer">
-                                <a href="form-submission.php?course=Professional+Course+in+Personality+Development" class="enroll-btn">
-                                    <span>Enroll Now</span>
-                                    <i class="fa-solid fa-arrow-right"></i>
-                                </a>
+                                <?= renderEnrollBtn('Professional Course in Personality Development') ?>
                                 <a href="course-detail.php?slug=professional-course-in-personality-development" class="course-details-link">
                                     <span>View Details</span>
                                     <i class="fa-solid fa-chevron-right"></i>
@@ -674,10 +674,7 @@
                             </div>
 
                             <div class="course-card-footer">
-                                <a href="form-submission.php?course=Certificate+Course+in+Travel+%26+Air+Ticketing" class="enroll-btn">
-                                    <span>Enroll Now</span>
-                                    <i class="fa-solid fa-arrow-right"></i>
-                                </a>
+                                <?= renderEnrollBtn('Certificate Course in Travel & Air Ticketing') ?>
                                 <a href="course-detail.php?slug=certificate-course-in-travel-air-ticketing" class="course-details-link">
                                     <span>View Details</span>
                                     <i class="fa-solid fa-chevron-right"></i>
@@ -941,10 +938,7 @@
                             </div>
 
                             <div class="course-card-footer">
-                                <a href="form-submission.php?course=Airport+%26+Ground+Operations+Management" class="enroll-btn">
-                                    <span>Enroll Now</span>
-                                    <i class="fa-solid fa-arrow-right"></i>
-                                </a>
+                                <?= renderEnrollBtn('Airport & Ground Operations Management') ?>
                                 <a href="course-detail.php?slug=airport-management-course" class="course-details-link">
                                     <span>View Details</span>
                                     <i class="fa-solid fa-chevron-right"></i>
@@ -992,10 +986,7 @@
                             </div>
 
                             <div class="course-card-footer">
-                                <a href="form-submission.php?course=Travel%2C+Tourism+%26+GDS+Air+Ticketing+Professional" class="enroll-btn">
-                                    <span>Enroll Now</span>
-                                    <i class="fa-solid fa-arrow-right"></i>
-                                </a>
+                                <?= renderEnrollBtn('Travel, Tourism & GDS Air Ticketing Professional') ?>
                                 <a href="course-detail.php?slug=travel-air-ticketing-course" class="course-details-link">
                                     <span>View Details</span>
                                     <i class="fa-solid fa-chevron-right"></i>
@@ -1043,10 +1034,7 @@
                             </div>
 
                             <div class="course-card-footer">
-                                <a href="form-submission.php?course=Executive+Diploma+in+Hotel+%26+Hospitality+Management" class="enroll-btn">
-                                    <span>Enroll Now</span>
-                                    <i class="fa-solid fa-arrow-right"></i>
-                                </a>
+                                <?= renderEnrollBtn('Executive Diploma in Hotel & Hospitality Management') ?>
                                 <a href="course-detail.php?slug=hospitality-guest-relations-diploma" class="course-details-link">
                                     <span>View Details</span>
                                     <i class="fa-solid fa-chevron-right"></i>
@@ -1094,10 +1082,7 @@
                             </div>
 
                             <div class="course-card-footer">
-                                <a href="form-submission.php?course=Cruise+Ship+Hospitality+%26+Service+Operations" class="enroll-btn">
-                                    <span>Enroll Now</span>
-                                    <i class="fa-solid fa-arrow-right"></i>
-                                </a>
+                                <?= renderEnrollBtn('Cruise Ship Hospitality & Service Operations') ?>
                                 <a href="course-detail.php?slug=cruise-ship-operations-course" class="course-details-link">
                                     <span>View Details</span>
                                     <i class="fa-solid fa-chevron-right"></i>
@@ -1179,10 +1164,7 @@
                             </div>
 
                             <div class="package-card-footer">
-                                <a href="form-submission.php" class="enroll-btn">
-                                    <span>Register Your Seat</span>
-                                    <i class="fa-solid fa-arrow-right"></i>
-                                </a>
+                                <?= renderEnrollBtn('Professional Course in Air Hostess') ?>
                                 <a href="courses.php" class="course-details-link">
                                     <span>View Details</span>
                                     <i class="fa-solid fa-chevron-right"></i>
@@ -1219,10 +1201,7 @@
                             </div>
 
                             <div class="package-card-footer">
-                                <a href="form-submission.php" class="enroll-btn">
-                                    <span>Register Your Seat</span>
-                                    <i class="fa-solid fa-arrow-right"></i>
-                                </a>
+                                <?= renderEnrollBtn('Foundation Course in Hotel Management') ?>
                                 <a href="courses.php" class="course-details-link">
                                     <span>View Details</span>
                                     <i class="fa-solid fa-chevron-right"></i>
@@ -1259,10 +1238,7 @@
                             </div>
 
                             <div class="package-card-footer">
-                                <a href="form-submission.php" class="enroll-btn">
-                                    <span>Register Your Seat</span>
-                                    <i class="fa-solid fa-arrow-right"></i>
-                                </a>
+                                <?= renderEnrollBtn('Professional Course in Travel & Tourism') ?>
                                 <a href="courses.php" class="course-details-link">
                                     <span>View Details</span>
                                     <i class="fa-solid fa-chevron-right"></i>
@@ -1325,10 +1301,19 @@
 
                             <!-- CTA BUTTONS GROUP -->
                             <div class="why-actions-group">
-                                <a href="form-submission.php" class="why-primary-btn">
-                                    <span>Register Your Seat</span>
-                                    <i class="fa-solid fa-arrow-right"></i>
-                                </a>
+                                <?php if (!empty($isStudentLoggedIn)): ?>
+                                    <a href="form-submission.php" class="why-primary-btn">
+                                        <i class="fa-solid fa-file-signature me-1"></i>
+                                        <span>Apply Online</span>
+                                        <i class="fa-solid fa-arrow-right ms-1"></i>
+                                    </a>
+                                <?php else: ?>
+                                    <a href="register.php?redirect=form-submission.php" class="why-primary-btn">
+                                        <i class="fa-solid fa-user-pen me-1"></i>
+                                        <span>Register Yourself</span>
+                                        <i class="fa-solid fa-arrow-right ms-1"></i>
+                                    </a>
+                                <?php endif; ?>
                                 <a href="courses.php" class="why-outline-btn">
                                     <span>Explore Courses</span>
                                 </a>
@@ -1776,11 +1761,15 @@
                 </p>
                 <!-- BUTTON -->
 
-                <a href="form-submission.php" class="instructor-btn">
-
-                    Start Learning Today
-
-                </a>
+                <?php if (!empty($isStudentLoggedIn)): ?>
+                    <a href="form-submission.php" class="instructor-btn">
+                        <i class="fa-solid fa-file-signature me-2"></i>Apply Online Now
+                    </a>
+                <?php else: ?>
+                    <a href="register.php?redirect=form-submission.php" class="instructor-btn">
+                        <i class="fa-solid fa-user-pen me-2"></i>Register Yourself
+                    </a>
+                <?php endif; ?>
 
             </div>
 

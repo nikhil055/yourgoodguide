@@ -448,10 +448,19 @@ include "header.php";
                                 <p class="cd-sidebar-sub">Join certified practical training designed for immediate industry hiring.</p>
 
                                 <!-- PRIMARY CTA BUTTON -->
-                                <a href="form-submission.php?course=<?= urlencode($course['title']) ?>" class="cd-btn-primary">
-                                    <span>Enroll Now / Apply Online</span>
-                                    <i class="fa-solid fa-arrow-right"></i>
-                                </a>
+                                <?php if (!empty($isStudentLoggedIn)): ?>
+                                    <a href="form-submission.php?course=<?= urlencode($course['title']) ?>" class="cd-btn-primary" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                                        <i class="fa-solid fa-file-signature me-1"></i>
+                                        <span>Apply Online</span>
+                                        <i class="fa-solid fa-arrow-right"></i>
+                                    </a>
+                                <?php else: ?>
+                                    <a href="register.php?redirect=form-submission.php?course=<?= urlencode($course['title']) ?>" class="cd-btn-primary">
+                                        <i class="fa-solid fa-user-pen me-1"></i>
+                                        <span>Register Yourself</span>
+                                        <i class="fa-solid fa-arrow-right"></i>
+                                    </a>
+                                <?php endif; ?>
 
                                 <!-- SECONDARY CTA: WHATSAPP -->
                                 <a href="https://wa.me/918750860860?text=<?= urlencode("Hello Finchskills, I want to inquire about the " . $course['title'] . " program.") ?>" target="_blank" rel="noopener" class="cd-btn-whatsapp">
@@ -563,10 +572,17 @@ include "header.php";
                                     <h3><?= htmlspecialchars($rc['title']) ?></h3>
                                     <p><?= htmlspecialchars($rc['short_desc']) ?></p>
                                     <div class="course-card-footer">
-                                        <a href="form-submission.php?course=<?= urlencode($rc['title']) ?>" class="enroll-btn">
-                                            <span>Enroll Now</span>
-                                            <i class="fa-solid fa-arrow-right"></i>
-                                        </a>
+                                        <?php if (!empty($isStudentLoggedIn)): ?>
+                                            <a href="form-submission.php?course=<?= urlencode($rc['title']) ?>" class="enroll-btn" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                                                <i class="fa-solid fa-file-signature"></i>
+                                                <span>Apply Online</span>
+                                            </a>
+                                        <?php else: ?>
+                                            <a href="register.php?redirect=form-submission.php?course=<?= urlencode($rc['title']) ?>" class="enroll-btn">
+                                                <i class="fa-solid fa-user-pen"></i>
+                                                <span>Register Yourself</span>
+                                            </a>
+                                        <?php endif; ?>
                                         <a href="course-detail.php?slug=<?= urlencode($rc['slug']) ?>" class="course-details-link">
                                             <span>View Details</span>
                                             <i class="fa-solid fa-chevron-right"></i>
